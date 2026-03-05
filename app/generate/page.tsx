@@ -131,19 +131,59 @@ function GenerateContent() {
 
   if (!verified || !archetypeId) {
     return (
-      <div className="min-h-screen bg-[#f7f6f2] flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-[#0e6e6e] border-t-transparent rounded-full" />
+      <div
+        style={{
+          minHeight: '100vh',
+          backgroundColor: '#f7f6f2',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <div
+          style={{
+            width: 32,
+            height: 32,
+            border: '2px solid #0e6e6e',
+            borderTopColor: 'transparent',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+          }}
+        />
       </div>
     );
   }
 
   if (isGenerating) {
     return (
-      <div className="min-h-screen bg-[#f7f6f2] flex items-center justify-center px-5">
-        <div className="text-center max-w-sm">
-          <div className="animate-spin w-10 h-10 border-2 border-[#0e6e6e] border-t-transparent rounded-full mx-auto mb-6" />
-          <p className="text-lg text-gray-900 font-medium mb-2">{generatingText}</p>
-          <p className="text-sm text-gray-500">This usually takes 10-15 seconds.</p>
+      <div
+        style={{
+          minHeight: '100vh',
+          backgroundColor: '#f7f6f2',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '0 20px',
+        }}
+      >
+        <div style={{ textAlign: 'center', maxWidth: 384 }}>
+          <div
+            style={{
+              width: 40,
+              height: 40,
+              border: '2px solid #0e6e6e',
+              borderTopColor: 'transparent',
+              borderRadius: '50%',
+              margin: '0 auto 24px',
+              animation: 'spin 1s linear infinite',
+            }}
+          />
+          <p style={{ fontSize: 18, color: '#1a1a1a', fontWeight: 500, marginBottom: 8 }}>
+            {generatingText}
+          </p>
+          <p style={{ fontSize: 14, color: '#999' }}>
+            This usually takes 10-15 seconds.
+          </p>
         </div>
       </div>
     );
@@ -154,16 +194,32 @@ function GenerateContent() {
   return (
     <>
       <Header />
-      <main className="pt-[80px] pb-16 px-5">
-        <div className="max-w-[640px] mx-auto">
-          <div className="text-center mb-10">
-            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f0fafa] text-sm text-[#0e6e6e] font-medium mb-4">
+      <main style={{ paddingTop: 80, paddingBottom: 64, padding: '80px 20px 64px' }}>
+        <div style={{ maxWidth: 640, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 40 }}>
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '6px 12px',
+                borderRadius: 9999,
+                backgroundColor: '#f0fafa',
+                fontSize: 14,
+                color: '#0e6e6e',
+                fontWeight: 500,
+                marginBottom: 16,
+              }}
+            >
               {arch.icon} {arch.name}
             </span>
-            <h1 className="font-heading text-2xl md:text-3xl text-gray-900 mb-2">
+            <h1
+              className="font-heading"
+              style={{ fontSize: 'clamp(1.5rem, 4vw, 1.875rem)', color: '#1a1a1a', marginBottom: 8 }}
+            >
               Let&apos;s personalize your BootFile
             </h1>
-            <p className="text-gray-600">
+            <p style={{ color: '#666' }}>
               These questions help us calibrate your BootFile to your exact needs.
             </p>
           </div>
@@ -183,8 +239,25 @@ export default function GeneratePage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#f7f6f2] flex items-center justify-center">
-          <div className="animate-spin w-8 h-8 border-2 border-[#0e6e6e] border-t-transparent rounded-full" />
+        <div
+          style={{
+            minHeight: '100vh',
+            backgroundColor: '#f7f6f2',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <div
+            style={{
+              width: 32,
+              height: 32,
+              border: '2px solid #0e6e6e',
+              borderTopColor: 'transparent',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+            }}
+          />
         </div>
       }
     >

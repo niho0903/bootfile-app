@@ -50,16 +50,36 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
   return (
     <div>
       {/* Platform tabs */}
-      <div className="flex border-b border-[#dcd9d5] mb-6">
+      <div style={{ display: 'flex', borderBottom: '1px solid #dcd9d5', marginBottom: 24 }}>
         {(Object.keys(PLATFORM_CONFIG) as Platform[]).map(platform => (
           <button
             key={platform}
             onClick={() => setActiveTab(platform)}
-            className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors -mb-px ${
-              activeTab === platform
-                ? 'border-[#0e6e6e] text-[#0e6e6e]'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
+            style={{
+              padding: '12px 24px',
+              fontSize: 14,
+              fontWeight: 500,
+              borderBottom: `2px solid ${activeTab === platform ? '#0e6e6e' : 'transparent'}`,
+              color: activeTab === platform ? '#0e6e6e' : '#999',
+              backgroundColor: 'transparent',
+              border: 'none',
+              borderBottomWidth: 2,
+              borderBottomStyle: 'solid',
+              borderBottomColor: activeTab === platform ? '#0e6e6e' : 'transparent',
+              marginBottom: -1,
+              cursor: 'pointer',
+              transition: 'color 0.2s',
+            }}
+            onMouseEnter={e => {
+              if (activeTab !== platform) {
+                e.currentTarget.style.color = '#555';
+              }
+            }}
+            onMouseLeave={e => {
+              if (activeTab !== platform) {
+                e.currentTarget.style.color = '#999';
+              }
+            }}
           >
             {PLATFORM_CONFIG[platform].label}
           </button>
@@ -67,17 +87,25 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
       </div>
 
       {/* Instructions */}
-      <div className="bg-[#f0fafa] border border-[#d0f0f0] rounded-lg p-4 mb-6">
-        <p className="text-sm text-[#0a5454]">{config.instructions}</p>
+      <div
+        style={{
+          backgroundColor: '#f0fafa',
+          border: '1px solid #d0f0f0',
+          borderRadius: 8,
+          padding: 16,
+          marginBottom: 24,
+        }}
+      >
+        <p style={{ fontSize: 14, color: '#0a5454' }}>{config.instructions}</p>
       </div>
 
       {/* Content + Copy */}
       {activeTab === 'chatgpt' && (
-        <div className="space-y-6">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
           {/* Field 1 */}
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold text-gray-700">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <h3 style={{ fontSize: 14, fontWeight: 600, color: '#555' }}>
                 Field 1: &ldquo;What would you like ChatGPT to know about you?&rdquo;
               </h3>
             </div>
@@ -92,8 +120,8 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
 
           {/* Field 2 */}
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold text-gray-700">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <h3 style={{ fontSize: 14, fontWeight: 600, color: '#555' }}>
                 Field 2: &ldquo;How would you like ChatGPT to respond?&rdquo;
               </h3>
             </div>
@@ -121,9 +149,11 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
       )}
 
       {activeTab === 'gemini' && (
-        <div className="space-y-6">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Full Version (for Gem Instructions)</h3>
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: '#555', marginBottom: 8 }}>
+              Full Version (for Gem Instructions)
+            </h3>
             <CopyButton
               text={formatted.gemini.gem}
               field="gemini-gem"
@@ -133,7 +163,9 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
             <ContentBlock text={formatted.gemini.gem} />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Condensed Version (for Preferences)</h3>
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: '#555', marginBottom: 8 }}>
+              Condensed Version (for Preferences)
+            </h3>
             <CopyButton
               text={formatted.gemini.prefs}
               field="gemini-prefs"
@@ -146,12 +178,28 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
       )}
 
       {/* Test Drive */}
-      <div className="mt-8">
+      <div style={{ marginTop: 32 }}>
         <a
           href={config.testDriveUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 bg-white border border-[#dcd9d5] text-gray-900 hover:bg-[#f3f0ec] font-medium px-5 py-2.5 rounded-md min-h-[44px] text-sm transition-colors"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            backgroundColor: '#fff',
+            border: '1px solid #dcd9d5',
+            color: '#1a1a1a',
+            fontWeight: 500,
+            padding: '10px 20px',
+            borderRadius: 6,
+            minHeight: 44,
+            fontSize: 14,
+            textDecoration: 'none',
+            transition: 'background-color 0.2s',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#f3f0ec')}
+          onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#fff')}
         >
           Open {config.label}
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -178,11 +226,38 @@ function CopyButton({
   return (
     <button
       onClick={() => onCopy(text, field)}
-      className={`w-full font-medium px-5 py-3 rounded-lg text-sm transition-all duration-200 mb-3 ${
-        isCopied
-          ? 'bg-[#059669] text-white'
-          : 'bg-[#0e6e6e] hover:bg-[#0a5454] text-white hover:-translate-y-0.5 hover:shadow-md active:translate-y-0'
-      }`}
+      style={{
+        width: '100%',
+        fontWeight: 500,
+        padding: '12px 20px',
+        borderRadius: 8,
+        fontSize: 14,
+        border: 'none',
+        cursor: 'pointer',
+        marginBottom: 12,
+        backgroundColor: isCopied ? '#059669' : '#0e6e6e',
+        color: '#fff',
+        transition: 'all 0.2s',
+      }}
+      onMouseEnter={e => {
+        if (!isCopied) {
+          e.currentTarget.style.backgroundColor = '#0a5454';
+          e.currentTarget.style.transform = 'translateY(-1px)';
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+        }
+      }}
+      onMouseLeave={e => {
+        if (!isCopied) {
+          e.currentTarget.style.backgroundColor = '#0e6e6e';
+          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.boxShadow = 'none';
+        }
+      }}
+      onMouseDown={e => {
+        if (!isCopied) {
+          e.currentTarget.style.transform = 'translateY(0)';
+        }
+      }}
     >
       {isCopied ? 'Copied \u2713' : 'Copy to Clipboard'}
     </button>
@@ -191,8 +266,26 @@ function CopyButton({
 
 function ContentBlock({ text }: { text: string }) {
   return (
-    <div className="bg-white border border-[#edeae5] rounded-lg p-4 max-h-[400px] overflow-y-auto">
-      <pre className="whitespace-pre-wrap text-sm text-gray-800 leading-relaxed" style={{ fontFamily: 'inherit' }}>
+    <div
+      style={{
+        backgroundColor: '#fff',
+        border: '1px solid #edeae5',
+        borderRadius: 8,
+        padding: 16,
+        maxHeight: 400,
+        overflowY: 'auto' as const,
+      }}
+    >
+      <pre
+        style={{
+          whiteSpace: 'pre-wrap',
+          fontSize: 14,
+          color: '#444',
+          lineHeight: 1.6,
+          fontFamily: 'inherit',
+          margin: 0,
+        }}
+      >
         {text}
       </pre>
     </div>

@@ -9,6 +9,23 @@ interface ShareButtonsProps {
   archetypeId: ArchetypeId;
 }
 
+const shareButtonStyle: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 8,
+  padding: '8px 16px',
+  borderRadius: 6,
+  fontSize: 12,
+  fontWeight: 500,
+  backgroundColor: '#fff',
+  border: '1px solid #dcd9d5',
+  color: '#1a1a1a',
+  textDecoration: 'none',
+  minHeight: 44,
+  cursor: 'pointer',
+  transition: 'background-color 0.2s',
+};
+
 export function ShareButtons({ archetypeId }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
   const arch = ARCHETYPES[archetypeId];
@@ -29,12 +46,21 @@ export function ShareButtons({ archetypeId }: ShareButtonsProps) {
   };
 
   return (
-    <div className="flex flex-wrap justify-center gap-3">
+    <div
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        gap: 12,
+      }}
+    >
       <a
         href={twitterUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-xs font-medium bg-white border border-[#dcd9d5] text-gray-900 hover:bg-[#f3f0ec] transition-colors min-h-[44px]"
+        style={shareButtonStyle}
+        onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#f3f0ec')}
+        onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#fff')}
       >
         <XIcon />
         Share on X
@@ -44,7 +70,9 @@ export function ShareButtons({ archetypeId }: ShareButtonsProps) {
         href={linkedinUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-xs font-medium bg-white border border-[#dcd9d5] text-gray-900 hover:bg-[#f3f0ec] transition-colors min-h-[44px]"
+        style={shareButtonStyle}
+        onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#f3f0ec')}
+        onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#fff')}
       >
         <LinkedInIcon />
         LinkedIn
@@ -52,7 +80,9 @@ export function ShareButtons({ archetypeId }: ShareButtonsProps) {
 
       <button
         onClick={handleCopy}
-        className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-xs font-medium bg-white border border-[#dcd9d5] text-gray-900 hover:bg-[#f3f0ec] transition-colors min-h-[44px]"
+        style={shareButtonStyle}
+        onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#f3f0ec')}
+        onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#fff')}
       >
         <LinkIcon />
         {copied ? 'Copied \u2713' : 'Copy Link'}

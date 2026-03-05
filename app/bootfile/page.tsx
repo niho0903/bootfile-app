@@ -36,8 +36,25 @@ export default function BootFilePage() {
 
   if (!bootfileText) {
     return (
-      <div className="min-h-screen bg-[#f7f6f2] flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-[#0e6e6e] border-t-transparent rounded-full" />
+      <div
+        style={{
+          minHeight: '100vh',
+          backgroundColor: '#f7f6f2',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <div
+          style={{
+            width: 32,
+            height: 32,
+            border: '2px solid #0e6e6e',
+            borderTopColor: 'transparent',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+          }}
+        />
       </div>
     );
   }
@@ -47,38 +64,76 @@ export default function BootFilePage() {
   return (
     <>
       <Header />
-      <main className="pt-[80px] pb-16 px-5">
-        <div className="max-w-[700px] mx-auto">
+      <main style={{ paddingTop: 80, paddingBottom: 64, padding: '80px 20px 64px' }}>
+        <div style={{ maxWidth: 700, margin: '0 auto' }}>
           {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="font-heading text-2xl md:text-3xl text-gray-900 mb-3">
+          <div style={{ textAlign: 'center', marginBottom: 32 }}>
+            <h1
+              className="font-heading"
+              style={{ fontSize: 'clamp(1.5rem, 4vw, 1.875rem)', color: '#1a1a1a', marginBottom: 12 }}
+            >
               Your BootFile is ready
             </h1>
             {arch && (
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f0fafa] text-sm text-[#0e6e6e] font-medium">
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '6px 12px',
+                  borderRadius: 9999,
+                  backgroundColor: '#f0fafa',
+                  fontSize: 14,
+                  color: '#0e6e6e',
+                  fontWeight: 500,
+                }}
+              >
                 {arch.icon} {arch.name}
               </span>
             )}
           </div>
 
           {/* BootFile Display */}
-          <div className="bg-white border border-[#dcd9d5] rounded-2xl p-6 md:p-8 shadow-sm">
+          <div
+            style={{
+              backgroundColor: '#fff',
+              border: '1px solid #dcd9d5',
+              borderRadius: 16,
+              padding: '24px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+            }}
+          >
             <BootFileDisplay bootfileText={bootfileText} />
           </div>
 
           {/* Share */}
           {archetypeId && (
-            <div className="mt-10 pt-8 border-t border-[#edeae5]">
-              <p className="text-sm text-gray-500 text-center mb-4">Share your archetype</p>
+            <div
+              style={{
+                marginTop: 40,
+                paddingTop: 32,
+                borderTop: '1px solid #edeae5',
+              }}
+            >
+              <p style={{ fontSize: 14, color: '#999', textAlign: 'center', marginBottom: 16 }}>
+                Share your archetype
+              </p>
               <ShareButtons archetypeId={archetypeId} />
             </div>
           )}
 
           {/* Start Over */}
-          <div className="mt-8 text-center">
+          <div style={{ marginTop: 32, textAlign: 'center' }}>
             <Link
               href="/quiz"
-              className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
+              style={{
+                fontSize: 14,
+                color: '#999',
+                textDecoration: 'none',
+                transition: 'color 0.2s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#666')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#999')}
             >
               Start Over
             </Link>

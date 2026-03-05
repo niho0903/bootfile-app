@@ -42,6 +42,11 @@
   100% { opacity: 1; transform: scale(1); }
 }
 
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;

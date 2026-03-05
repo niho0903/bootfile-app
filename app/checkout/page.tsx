@@ -48,15 +48,36 @@ export default function CheckoutPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#f7f6f2] flex items-center justify-center px-5">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
+      <div
+        style={{
+          minHeight: '100vh',
+          backgroundColor: '#f7f6f2',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '0 20px',
+        }}
+      >
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ color: '#dc2626', marginBottom: 16 }}>{error}</p>
           <button
             onClick={() => {
               setError(null);
               window.location.reload();
             }}
-            className="bg-[#0e6e6e] hover:bg-[#0a5454] text-white font-medium px-6 py-3 rounded-lg transition-colors"
+            style={{
+              backgroundColor: '#0e6e6e',
+              color: '#fff',
+              fontWeight: 500,
+              padding: '12px 24px',
+              borderRadius: 8,
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: 14,
+              transition: 'background-color 0.2s',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#0a5454')}
+            onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#0e6e6e')}
           >
             Try Again
           </button>
@@ -66,10 +87,28 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f6f2] flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin w-8 h-8 border-2 border-[#0e6e6e] border-t-transparent rounded-full mx-auto mb-4" />
-        <p className="text-gray-600">Setting up your BootFile...</p>
+    <div
+      style={{
+        minHeight: '100vh',
+        backgroundColor: '#f7f6f2',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <div style={{ textAlign: 'center' }}>
+        <div
+          style={{
+            width: 32,
+            height: 32,
+            border: '2px solid #0e6e6e',
+            borderTopColor: 'transparent',
+            borderRadius: '50%',
+            margin: '0 auto 16px',
+            animation: 'spin 1s linear infinite',
+          }}
+        />
+        <p style={{ color: '#666' }}>Setting up your BootFile...</p>
       </div>
     </div>
   );
