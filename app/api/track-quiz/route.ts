@@ -1,30 +1,39 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { categorizeOpenResponse, detectTone } from '@/lib/text-categorizer';
+import { isValidArchetype, sanitizeString, sanitizeStringArray } from '@/lib/validation';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { primary, secondary, tertiary, lowest, openResponse, consentGiven } = body;
 
-    const supabase = getSupabaseAdmin();
-    if (!supabase) {
-      // Supabase not configured — return success so UI isn't blocked
+    // Validate required fields
+    if (!isValidArchetype(primary)) {
       return NextResponse.json({ ok: true, quizId: null });
     }
 
-    const categories = openResponse ? categorizeOpenResponse(openResponse) : [];
-    const tone = openResponse ? detectTone(openResponse) : null;
+    const supabase = getSupabaseAdmin();
+    if (!supabase) {
+      return NextResponse.json({ ok: true, quizId: null });
+    }
+
+    const sanitizedResponse = sanitizeString(openResponse, 280);
+    const validatedLowest = sanitizeStringArray(lowest, 4, 20)
+      .filter(a => isValidArchetype(a));
+
+    const categories = sanitizedResponse ? categorizeOpenResponse(sanitizedResponse) : [];
+    const tone = sanitizedResponse ? detectTone(sanitizedResponse) : null;
 
     const { data, error } = await supabase
       .from('quiz_completions')
       .insert({
         primary_archetype: primary,
-        secondary_archetype: secondary || null,
-        tertiary_archetype: tertiary || null,
-        lowest_archetypes: lowest || [],
-        open_response: consentGiven ? (openResponse || null) : null,
-        consent_given: consentGiven || false,
+        secondary_archetype: isValidArchetype(secondary) ? secondary : null,
+        tertiary_archetype: isValidArchetype(tertiary) ? tertiary : null,
+        lowest_archetypes: validatedLowest,
+        open_response: consentGiven === true ? (sanitizedResponse || null) : null,
+        consent_given: consentGiven === true,
         frustration_categories: categories,
         detected_tone: tone,
       })

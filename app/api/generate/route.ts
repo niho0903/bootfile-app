@@ -1,18 +1,91 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { buildMetaPrompt } from '@/lib/generation-prompt';
+import { getStripe } from '@/lib/stripe';
+import { getSupabaseAdmin } from '@/lib/supabase';
+import { validateGenerateInputs } from '@/lib/validation';
 
 export const maxDuration = 60;
 
+// In-memory consumed sessions fallback (when Supabase is not configured)
+const consumedSessions = new Set<string>();
+const MAX_MEMORY_SESSIONS = 10000;
+
+async function isSessionConsumed(sessionId: string): Promise<boolean> {
+  const supabase = getSupabaseAdmin();
+  if (supabase) {
+    const { data } = await supabase
+      .from('consumed_sessions')
+      .select('id')
+      .eq('stripe_session_id', sessionId)
+      .single();
+    return !!data;
+  }
+  return consumedSessions.has(sessionId);
+}
+
+async function markSessionConsumed(sessionId: string): Promise<void> {
+  const supabase = getSupabaseAdmin();
+  if (supabase) {
+    await supabase
+      .from('consumed_sessions')
+      .insert({ stripe_session_id: sessionId })
+      .single();
+  }
+  // Always also mark in memory as backup
+  if (consumedSessions.size >= MAX_MEMORY_SESSIONS) {
+    const first = consumedSessions.values().next().value;
+    if (first) consumedSessions.delete(first);
+  }
+  consumedSessions.add(sessionId);
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const inputs = await req.json();
-    const { systemPrompt, userMessage } = buildMetaPrompt(inputs);
+    const body = await req.json();
 
+    // --- Payment verification ---
+    const sessionId = typeof body.sessionId === 'string' ? body.sessionId.trim() : '';
+    if (!sessionId || sessionId.length > 200) {
+      return NextResponse.json({ error: 'Payment verification required.' }, { status: 403 });
+    }
+
+    // Check if session was already used
+    if (await isSessionConsumed(sessionId)) {
+      return NextResponse.json({ error: 'This payment session has already been used.' }, { status: 403 });
+    }
+
+    // Verify payment with Stripe
+    let stripeSession;
+    try {
+      const stripe = getStripe();
+      stripeSession = await stripe.checkout.sessions.retrieve(sessionId);
+    } catch {
+      return NextResponse.json({ error: 'Invalid payment session.' }, { status: 403 });
+    }
+
+    if (stripeSession.payment_status !== 'paid') {
+      return NextResponse.json({ error: 'Payment not completed.' }, { status: 403 });
+    }
+
+    // Mark session as consumed BEFORE generation (prevents race condition)
+    await markSessionConsumed(sessionId);
+
+    // --- Input validation ---
+    const inputs = validateGenerateInputs(body);
+    if (!inputs) {
+      return NextResponse.json({ error: 'Invalid input.' }, { status: 400 });
+    }
+
+    // --- Generate ---
+    const { systemPrompt, userMessage } = buildMetaPrompt(inputs);
     const provider = process.env.BOOTFILE_LLM_PROVIDER || 'anthropic';
 
     let bootfile: string;
 
     if (provider === 'openai') {
+      if (!process.env.OPENAI_API_KEY) {
+        return NextResponse.json({ error: 'Generation service unavailable.' }, { status: 503 });
+      }
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -32,15 +105,17 @@ export async function POST(req: NextRequest) {
       const data = await response.json();
       if (!response.ok) {
         console.error('[OPENAI API ERROR]', JSON.stringify(data));
-        return NextResponse.json({ error: data.error?.message || 'OpenAI API error' }, { status: 502 });
+        return NextResponse.json({ error: 'Generation failed. Please try again.' }, { status: 502 });
       }
       bootfile = data.choices[0].message.content;
     } else {
-      // Anthropic (default)
+      if (!process.env.ANTHROPIC_API_KEY) {
+        return NextResponse.json({ error: 'Generation service unavailable.' }, { status: 503 });
+      }
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
-          'x-api-key': process.env.ANTHROPIC_API_KEY!,
+          'x-api-key': process.env.ANTHROPIC_API_KEY,
           'anthropic-version': '2023-06-01',
           'Content-Type': 'application/json',
         },
@@ -54,15 +129,14 @@ export async function POST(req: NextRequest) {
       const data = await response.json();
       if (!response.ok) {
         console.error('[ANTHROPIC API ERROR]', JSON.stringify(data));
-        return NextResponse.json({ error: data.error?.message || 'Anthropic API error' }, { status: 502 });
+        return NextResponse.json({ error: 'Generation failed. Please try again.' }, { status: 502 });
       }
       bootfile = data.content[0].text;
     }
 
     return NextResponse.json({ bootfile });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('[GENERATE ERROR]', error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
   }
 }

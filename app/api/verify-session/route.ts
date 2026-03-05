@@ -3,7 +3,11 @@ import { getStripe } from '@/lib/stripe';
 
 export async function GET(req: NextRequest) {
   const sessionId = req.nextUrl.searchParams.get('session_id');
-  if (!sessionId) return NextResponse.json({ paid: false }, { status: 400 });
+
+  // Validate session_id format (Stripe session IDs start with cs_)
+  if (!sessionId || sessionId.length > 200 || !/^cs_/.test(sessionId)) {
+    return NextResponse.json({ paid: false }, { status: 400 });
+  }
 
   try {
     const stripe = getStripe();

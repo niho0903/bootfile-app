@@ -1,12 +1,17 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase';
+import { isValidPlatform } from '@/lib/validation';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { quizId, platform } = body;
 
-    if (!quizId || !platform) {
+    // Validate inputs
+    if (!quizId || typeof quizId !== 'string' || !/^[0-9a-f-]{36}$/i.test(quizId)) {
+      return NextResponse.json({ ok: true });
+    }
+    if (!isValidPlatform(platform)) {
       return NextResponse.json({ ok: true });
     }
 
@@ -15,7 +20,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true });
     }
 
-    // Update the most recent purchase for this quiz with the selected platform
     const { error } = await supabase
       .from('purchases')
       .update({ primary_platform: platform })

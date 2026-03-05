@@ -2,21 +2,27 @@ import { NextRequest } from 'next/server';
 import Stripe from 'stripe';
 import { getStripe } from '@/lib/stripe';
 
-const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET!;
-
 export async function POST(req: NextRequest) {
-  const rawBody = await req.text();
-  const sig = req.headers.get('stripe-signature')!;
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!webhookSecret) {
+    console.error('[WEBHOOK] STRIPE_WEBHOOK_SECRET is not set');
+    return new Response('Server configuration error', { status: 500 });
+  }
 
+  const sig = req.headers.get('stripe-signature');
+  if (!sig) {
+    return new Response('Missing signature', { status: 400 });
+  }
+
+  const rawBody = await req.text();
   let event: Stripe.Event;
 
   try {
     const stripe = getStripe();
-    event = stripe.webhooks.constructEvent(rawBody, sig, WEBHOOK_SECRET);
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    console.error(`[WEBHOOK] Signature verification failed: ${message}`);
-    return new Response(`Webhook Error: ${message}`, { status: 400 });
+    event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
+  } catch {
+    console.error('[WEBHOOK] Signature verification failed');
+    return new Response('Webhook signature verification failed', { status: 400 });
   }
 
   switch (event.type) {
@@ -33,12 +39,9 @@ export async function POST(req: NextRequest) {
       break;
     }
     case 'checkout.session.async_payment_failed': {
-      const session = event.data.object as Stripe.Checkout.Session;
-      console.error('[WEBHOOK] Payment failed for session:', session.id);
+      console.error('[WEBHOOK] Async payment failed');
       break;
     }
-    default:
-      console.log(`[WEBHOOK] Unhandled: ${event.type}`);
   }
 
   return new Response(JSON.stringify({ received: true }), {
@@ -48,15 +51,9 @@ export async function POST(req: NextRequest) {
 }
 
 async function handleFulfillment(session: Stripe.Checkout.Session) {
-  const archetypeId = session.metadata?.archetype_id;
-  const scoresJson = session.metadata?.scores_json;
-  const customerEmail = session.customer_details?.email;
-  const sessionId = session.id;
-
+  // Log only non-PII
   console.log('[WEBHOOK] Order fulfilled:', {
-    sessionId,
-    archetypeId,
-    customerEmail,
-    scoresJson,
+    sessionId: session.id,
+    archetypeId: session.metadata?.archetype_id,
   });
 }

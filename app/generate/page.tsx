@@ -91,10 +91,14 @@ function GenerateContent() {
       const raw = sessionStorage.getItem('bootfile_quiz');
       const quizState = raw ? JSON.parse(raw) : {};
 
+      // Pass session_id for server-side payment verification
+      const sessionId = searchParams.get('session_id');
+
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          sessionId,
           primaryArchetype: quizState.primary || archetypeId,
           secondaryArchetype: quizState.secondary || null,
           tertiaryArchetype: quizState.tertiary || null,
