@@ -82,7 +82,7 @@ export default function ResultPage() {
                 fontFamily: 'inherit',
               }}
             >
-              Generate My BootFile &mdash; $2.99
+              Generate My BootFile &mdash; $0.99
             </button>
             <p style={{ marginTop: 12, fontSize: 13, color: '#999' }}>
               One-time purchase. Works on ChatGPT, Claude, Gemini &amp; more.

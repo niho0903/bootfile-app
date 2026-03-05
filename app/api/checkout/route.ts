@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
         {
           price_data: {
             currency: 'usd',
-            unit_amount: 299,
+            unit_amount: 99,
             product_data: {
               name: 'BootFile \u2014 Personalized AI Instructions',
               description: `Your personalized BootFile for ${archetypeId} archetype`,
