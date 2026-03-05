@@ -2,16 +2,57 @@ import Link from 'next/link';
 
 export function Header() {
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#f7f6f2]/85 backdrop-blur-md border-b border-[#dcd9d5] py-3">
-      <div className="max-w-[1200px] mx-auto px-5 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 no-underline text-gray-900 font-heading text-xl">
+    <header
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        backgroundColor: 'rgba(247, 246, 242, 0.9)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        borderBottom: '1px solid #edeae5',
+        padding: '10px 0',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 1200,
+          margin: '0 auto',
+          padding: '0 24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <Link
+          href="/"
+          className="font-heading"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            textDecoration: 'none',
+            color: '#1a1a1a',
+            fontSize: 20,
+          }}
+        >
           <BootFileLogoIcon />
           BootFile
         </Link>
-        <nav className="flex items-center gap-2">
+        <nav>
           <Link
             href="/quiz"
-            className="text-sm font-medium text-gray-500 hover:text-gray-900 px-4 py-2 rounded-md hover:bg-[#f3f0ec] transition-colors"
+            style={{
+              fontSize: 14,
+              fontWeight: 500,
+              color: '#666',
+              textDecoration: 'none',
+              padding: '8px 16px',
+              borderRadius: 8,
+              transition: 'color 0.2s',
+            }}
           >
             Take the Quiz
           </Link>
