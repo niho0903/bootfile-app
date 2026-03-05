@@ -26,10 +26,14 @@ export async function POST(req: NextRequest) {
             { role: 'user', content: userMessage },
           ],
           temperature: 0.7,
-          max_tokens: 1500,
+          max_tokens: 2000,
         }),
       });
       const data = await response.json();
+      if (!response.ok) {
+        console.error('[OPENAI API ERROR]', JSON.stringify(data));
+        return NextResponse.json({ error: data.error?.message || 'OpenAI API error' }, { status: 502 });
+      }
       bootfile = data.choices[0].message.content;
     } else {
       // Anthropic (default)
@@ -41,13 +45,17 @@ export async function POST(req: NextRequest) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-5-20250514',
-          max_tokens: 1500,
+          model: 'claude-sonnet-4-6',
+          max_tokens: 2000,
           system: systemPrompt,
           messages: [{ role: 'user', content: userMessage }],
         }),
       });
       const data = await response.json();
+      if (!response.ok) {
+        console.error('[ANTHROPIC API ERROR]', JSON.stringify(data));
+        return NextResponse.json({ error: data.error?.message || 'Anthropic API error' }, { status: 502 });
+      }
       bootfile = data.content[0].text;
     }
 

@@ -1,41 +1,28 @@
 'use client';
 
 import { useState } from 'react';
-import { formatForPlatforms } from '@/lib/platform-format';
+import { formatForPlatforms, PlatformId, PLATFORM_INSTRUCTIONS } from '@/lib/platform-format';
 
 interface BootFileDisplayProps {
   bootfileText: string;
 }
 
-type Platform = 'chatgpt' | 'claude' | 'gemini';
-
-const PLATFORM_CONFIG: Record<Platform, {
-  label: string;
-  testDriveUrl: string;
-  instructions: string;
-}> = {
-  chatgpt: {
-    label: 'ChatGPT',
-    testDriveUrl: 'https://chatgpt.com',
-    instructions: 'Go to ChatGPT \u2192 Click your profile (bottom-left) \u2192 Settings \u2192 Personalization \u2192 Custom Instructions. Paste Field 1 into "What would you like ChatGPT to know about you?" and Field 2 into "How would you like ChatGPT to respond?"',
-  },
-  claude: {
-    label: 'Claude',
-    testDriveUrl: 'https://claude.ai',
-    instructions: 'Go to Claude.ai \u2192 Click your profile (bottom-left) \u2192 Settings \u2192 Profile. Paste the full text into the "Custom Instructions" field.',
-  },
-  gemini: {
-    label: 'Gemini',
-    testDriveUrl: 'https://gemini.google.com',
-    instructions: 'Go to Gemini \u2192 Settings \u2192 Extensions \u2192 Create a Gem. Paste the full text as Gem instructions. For quick setup, use the condensed version in Settings \u2192 Preferences.',
-  },
+const PLATFORM_CONFIG: Record<PlatformId, { label: string }> = {
+  chatgpt: { label: 'ChatGPT' },
+  claude: { label: 'Claude' },
+  gemini: { label: 'Gemini' },
+  grok: { label: 'Grok' },
+  deepseek: { label: 'DeepSeek' },
+  copilot: { label: 'Copilot' },
 };
 
+const PLATFORM_ORDER: PlatformId[] = ['chatgpt', 'claude', 'gemini', 'grok', 'deepseek', 'copilot'];
+
 export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
-  const [activeTab, setActiveTab] = useState<Platform>('chatgpt');
+  const [activeTab, setActiveTab] = useState<PlatformId>('chatgpt');
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const formatted = formatForPlatforms(bootfileText);
-  const config = PLATFORM_CONFIG[activeTab];
+  const instructions = PLATFORM_INSTRUCTIONS[activeTab];
 
   const handleCopy = async (text: string, field: string) => {
     try {
@@ -47,18 +34,43 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
     }
   };
 
+  const handleTabClick = (platform: PlatformId) => {
+    setActiveTab(platform);
+
+    // Fire-and-forget platform tracking
+    const quizId = typeof window !== 'undefined' ? sessionStorage.getItem('bootfile_quiz_id') : null;
+    if (quizId) {
+      fetch('/api/track-platform', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quizId, platform }),
+      }).catch(() => { /* non-blocking */ });
+    }
+  };
+
   return (
     <div>
-      {/* Platform tabs */}
-      <div style={{ display: 'flex', borderBottom: '1px solid #DDD6CC', marginBottom: 24 }}>
-        {(Object.keys(PLATFORM_CONFIG) as Platform[]).map(platform => (
+      {/* Platform tabs — scrollable on mobile */}
+      <div
+        style={{
+          display: 'flex',
+          borderBottom: '1px solid #DDD6CC',
+          marginBottom: 24,
+          overflowX: 'auto',
+          WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        }}
+      >
+        {PLATFORM_ORDER.map(platform => (
           <button
             key={platform}
-            onClick={() => setActiveTab(platform)}
+            onClick={() => handleTabClick(platform)}
             style={{
-              padding: '12px 24px',
+              padding: '12px 20px',
               fontSize: 14,
               fontWeight: 500,
+              whiteSpace: 'nowrap',
               borderBottom: `2px solid ${activeTab === platform ? '#7D8B6E' : 'transparent'}`,
               color: activeTab === platform ? '#7D8B6E' : '#7A746B',
               backgroundColor: 'transparent',
@@ -69,6 +81,7 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
               marginBottom: -1,
               cursor: 'pointer',
               transition: 'color 0.2s',
+              flexShrink: 0,
             }}
             onMouseEnter={e => {
               if (activeTab !== platform) {
@@ -86,7 +99,7 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
         ))}
       </div>
 
-      {/* Instructions */}
+      {/* Instructions as numbered steps */}
       <div
         style={{
           backgroundColor: '#ECEAE4',
@@ -96,91 +109,111 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
           marginBottom: 24,
         }}
       >
-        <p style={{ fontSize: 14, color: '#5C6650' }}>{config.instructions}</p>
+        <ol style={{ margin: 0, paddingLeft: 20, fontSize: 14, color: '#5C6650', lineHeight: 1.7 }}>
+          {instructions.steps.map((step, i) => (
+            <li key={i} style={{ marginBottom: i < instructions.steps.length - 1 ? 4 : 0 }}>
+              {step}
+            </li>
+          ))}
+        </ol>
       </div>
 
-      {/* Content + Copy */}
+      {/* Content + Copy — ChatGPT (2 fields) */}
       {activeTab === 'chatgpt' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-          {/* Field 1 */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
               <h3 style={{ fontSize: 14, fontWeight: 600, color: '#7A746B' }}>
                 Field 1: &ldquo;What would you like ChatGPT to know about you?&rdquo;
               </h3>
             </div>
-            <CopyButton
-              text={formatted.chatgpt.field1}
-              field="chatgpt-field1"
-              copiedField={copiedField}
-              onCopy={handleCopy}
-            />
+            <CopyButton text={formatted.chatgpt.field1} field="chatgpt-field1" copiedField={copiedField} onCopy={handleCopy} />
             <ContentBlock text={formatted.chatgpt.field1} />
           </div>
-
-          {/* Field 2 */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
               <h3 style={{ fontSize: 14, fontWeight: 600, color: '#7A746B' }}>
                 Field 2: &ldquo;How would you like ChatGPT to respond?&rdquo;
               </h3>
             </div>
-            <CopyButton
-              text={formatted.chatgpt.field2}
-              field="chatgpt-field2"
-              copiedField={copiedField}
-              onCopy={handleCopy}
-            />
+            <CopyButton text={formatted.chatgpt.field2} field="chatgpt-field2" copiedField={copiedField} onCopy={handleCopy} />
             <ContentBlock text={formatted.chatgpt.field2} />
           </div>
         </div>
       )}
 
+      {/* Claude (single text) */}
       {activeTab === 'claude' && (
         <div>
-          <CopyButton
-            text={formatted.claude}
-            field="claude"
-            copiedField={copiedField}
-            onCopy={handleCopy}
-          />
+          <CopyButton text={formatted.claude} field="claude" copiedField={copiedField} onCopy={handleCopy} />
           <ContentBlock text={formatted.claude} />
         </div>
       )}
 
+      {/* Gemini (2 blocks) */}
       {activeTab === 'gemini' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
           <div>
             <h3 style={{ fontSize: 14, fontWeight: 600, color: '#7A746B', marginBottom: 8 }}>
               Full Version (for Gem Instructions)
             </h3>
-            <CopyButton
-              text={formatted.gemini.gem}
-              field="gemini-gem"
-              copiedField={copiedField}
-              onCopy={handleCopy}
-            />
+            <CopyButton text={formatted.gemini.gem} field="gemini-gem" copiedField={copiedField} onCopy={handleCopy} />
             <ContentBlock text={formatted.gemini.gem} />
           </div>
           <div>
             <h3 style={{ fontSize: 14, fontWeight: 600, color: '#7A746B', marginBottom: 8 }}>
               Condensed Version (for Preferences)
             </h3>
-            <CopyButton
-              text={formatted.gemini.prefs}
-              field="gemini-prefs"
-              copiedField={copiedField}
-              onCopy={handleCopy}
-            />
+            <CopyButton text={formatted.gemini.prefs} field="gemini-prefs" copiedField={copiedField} onCopy={handleCopy} />
             <ContentBlock text={formatted.gemini.prefs} />
           </div>
+        </div>
+      )}
+
+      {/* Grok (2 fields, same as ChatGPT) */}
+      {activeTab === 'grok' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <h3 style={{ fontSize: 14, fontWeight: 600, color: '#7A746B' }}>
+                Field 1: &ldquo;About You&rdquo;
+              </h3>
+            </div>
+            <CopyButton text={formatted.grok.field1} field="grok-field1" copiedField={copiedField} onCopy={handleCopy} />
+            <ContentBlock text={formatted.grok.field1} />
+          </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <h3 style={{ fontSize: 14, fontWeight: 600, color: '#7A746B' }}>
+                Field 2: &ldquo;Response Preferences&rdquo;
+              </h3>
+            </div>
+            <CopyButton text={formatted.grok.field2} field="grok-field2" copiedField={copiedField} onCopy={handleCopy} />
+            <ContentBlock text={formatted.grok.field2} />
+          </div>
+        </div>
+      )}
+
+      {/* DeepSeek (single text block) */}
+      {activeTab === 'deepseek' && (
+        <div>
+          <CopyButton text={formatted.deepseek} field="deepseek" copiedField={copiedField} onCopy={handleCopy} />
+          <ContentBlock text={formatted.deepseek} />
+        </div>
+      )}
+
+      {/* Copilot (single text block) */}
+      {activeTab === 'copilot' && (
+        <div>
+          <CopyButton text={formatted.copilot} field="copilot" copiedField={copiedField} onCopy={handleCopy} />
+          <ContentBlock text={formatted.copilot} />
         </div>
       )}
 
       {/* Test Drive */}
       <div style={{ marginTop: 32 }}>
         <a
-          href={config.testDriveUrl}
+          href={instructions.testDriveUrl}
           target="_blank"
           rel="noopener noreferrer"
           style={{
@@ -198,10 +231,10 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
             textDecoration: 'none',
             transition: 'background-color 0.2s',
           }}
-          onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#ECEAE4')}
+          onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#DDD6CC')}
           onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#ECEAE4')}
         >
-          Open {config.label}
+          {instructions.testDriveLabel}
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
           </svg>

@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export function Footer() {
   return (
     <footer
@@ -9,6 +11,10 @@ export function Footer() {
     >
       <p style={{ fontSize: '0.85rem', color: '#7A746B', letterSpacing: '0.01em' }}>
         &copy; {new Date().getFullYear()} BootFile
+        <span style={{ margin: '0 8px', color: '#DDD6CC' }}>&middot;</span>
+        <Link href="/privacy" style={{ color: '#7A746B', textDecoration: 'none' }}>
+          Privacy
+        </Link>
       </p>
     </footer>
   );

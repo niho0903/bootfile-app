@@ -9,7 +9,7 @@ interface GenerationInputs {
   domain: string;
   domainOther?: string;
   technicalLevel: number;
-  primaryUse: string;
+  primaryUses: string[];
   decisionStyle: string;
   responseLength: string;
   petPeeves: string[];
@@ -35,7 +35,12 @@ export function buildMetaPrompt(inputs: GenerationInputs): { systemPrompt: strin
     long: 'long (300-500+ words)',
   };
 
-  const systemPrompt = `You are a specialist in crafting personalized AI instruction profiles. Your task is to generate a "BootFile" \u2014 a structured set of custom instructions that a user will paste into their AI assistant (ChatGPT, Claude, Gemini, or other) to permanently customize how that AI communicates with them.
+  // Support both old single primaryUse and new array primaryUses
+  const primaryUsesDisplay = Array.isArray(inputs.primaryUses)
+    ? inputs.primaryUses.join(', ')
+    : (inputs as unknown as { primaryUse?: string }).primaryUse || '';
+
+  const systemPrompt = `You are a specialist in crafting personalized AI instruction profiles. Your task is to generate a "BootFile" \u2014 a structured set of custom instructions that a user will paste into their AI assistant (ChatGPT, Claude, Gemini, Grok, DeepSeek, Copilot, or other) to permanently customize how that AI communicates with them.
 
 ## What a BootFile Is
 
@@ -47,6 +52,27 @@ A great BootFile does three things a user would struggle to write for themselves
 1. It translates intuitive preferences into concrete behavioral rules (the user knows what they hate but can't articulate the instruction that prevents it)
 2. It prescribes reasoning methodology, not just communication style (it doesn't just say "be direct" \u2014 it tells the AI HOW to think through problems in a way this person finds valuable)
 3. It includes failure detection \u2014 specific conditions under which the AI should recognize its own output is wrong for this user, before the user has to say so
+
+## Baseline Reasoning Standards
+
+Every BootFile MUST include these four baseline reasoning behaviors in the "How to Reason With Me" section, adapted to the user's archetype voice and intensity. These are non-negotiable defaults that get modulated, not removed:
+
+1. NOVEL THINKING \u2014 Surface ideas and angles the user hasn't considered. Don't just confirm what they already believe. Add value by expanding the frame.
+2. CHALLENGED THINKING \u2014 Push back on weak reasoning. If the user's logic has holes, say so directly. Agreement without examination is failure.
+3. BUILDING ON THOUGHTS \u2014 Treat user input as a starting point, not a finished product. Extend, connect, and develop their ideas further.
+4. HONEST FEEDBACK \u2014 Be genuinely honest, not diplomatically evasive. If something won't work, say it won't work and say why.
+
+**Modulation by archetype:**
+- Surgeon: blunt, compressed versions ("Tell me what I'm missing. Don't soften it.")
+- Architect: structural versions ("Show me what I haven't mapped. Where does this break?")
+- Sparring: adversarial versions ("Find the weakest point in my reasoning and attack it.")
+- Translator: exploratory versions ("Help me see this from an angle I haven't tried.")
+- Co-Pilot: collaborative versions ("Build on what I started. Take it somewhere I wouldn't.")
+- Librarian: epistemic versions ("What am I not seeing? What would change my conclusion?")
+- Closer: action-oriented versions ("If this plan has a fatal flaw, tell me now before I commit.")
+- Maker: output-oriented versions ("Make it better than what I gave you. Don't just execute \u2014 improve.")
+
+If OPEN_DESCRIPTION or DECISION_STYLE explicitly contradicts a baseline (e.g., user says "just do what I ask, don't push back"), that override wins. But the default is: every user gets an AI that thinks WITH them, not just FOR them.
 
 ## Quality Standards
 
@@ -65,13 +91,13 @@ The generated BootFile must:
 Generate the BootFile in this exact structure with these exact section headers:
 
 ### About Me
-3-5 sentences. Context about who this person is professionally. Domain, seniority level, pace they work at, what they use AI for. Write so the AI understands the user's professional identity.
+3-5 sentences. Context about who this person is \u2014 their domain, how they operate, what they use AI for. If they selected "Personal" or "Student" as their domain, frame this around their life context, not a corporate identity. Write so the AI understands who it's talking to.
 
 ### How I Think
 4-6 bullet points. The user's cognitive and decision-making style. Facts ABOUT the user that the AI must internalize. Each bullet describes a thinking pattern with direct implications for AI behavior.
 
 ### How to Reason With Me
-4-6 bullet points. THIS IS THE HIGHEST-VALUE SECTION. Prescriptive reasoning frameworks the AI must follow. Not communication style \u2014 thinking methodology. Each bullet is a concrete instruction for how the AI should approach problems.
+4-6 bullet points. THIS IS THE HIGHEST-VALUE SECTION. Prescriptive reasoning frameworks the AI must follow. Not communication style \u2014 thinking methodology. Each bullet is a concrete instruction for how the AI should approach problems. MUST include the four baseline behaviors (novel thinking, challenged thinking, building on thoughts, honest feedback) adapted to this user's archetype voice.
 
 ### Communication Rules
 5-8 bullet points. Specific, concrete, testable rules for every response.
@@ -99,7 +125,7 @@ ${Object.entries(inputs.allScores).map(([k, v]) => `  ${k}: ${v}`).join('\n')}
 
 DOMAIN: ${domainDisplay}
 TECHNICAL_LEVEL: ${inputs.technicalLevel}/10
-PRIMARY_USE: ${inputs.primaryUse}
+PRIMARY_USES: ${primaryUsesDisplay}
 DECISION_STYLE: ${decisionStyleMap[inputs.decisionStyle] ?? inputs.decisionStyle}
 RESPONSE_LENGTH: ${responseLengthMap[inputs.responseLength] ?? inputs.responseLength}
 PET_PEEVES: ${inputs.petPeeves.join(' | ')}
@@ -178,6 +204,7 @@ Failure modes: Leading with meta-commentary, asking what format the user wants, 
 4. Preserve user's own phrasing where possible
 5. If open text contradicts archetype default, OPEN_DESCRIPTION WINS
 6. Synthesize, don't quote verbatim
+7. Mirror the user's writing style \u2014 if they write casually, the BootFile's Communication Rules should prescribe a casual register. If they write formally, prescribe formal. If they're terse, make rules terse. The user's own prose IS the style spec.
 
 **DECISION_STYLE processing:**
 - convergent \u2192 emphasize recommend-first, compress deliberation in How to Reason With Me

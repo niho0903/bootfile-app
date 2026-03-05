@@ -22,7 +22,7 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
     domain: '',
     domainOther: '',
     technicalLevel: 5,
-    primaryUse: '',
+    primaryUses: [],
     decisionStyle: '',
     responseLength: '',
     petPeeves: [],
@@ -35,11 +35,21 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
   const isValid =
     formData.domain !== '' &&
     (formData.domain !== 'Other' || formData.domainOther.trim().length > 0) &&
-    formData.primaryUse !== '' &&
+    formData.primaryUses.length >= 1 &&
     formData.decisionStyle !== '' &&
     formData.responseLength !== '' &&
     formData.petPeeves.length >= 1 &&
     formData.openDescription.trim().length >= 10;
+
+  const handlePrimaryUseToggle = (use: string) => {
+    setFormData(prev => {
+      const already = prev.primaryUses.includes(use);
+      if (already) {
+        return { ...prev, primaryUses: prev.primaryUses.filter(u => u !== use) };
+      }
+      return { ...prev, primaryUses: [...prev.primaryUses, use] };
+    });
+  };
 
   const handlePetPeeveToggle = (peeve: string) => {
     setFormData(prev => {
@@ -96,10 +106,10 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
         <p style={{ fontSize: 14, color: '#7A746B' }}>8 questions &mdash; takes about 3 minutes</p>
       </div>
 
-      {/* Q1: Professional Domain */}
+      {/* Q1: What's your world? */}
       <fieldset style={{ border: 'none', padding: 0, marginBottom: 40 }}>
         <legend style={legendStyle}>
-          What field do you work in?
+          What&apos;s your world?
         </legend>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
           {DOMAIN_OPTIONS.map(domain => (
@@ -128,7 +138,7 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
         {formData.domain === 'Other' && (
           <input
             type="text"
-            placeholder="Your field..."
+            placeholder="Tell us more..."
             value={formData.domainOther}
             onChange={e => setFormData(prev => ({ ...prev, domainOther: e.target.value }))}
             style={{
@@ -155,15 +165,15 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
         )}
       </fieldset>
 
-      {/* Q2: Technical Depth */}
+      {/* Q2: Technical depth */}
       <fieldset style={{ border: 'none', padding: 0, marginBottom: 40 }}>
         <legend style={legendStyle}>
-          How technical is your daily work?
+          How technical do you get?
         </legend>
         <div style={{ maxWidth: 448 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#7A746B', marginBottom: 8 }}>
-            <span>Non-technical</span>
-            <span>Highly technical</span>
+            <span>Not at all</span>
+            <span>Very</span>
           </div>
           <input
             type="range"
@@ -194,34 +204,38 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
         </div>
       </fieldset>
 
-      {/* Q3: Primary AI Use Case */}
+      {/* Q3: AI Use Cases — multi-select */}
       <fieldset style={{ border: 'none', padding: 0, marginBottom: 40 }}>
-        <legend style={legendStyle}>
-          What do you use AI for most?
+        <legend style={{ ...legendStyle, marginBottom: 4 }}>
+          What do you use AI for?
         </legend>
+        <p style={{ fontSize: 12, color: '#7A746B', marginBottom: 12 }}>Select all that apply</p>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-          {PRIMARY_USE_OPTIONS.map(use => (
-            <button
-              key={use}
-              type="button"
-              onClick={() => setFormData(prev => ({ ...prev, primaryUse: use }))}
-              style={pillStyle(formData.primaryUse === use)}
-              onMouseEnter={e => {
-                if (formData.primaryUse !== use) {
-                  e.currentTarget.style.borderColor = '#7D8B6E';
-                  e.currentTarget.style.color = '#7D8B6E';
-                }
-              }}
-              onMouseLeave={e => {
-                if (formData.primaryUse !== use) {
-                  e.currentTarget.style.borderColor = '#DDD6CC';
-                  e.currentTarget.style.color = '#7A746B';
-                }
-              }}
-            >
-              {use}
-            </button>
-          ))}
+          {PRIMARY_USE_OPTIONS.map(use => {
+            const isSelected = formData.primaryUses.includes(use);
+            return (
+              <button
+                key={use}
+                type="button"
+                onClick={() => handlePrimaryUseToggle(use)}
+                style={pillStyle(isSelected)}
+                onMouseEnter={e => {
+                  if (!isSelected) {
+                    e.currentTarget.style.borderColor = '#7D8B6E';
+                    e.currentTarget.style.color = '#7D8B6E';
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!isSelected) {
+                    e.currentTarget.style.borderColor = '#DDD6CC';
+                    e.currentTarget.style.color = '#7A746B';
+                  }
+                }}
+              >
+                {use}
+              </button>
+            );
+          })}
         </div>
       </fieldset>
 
@@ -416,8 +430,11 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
         >
           In your own words, what do you want from your AI?
         </legend>
-        <p style={{ fontSize: 14, color: '#7D8B6E', fontWeight: 500, marginBottom: 12 }}>
-          This is the most important question. The more specific, the better.
+        <p style={{ fontSize: 14, color: '#7D8B6E', fontWeight: 500, marginBottom: 4 }}>
+          This is the most important question.
+        </p>
+        <p style={{ fontSize: 13, color: '#7A746B', marginBottom: 12, lineHeight: 1.5 }}>
+          Write this the way you&apos;d want your AI to talk to you. Your tone here becomes its tone.
         </p>
         <div style={{ position: 'relative' }}>
           <textarea
@@ -427,7 +444,7 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
                 setFormData(prev => ({ ...prev, openDescription: e.target.value }));
               }
             }}
-            placeholder="Describe what your ideal AI interaction looks like. What should it feel like to work with AI that truly gets you? What's missing from your current experience?"
+            placeholder="Be direct if you want direct. Be casual if you want casual. Tell it what matters to you and how you want it to think with you."
             rows={6}
             style={{
               width: '100%',

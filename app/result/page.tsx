@@ -90,7 +90,7 @@ export default function ResultPage() {
               Generate My BootFile &mdash; $0.99
             </button>
             <p style={{ marginTop: 12, fontSize: '0.85rem', color: '#7A746B' }}>
-              One-time purchase. Works on ChatGPT, Claude, Gemini and more.
+              One-time purchase. Works on any AI platform.
             </p>
           </div>
 

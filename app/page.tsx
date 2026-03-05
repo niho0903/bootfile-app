@@ -97,10 +97,9 @@ export default function LandingPage() {
                 marginBottom: 20,
               }}
             >
-              It tells ChatGPT, Claude, or Gemini how you reason, how you make
-              decisions, and what kind of thinking earns your trust. Not a
-              personality test. A thinking profile that makes every conversation
-              feel like it already knows you.
+              It tells your AI how you reason, how you make decisions, and what
+              kind of thinking earns your trust. Not a personality test. A thinking
+              profile that makes every conversation feel like it already knows you.
             </p>
 
             <Link

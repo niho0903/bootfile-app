@@ -4,7 +4,7 @@ export interface SupplementaryAnswers {
   domain: string;
   domainOther: string;
   technicalLevel: number;
-  primaryUse: string;
+  primaryUses: string[];
   decisionStyle: 'convergent' | 'analytical' | 'adversarial' | 'generative' | '';
   responseLength: 'short' | 'medium' | 'long' | '';
   petPeeves: string[];
@@ -15,7 +15,7 @@ export interface SupplementaryAnswers {
 export const DOMAIN_OPTIONS = [
   'Marketing', 'Engineering', 'Finance', 'Legal', 'Education',
   'Healthcare', 'Creative', 'Product', 'Sales', 'Research',
-  'Operations', 'Other',
+  'Operations', 'Student', 'Personal', 'Freelance', 'Other',
 ];
 
 export const PRIMARY_USE_OPTIONS = [
@@ -27,6 +27,9 @@ export const PRIMARY_USE_OPTIONS = [
   'Strategy & planning',
   'Learning new topics',
   'Email & communication',
+  'Personal projects',
+  'Daily life & planning',
+  'Creative work',
 ];
 
 export const DECISION_STYLE_OPTIONS = [

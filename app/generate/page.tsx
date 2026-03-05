@@ -103,7 +103,7 @@ function GenerateContent() {
           domain: formData.domain,
           domainOther: formData.domainOther,
           technicalLevel: formData.technicalLevel,
-          primaryUse: formData.primaryUse,
+          primaryUses: formData.primaryUses,
           decisionStyle: formData.decisionStyle,
           responseLength: formData.responseLength,
           petPeeves: formData.petPeeves,
@@ -117,6 +117,22 @@ function GenerateContent() {
 
       if (data.bootfile) {
         sessionStorage.setItem('bootfile_output', data.bootfile);
+
+        // Fire-and-forget purchase tracking
+        const quizId = sessionStorage.getItem('bootfile_quiz_id');
+        fetch('/api/track-purchase', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            quizId,
+            domain: formData.domain,
+            technicalLevel: formData.technicalLevel,
+            primaryUse: formData.primaryUses.join(', '),
+            decisionStyle: formData.decisionStyle,
+            responseLength: formData.responseLength,
+          }),
+        }).catch(() => { /* non-blocking */ });
+
         router.push('/bootfile');
       } else {
         setIsGenerating(false);
