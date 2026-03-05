@@ -15,26 +15,38 @@ export function ArchetypeReveal({ primary, secondary }: ArchetypeRevealProps) {
   return (
     <div
       style={{
-        backgroundColor: '#fff',
-        border: '1px solid #dcd9d5',
-        borderRadius: 24,
-        padding: '40px 32px',
-        boxShadow: '0 8px 24px rgba(0,0,0,0.06)',
+        backgroundColor: '#2D2926',
+        borderRadius: 16,
+        padding: '48px 32px',
         textAlign: 'center',
         maxWidth: 640,
         margin: '0 auto',
       }}
     >
-      {/* Color accent bar */}
+      {/* Sage divider line */}
       <div
         style={{
           width: 48,
-          height: 4,
+          height: 3,
           borderRadius: 9999,
           margin: '0 auto 24px',
-          backgroundColor: arch.color,
+          backgroundColor: '#7D8B6E',
         }}
       />
+
+      {/* Small caps label */}
+      <p
+        style={{
+          fontSize: '0.75rem',
+          fontWeight: 500,
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+          color: '#7A746B',
+          marginBottom: 16,
+        }}
+      >
+        YOUR AI STYLE
+      </p>
 
       {/* Icon */}
       <div style={{ fontSize: 56, marginBottom: 16 }}>{arch.icon}</div>
@@ -43,24 +55,28 @@ export function ArchetypeReveal({ primary, secondary }: ArchetypeRevealProps) {
       <h1
         className="font-heading"
         style={{
-          fontSize: 'clamp(1.8rem, 5vw, 2.5rem)',
-          color: '#1a1a1a',
+          fontSize: 'clamp(2rem, 5vw, 2.8rem)',
+          color: '#F7F4EF',
           marginBottom: 8,
+          fontWeight: 400,
         }}
       >
         {arch.name}
       </h1>
 
       {/* Tagline */}
-      <p style={{ fontSize: 18, color: '#888', fontStyle: 'italic', marginBottom: 24 }}>
+      <p
+        className="font-heading"
+        style={{ fontSize: '1.1rem', color: '#7A746B', fontStyle: 'italic', marginBottom: 24 }}
+      >
         &ldquo;{arch.tagline}&rdquo;
       </p>
 
       {/* Description */}
       <p
         style={{
-          fontSize: 16,
-          color: '#555',
+          fontSize: '0.95rem',
+          color: 'rgba(247, 244, 239, 0.8)',
           lineHeight: 1.7,
           textAlign: 'left',
           maxWidth: 500,
@@ -72,7 +88,7 @@ export function ArchetypeReveal({ primary, secondary }: ArchetypeRevealProps) {
 
       {/* Secondary badge */}
       {secondaryArch && (
-        <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid #edeae5' }}>
+        <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid rgba(247, 244, 239, 0.1)' }}>
           <span
             style={{
               display: 'inline-flex',
@@ -80,13 +96,13 @@ export function ArchetypeReveal({ primary, secondary }: ArchetypeRevealProps) {
               gap: 8,
               padding: '8px 18px',
               borderRadius: 9999,
-              backgroundColor: '#f7f6f2',
+              backgroundColor: 'rgba(247, 244, 239, 0.08)',
               fontSize: 14,
-              color: '#666',
+              color: 'rgba(247, 244, 239, 0.7)',
             }}
           >
             <span>{secondaryArch.icon}</span>
-            You also have strong <span style={{ fontWeight: 600 }}>{secondaryArch.name}</span> tendencies.
+            You also have strong <span style={{ fontWeight: 600, color: '#F7F4EF' }}>{secondaryArch.name}</span> tendencies.
           </span>
         </div>
       )}

@@ -33,8 +33,8 @@ export default function ResultPage() {
 
   if (!quizState) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#f7f6f2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: 32, height: 32, border: '3px solid #0e6e6e', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+      <div style={{ minHeight: '100vh', backgroundColor: '#F7F4EF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 32, height: 32, border: '2px solid #7D8B6E', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
       </div>
     );
   }
@@ -42,56 +42,61 @@ export default function ResultPage() {
   return (
     <>
       <Header />
-      <main style={{ paddingTop: 80, paddingBottom: 64 }}>
-        <div style={{ maxWidth: 640, margin: '0 auto', padding: '0 24px' }}>
+      <main style={{ paddingTop: 80, paddingBottom: 64, padding: '80px 20px 64px' }}>
+        <div style={{ maxWidth: 640, margin: '0 auto' }}>
           <ArchetypeReveal
             primary={quizState.primary}
             secondary={quizState.secondary}
           />
 
-          {/* Conversion Hook */}
+          {/* Conversion CTA */}
           <div
             style={{
               marginTop: 40,
-              backgroundColor: '#fff',
-              border: '2px solid rgba(14,110,110,0.15)',
-              borderRadius: 20,
+              backgroundColor: '#ECEAE4',
+              borderRadius: 12,
               padding: 32,
               textAlign: 'center',
-              boxShadow: '0 4px 16px rgba(14,110,110,0.06)',
             }}
           >
-            <p style={{ fontSize: 16, color: '#444', lineHeight: 1.7, marginBottom: 24 }}>
-              Your AI doesn&apos;t know any of this about you. That&apos;s why it
-              gives you <em style={{ color: '#1a1a1a', fontWeight: 600 }}>generic, one-size-fits-all responses</em>.
-              Your BootFile fixes that in 60 seconds.
+            <h3
+              className="font-heading"
+              style={{ fontSize: '1.3rem', color: '#2D2926', fontWeight: 400, marginBottom: 12 }}
+            >
+              This is how you think.
+            </h3>
+            <p style={{ fontSize: '0.95rem', color: '#7A746B', lineHeight: 1.7, marginBottom: 24 }}>
+              Your AI doesn&apos;t know any of it. A BootFile changes that &mdash; a personalized
+              instruction profile built from your quiz results that tells your AI how to
+              reason with you, not just talk at you.
             </p>
             <button
               onClick={() => router.push('/checkout')}
               style={{
                 width: '100%',
-                backgroundColor: '#0e6e6e',
+                backgroundColor: '#7D8B6E',
                 color: '#fff',
-                fontWeight: 600,
-                padding: '16px 32px',
-                borderRadius: 12,
-                fontSize: 16,
+                fontWeight: 500,
+                padding: '14px 28px',
+                borderRadius: 8,
+                fontSize: '0.95rem',
+                letterSpacing: '0.01em',
                 border: 'none',
                 cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(14,110,110,0.3)',
+                transition: 'background-color 0.2s ease',
                 fontFamily: 'inherit',
               }}
             >
               Generate My BootFile &mdash; $0.99
             </button>
-            <p style={{ marginTop: 12, fontSize: 13, color: '#999' }}>
-              One-time purchase. Works on ChatGPT, Claude, Gemini &amp; more.
+            <p style={{ marginTop: 12, fontSize: '0.85rem', color: '#7A746B' }}>
+              One-time purchase. Works on ChatGPT, Claude, Gemini and more.
             </p>
           </div>
 
           {/* Share */}
-          <div style={{ marginTop: 40, paddingTop: 32, borderTop: '1px solid #edeae5' }}>
-            <p style={{ fontSize: 14, color: '#888', textAlign: 'center', marginBottom: 16 }}>Share your result</p>
+          <div style={{ marginTop: 40, paddingTop: 32, borderTop: '1px solid #DDD6CC' }}>
+            <p style={{ fontSize: '0.85rem', color: '#7A746B', textAlign: 'center', marginBottom: 16 }}>Share your result</p>
             <ShareButtons archetypeId={quizState.primary} />
           </div>
         </div>

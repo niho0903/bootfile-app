@@ -17,9 +17,9 @@ const shareButtonStyle: React.CSSProperties = {
   borderRadius: 6,
   fontSize: 12,
   fontWeight: 500,
-  backgroundColor: '#fff',
-  border: '1px solid #dcd9d5',
-  color: '#1a1a1a',
+  backgroundColor: '#F7F4EF',
+  border: '1px solid #DDD6CC',
+  color: '#2D2926',
   textDecoration: 'none',
   minHeight: 44,
   cursor: 'pointer',
@@ -59,8 +59,8 @@ export function ShareButtons({ archetypeId }: ShareButtonsProps) {
         target="_blank"
         rel="noopener noreferrer"
         style={shareButtonStyle}
-        onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#f3f0ec')}
-        onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#fff')}
+        onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#ECEAE4')}
+        onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#F7F4EF')}
       >
         <XIcon />
         Share on X
@@ -71,8 +71,8 @@ export function ShareButtons({ archetypeId }: ShareButtonsProps) {
         target="_blank"
         rel="noopener noreferrer"
         style={shareButtonStyle}
-        onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#f3f0ec')}
-        onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#fff')}
+        onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#ECEAE4')}
+        onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#F7F4EF')}
       >
         <LinkedInIcon />
         LinkedIn
@@ -81,8 +81,8 @@ export function ShareButtons({ archetypeId }: ShareButtonsProps) {
       <button
         onClick={handleCopy}
         style={shareButtonStyle}
-        onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#f3f0ec')}
-        onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#fff')}
+        onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#ECEAE4')}
+        onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#F7F4EF')}
       >
         <LinkIcon />
         {copied ? 'Copied \u2713' : 'Copy Link'}

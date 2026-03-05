@@ -44,35 +44,92 @@ export default async function SharePage({ params }: { params: Promise<{ archetyp
   return (
     <>
       <Header />
-      <main className="pt-[80px] pb-16 px-5">
-        <div className="max-w-[640px] mx-auto text-center">
+      <main style={{ paddingTop: 80, paddingBottom: 64, padding: '80px 20px 64px' }}>
+        <div style={{ maxWidth: 640, margin: '0 auto', textAlign: 'center' }}>
           {/* Archetype Card */}
-          <div className="bg-white border border-[#dcd9d5] rounded-2xl p-8 md:p-10 shadow-md mb-10">
+          <div
+            style={{
+              backgroundColor: '#2D2926',
+              borderRadius: 16,
+              padding: '40px 32px',
+              marginBottom: 40,
+            }}
+          >
             <div
-              className="w-12 h-1 rounded-full mx-auto mb-6"
-              style={{ backgroundColor: arch.color }}
+              style={{
+                width: 48,
+                height: 3,
+                borderRadius: 9999,
+                margin: '0 auto 24px',
+                backgroundColor: '#7D8B6E',
+              }}
             />
-            <div className="text-6xl mb-4">{arch.icon}</div>
-            <h1 className="font-heading text-3xl md:text-4xl text-gray-900 mb-2">
+            <div style={{ fontSize: 56, marginBottom: 16 }}>{arch.icon}</div>
+            <h1
+              className="font-heading"
+              style={{
+                fontSize: 'clamp(1.8rem, 5vw, 2.5rem)',
+                color: '#F7F4EF',
+                marginBottom: 8,
+                fontWeight: 400,
+              }}
+            >
               {arch.name}
             </h1>
-            <p className="text-lg text-gray-500 italic mb-6">
+            <p
+              style={{
+                fontSize: '1.1rem',
+                color: '#7A746B',
+                fontStyle: 'italic',
+                marginBottom: 24,
+              }}
+            >
               &ldquo;{arch.tagline}&rdquo;
             </p>
-            <p className="text-base text-gray-700 leading-relaxed text-left max-w-[540px] mx-auto">
+            <p
+              style={{
+                fontSize: '0.95rem',
+                color: 'rgba(247, 244, 239, 0.8)',
+                lineHeight: 1.7,
+                textAlign: 'left',
+                maxWidth: 500,
+                margin: '0 auto',
+              }}
+            >
               {arch.description}
             </p>
           </div>
 
           {/* CTA */}
-          <h2 className="font-heading text-xl text-gray-900 mb-4">
+          <h2
+            className="font-heading"
+            style={{
+              fontSize: '1.3rem',
+              color: '#2D2926',
+              fontWeight: 400,
+              marginBottom: 16,
+            }}
+          >
             What&apos;s your AI style?
           </h2>
           <Link
             href="/quiz"
-            className="inline-flex items-center justify-center bg-[#0e6e6e] hover:bg-[#0a5454] active:bg-[#073d3d] text-white font-medium px-8 py-4 rounded-lg min-h-[52px] text-base transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: '#7D8B6E',
+              color: '#fff',
+              fontWeight: 500,
+              padding: '14px 28px',
+              borderRadius: 8,
+              fontSize: '0.95rem',
+              letterSpacing: '0.01em',
+              textDecoration: 'none',
+              transition: 'background-color 0.2s ease',
+            }}
           >
-            Find out &mdash; Free quiz &rarr;
+            Take the Quiz
           </Link>
         </div>
       </main>

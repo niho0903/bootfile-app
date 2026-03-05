@@ -2,23 +2,14 @@ export function Footer() {
   return (
     <footer
       style={{
-        borderTop: '1px solid #dcd9d5',
-        padding: '32px 0',
-        marginTop: 64,
+        borderTop: '1px solid #DDD6CC',
+        padding: 32,
+        textAlign: 'center',
       }}
     >
-      <div
-        style={{
-          maxWidth: 960,
-          margin: '0 auto',
-          padding: '0 20px',
-          textAlign: 'center',
-        }}
-      >
-        <p style={{ fontSize: 14, color: '#999' }}>
-          &copy; {new Date().getFullYear()} BootFile. All rights reserved.
-        </p>
-      </div>
+      <p style={{ fontSize: '0.85rem', color: '#7A746B', letterSpacing: '0.01em' }}>
+        &copy; {new Date().getFullYear()} BootFile
+      </p>
     </footer>
   );
 }

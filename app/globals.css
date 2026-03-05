@@ -4,20 +4,20 @@
   --font-display: "DM Serif Display", Georgia, serif;
   --font-body: "DM Sans", "Helvetica Neue", sans-serif;
 
-  --color-teal-50: #f0fafa;
-  --color-teal-100: #d0f0f0;
-  --color-teal-500: #0e9a9a;
-  --color-teal-600: #0e6e6e;
-  --color-teal-700: #0a5454;
-  --color-teal-800: #073d3d;
-  --color-teal-900: #042828;
+  --color-cream-50: #FDFCFA;
+  --color-cream-100: #F7F4EF;
+  --color-cream-200: #ECEAE4;
+  --color-cream-300: #DDD6CC;
+  --color-cream-400: #C8C0B5;
+  --color-cream-500: #B0A899;
 
-  --color-beige-50: #fdfcfb;
-  --color-beige-100: #f7f6f2;
-  --color-beige-200: #f3f0ec;
-  --color-beige-300: #edeae5;
-  --color-beige-400: #dcd9d5;
-  --color-beige-500: #d4d1ca;
+  --color-sage-400: #93A082;
+  --color-sage-500: #7D8B6E;
+  --color-sage-600: #5C6650;
+  --color-sage-700: #4A5240;
+
+  --color-charcoal: #2D2926;
+  --color-charcoal-light: #7A746B;
 
   --color-surgeon: #DC2626;
   --color-architect: #2563EB;
@@ -33,8 +33,8 @@
 }
 
 @keyframes fadeUp {
-  0% { opacity: 0; transform: translateY(16px); }
-  100% { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes scaleIn {
@@ -45,6 +45,11 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
 *, *::before, *::after {
@@ -62,19 +67,19 @@ html {
 
 body {
   min-height: 100dvh;
-  line-height: 1.6;
-  background-color: #f7f6f2;
-  color: #1a1a1a;
+  line-height: 1.7;
+  background-color: #F7F4EF;
+  color: #2D2926;
   font-family: var(--font-sans), "DM Sans", "Helvetica Neue", sans-serif;
 }
 
 ::selection {
-  background: rgba(14, 110, 110, 0.15);
-  color: #1a1a1a;
+  background: rgba(125, 139, 110, 0.2);
+  color: #2D2926;
 }
 
 :focus-visible {
-  outline: 2px solid #0e6e6e;
+  outline: 2px solid #7D8B6E;
   outline-offset: 3px;
   border-radius: 4px;
 }
@@ -84,11 +89,23 @@ body {
   font-family: var(--font-display), "DM Serif Display", Georgia, serif;
 }
 
+/* Hero stagger animation */
+.hero-animate {
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+.hero-animate:nth-child(1) { animation-delay: 0.1s; }
+.hero-animate:nth-child(2) { animation-delay: 0.3s; }
+.hero-animate:nth-child(3) { animation-delay: 0.5s; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  .hero-animate {
+    opacity: 1;
   }
 }
 

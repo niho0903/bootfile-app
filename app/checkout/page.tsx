@@ -51,7 +51,7 @@ export default function CheckoutPage() {
       <div
         style={{
           minHeight: '100vh',
-          backgroundColor: '#f7f6f2',
+          backgroundColor: '#F7F4EF',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -66,7 +66,7 @@ export default function CheckoutPage() {
               window.location.reload();
             }}
             style={{
-              backgroundColor: '#0e6e6e',
+              backgroundColor: '#7D8B6E',
               color: '#fff',
               fontWeight: 500,
               padding: '12px 24px',
@@ -76,8 +76,8 @@ export default function CheckoutPage() {
               fontSize: 14,
               transition: 'background-color 0.2s',
             }}
-            onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#0a5454')}
-            onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#0e6e6e')}
+            onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#5C6650')}
+            onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#7D8B6E')}
           >
             Try Again
           </button>
@@ -90,7 +90,7 @@ export default function CheckoutPage() {
     <div
       style={{
         minHeight: '100vh',
-        backgroundColor: '#f7f6f2',
+        backgroundColor: '#F7F4EF',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -101,14 +101,14 @@ export default function CheckoutPage() {
           style={{
             width: 32,
             height: 32,
-            border: '2px solid #0e6e6e',
+            border: '2px solid #7D8B6E',
             borderTopColor: 'transparent',
             borderRadius: '50%',
             margin: '0 auto 16px',
             animation: 'spin 1s linear infinite',
           }}
         />
-        <p style={{ color: '#666' }}>Setting up your BootFile...</p>
+        <p style={{ color: '#7A746B' }}>Setting up your BootFile...</p>
       </div>
     </div>
   );

@@ -134,7 +134,7 @@ function GenerateContent() {
       <div
         style={{
           minHeight: '100vh',
-          backgroundColor: '#f7f6f2',
+          backgroundColor: '#F7F4EF',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -144,7 +144,7 @@ function GenerateContent() {
           style={{
             width: 32,
             height: 32,
-            border: '2px solid #0e6e6e',
+            border: '2px solid #7D8B6E',
             borderTopColor: 'transparent',
             borderRadius: '50%',
             animation: 'spin 1s linear infinite',
@@ -159,7 +159,7 @@ function GenerateContent() {
       <div
         style={{
           minHeight: '100vh',
-          backgroundColor: '#f7f6f2',
+          backgroundColor: '#F7F4EF',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -171,17 +171,26 @@ function GenerateContent() {
             style={{
               width: 40,
               height: 40,
-              border: '2px solid #0e6e6e',
+              border: '2px solid #7D8B6E',
               borderTopColor: 'transparent',
               borderRadius: '50%',
               margin: '0 auto 24px',
               animation: 'spin 1s linear infinite',
             }}
           />
-          <p style={{ fontSize: 18, color: '#1a1a1a', fontWeight: 500, marginBottom: 8 }}>
+          <p
+            className="font-heading"
+            style={{
+              fontSize: 18,
+              color: '#2D2926',
+              fontWeight: 500,
+              marginBottom: 8,
+              animation: 'pulse 2s ease-in-out infinite',
+            }}
+          >
             {generatingText}
           </p>
-          <p style={{ fontSize: 14, color: '#999' }}>
+          <p style={{ fontSize: 14, color: '#7A746B' }}>
             This usually takes 10-15 seconds.
           </p>
         </div>
@@ -204,9 +213,9 @@ function GenerateContent() {
                 gap: 8,
                 padding: '6px 12px',
                 borderRadius: 9999,
-                backgroundColor: '#f0fafa',
+                backgroundColor: '#ECEAE4',
                 fontSize: 14,
-                color: '#0e6e6e',
+                color: '#7D8B6E',
                 fontWeight: 500,
                 marginBottom: 16,
               }}
@@ -215,11 +224,11 @@ function GenerateContent() {
             </span>
             <h1
               className="font-heading"
-              style={{ fontSize: 'clamp(1.5rem, 4vw, 1.875rem)', color: '#1a1a1a', marginBottom: 8 }}
+              style={{ fontSize: 'clamp(1.5rem, 4vw, 1.875rem)', color: '#2D2926', marginBottom: 8 }}
             >
               Let&apos;s personalize your BootFile
             </h1>
-            <p style={{ color: '#666' }}>
+            <p style={{ color: '#7A746B' }}>
               These questions help us calibrate your BootFile to your exact needs.
             </p>
           </div>
@@ -242,7 +251,7 @@ export default function GeneratePage() {
         <div
           style={{
             minHeight: '100vh',
-            backgroundColor: '#f7f6f2',
+            backgroundColor: '#F7F4EF',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -252,7 +261,7 @@ export default function GeneratePage() {
             style={{
               width: 32,
               height: 32,
-              border: '2px solid #0e6e6e',
+              border: '2px solid #7D8B6E',
               borderTopColor: 'transparent',
               borderRadius: '50%',
               animation: 'spin 1s linear infinite',

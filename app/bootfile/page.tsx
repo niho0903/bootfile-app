@@ -39,7 +39,7 @@ export default function BootFilePage() {
       <div
         style={{
           minHeight: '100vh',
-          backgroundColor: '#f7f6f2',
+          backgroundColor: '#F7F4EF',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -49,7 +49,7 @@ export default function BootFilePage() {
           style={{
             width: 32,
             height: 32,
-            border: '2px solid #0e6e6e',
+            border: '2px solid #7D8B6E',
             borderTopColor: 'transparent',
             borderRadius: '50%',
             animation: 'spin 1s linear infinite',
@@ -70,7 +70,7 @@ export default function BootFilePage() {
           <div style={{ textAlign: 'center', marginBottom: 32 }}>
             <h1
               className="font-heading"
-              style={{ fontSize: 'clamp(1.5rem, 4vw, 1.875rem)', color: '#1a1a1a', marginBottom: 12 }}
+              style={{ fontSize: 'clamp(1.5rem, 4vw, 1.875rem)', color: '#2D2926', marginBottom: 12 }}
             >
               Your BootFile is ready
             </h1>
@@ -82,9 +82,9 @@ export default function BootFilePage() {
                   gap: 8,
                   padding: '6px 12px',
                   borderRadius: 9999,
-                  backgroundColor: '#f0fafa',
+                  backgroundColor: '#ECEAE4',
                   fontSize: 14,
-                  color: '#0e6e6e',
+                  color: '#7D8B6E',
                   fontWeight: 500,
                 }}
               >
@@ -97,7 +97,7 @@ export default function BootFilePage() {
           <div
             style={{
               backgroundColor: '#fff',
-              border: '1px solid #dcd9d5',
+              border: '1px solid #DDD6CC',
               borderRadius: 16,
               padding: '24px',
               boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
@@ -112,10 +112,10 @@ export default function BootFilePage() {
               style={{
                 marginTop: 40,
                 paddingTop: 32,
-                borderTop: '1px solid #edeae5',
+                borderTop: '1px solid #DDD6CC',
               }}
             >
-              <p style={{ fontSize: 14, color: '#999', textAlign: 'center', marginBottom: 16 }}>
+              <p style={{ fontSize: 14, color: '#7A746B', textAlign: 'center', marginBottom: 16 }}>
                 Share your archetype
               </p>
               <ShareButtons archetypeId={archetypeId} />
@@ -128,12 +128,12 @@ export default function BootFilePage() {
               href="/quiz"
               style={{
                 fontSize: 14,
-                color: '#999',
+                color: '#7A746B',
                 textDecoration: 'none',
                 transition: 'color 0.2s',
               }}
-              onMouseEnter={e => (e.currentTarget.style.color = '#666')}
-              onMouseLeave={e => (e.currentTarget.style.color = '#999')}
+              onMouseEnter={e => (e.currentTarget.style.color = '#2D2926')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#7A746B')}
             >
               Start Over
             </Link>

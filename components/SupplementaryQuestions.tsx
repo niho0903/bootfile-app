@@ -64,9 +64,9 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
     fontSize: 14,
     fontWeight: 500,
     border: '1px solid',
-    borderColor: selected ? '#0e6e6e' : '#dcd9d5',
-    backgroundColor: selected ? '#0e6e6e' : '#fff',
-    color: selected ? '#fff' : '#555',
+    borderColor: selected ? '#7D8B6E' : '#DDD6CC',
+    backgroundColor: selected ? '#7D8B6E' : '#fff',
+    color: selected ? '#fff' : '#7A746B',
     cursor: 'pointer',
     transition: 'all 0.2s',
   });
@@ -74,7 +74,7 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
   const legendStyle: React.CSSProperties = {
     fontSize: 16,
     fontWeight: 500,
-    color: '#1a1a1a',
+    color: '#2D2926',
     marginBottom: 12,
   };
 
@@ -83,8 +83,8 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
     textAlign: 'left' as const,
     padding: 16,
     borderRadius: 8,
-    border: `2px solid ${selected ? '#0e6e6e' : '#edeae5'}`,
-    backgroundColor: selected ? '#f0fafa' : '#fff',
+    border: `2px solid ${selected ? '#7D8B6E' : '#DDD6CC'}`,
+    backgroundColor: selected ? '#ECEAE4' : '#ECEAE4',
     fontSize: 14,
     cursor: 'pointer',
     transition: 'all 0.2s',
@@ -93,7 +93,7 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
   return (
     <form onSubmit={handleSubmit}>
       <div style={{ textAlign: 'center', marginBottom: 32 }}>
-        <p style={{ fontSize: 14, color: '#999' }}>8 questions &mdash; takes about 3 minutes</p>
+        <p style={{ fontSize: 14, color: '#7A746B' }}>8 questions &mdash; takes about 3 minutes</p>
       </div>
 
       {/* Q1: Professional Domain */}
@@ -110,14 +110,14 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
               style={pillStyle(formData.domain === domain)}
               onMouseEnter={e => {
                 if (formData.domain !== domain) {
-                  e.currentTarget.style.borderColor = '#0e6e6e';
-                  e.currentTarget.style.color = '#0e6e6e';
+                  e.currentTarget.style.borderColor = '#7D8B6E';
+                  e.currentTarget.style.color = '#7D8B6E';
                 }
               }}
               onMouseLeave={e => {
                 if (formData.domain !== domain) {
-                  e.currentTarget.style.borderColor = '#dcd9d5';
-                  e.currentTarget.style.color = '#555';
+                  e.currentTarget.style.borderColor = '#DDD6CC';
+                  e.currentTarget.style.color = '#7A746B';
                 }
               }}
             >
@@ -137,19 +137,19 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
               maxWidth: 384,
               padding: '10px 16px',
               borderRadius: 8,
-              border: '1px solid #dcd9d5',
+              border: '1px solid #DDD6CC',
               backgroundColor: '#fff',
-              color: '#1a1a1a',
+              color: '#2D2926',
               fontSize: 14,
               outline: 'none',
             }}
             onFocus={e => {
-              e.currentTarget.style.boxShadow = '0 0 0 2px #0e6e6e';
+              e.currentTarget.style.boxShadow = '0 0 0 2px #7D8B6E';
               e.currentTarget.style.borderColor = 'transparent';
             }}
             onBlur={e => {
               e.currentTarget.style.boxShadow = 'none';
-              e.currentTarget.style.borderColor = '#dcd9d5';
+              e.currentTarget.style.borderColor = '#DDD6CC';
             }}
           />
         )}
@@ -161,7 +161,7 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
           How technical is your daily work?
         </legend>
         <div style={{ maxWidth: 448 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#999', marginBottom: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#7A746B', marginBottom: 8 }}>
             <span>Non-technical</span>
             <span>Highly technical</span>
           </div>
@@ -171,7 +171,7 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
             max={10}
             value={formData.technicalLevel}
             onChange={e => setFormData(prev => ({ ...prev, technicalLevel: parseInt(e.target.value) }))}
-            style={{ width: '100%', accentColor: '#0e6e6e' }}
+            style={{ width: '100%', accentColor: '#7D8B6E' }}
           />
           <div style={{ textAlign: 'center', marginTop: 8 }}>
             <span
@@ -182,8 +182,8 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
                 width: 40,
                 height: 40,
                 borderRadius: 8,
-                backgroundColor: '#f0fafa',
-                color: '#0e6e6e',
+                backgroundColor: '#ECEAE4',
+                color: '#7D8B6E',
                 fontWeight: 600,
                 fontSize: 18,
               }}
@@ -208,14 +208,14 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
               style={pillStyle(formData.primaryUse === use)}
               onMouseEnter={e => {
                 if (formData.primaryUse !== use) {
-                  e.currentTarget.style.borderColor = '#0e6e6e';
-                  e.currentTarget.style.color = '#0e6e6e';
+                  e.currentTarget.style.borderColor = '#7D8B6E';
+                  e.currentTarget.style.color = '#7D8B6E';
                 }
               }}
               onMouseLeave={e => {
                 if (formData.primaryUse !== use) {
-                  e.currentTarget.style.borderColor = '#dcd9d5';
-                  e.currentTarget.style.color = '#555';
+                  e.currentTarget.style.borderColor = '#DDD6CC';
+                  e.currentTarget.style.color = '#7A746B';
                 }
               }}
             >
@@ -239,12 +239,12 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
               style={radioCardStyle(formData.decisionStyle === option.value)}
               onMouseEnter={e => {
                 if (formData.decisionStyle !== option.value) {
-                  e.currentTarget.style.borderColor = '#dcd9d5';
+                  e.currentTarget.style.borderColor = '#C8C0B5';
                 }
               }}
               onMouseLeave={e => {
                 if (formData.decisionStyle !== option.value) {
-                  e.currentTarget.style.borderColor = '#edeae5';
+                  e.currentTarget.style.borderColor = '#DDD6CC';
                 }
               }}
             >
@@ -268,14 +268,14 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
               style={pillStyle(formData.responseLength === option.value)}
               onMouseEnter={e => {
                 if (formData.responseLength !== option.value) {
-                  e.currentTarget.style.borderColor = '#0e6e6e';
-                  e.currentTarget.style.color = '#0e6e6e';
+                  e.currentTarget.style.borderColor = '#7D8B6E';
+                  e.currentTarget.style.color = '#7D8B6E';
                 }
               }}
               onMouseLeave={e => {
                 if (formData.responseLength !== option.value) {
-                  e.currentTarget.style.borderColor = '#dcd9d5';
-                  e.currentTarget.style.color = '#555';
+                  e.currentTarget.style.borderColor = '#DDD6CC';
+                  e.currentTarget.style.color = '#7A746B';
                 }
               }}
             >
@@ -290,7 +290,7 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
         <legend style={{ ...legendStyle, marginBottom: 4 }}>
           When AI gets it wrong, what bothers you most?
         </legend>
-        <p style={{ fontSize: 12, color: '#999', marginBottom: 12 }}>Pick up to 2</p>
+        <p style={{ fontSize: 12, color: '#7A746B', marginBottom: 12 }}>Pick up to 2</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {petPeeveOptions.map(peeve => {
             const isSelected = formData.petPeeves.includes(peeve);
@@ -306,8 +306,8 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
                   textAlign: 'left',
                   padding: 12,
                   borderRadius: 8,
-                  border: `2px solid ${isSelected ? '#0e6e6e' : '#edeae5'}`,
-                  backgroundColor: isSelected ? '#f0fafa' : isDisabled ? '#fdfcfb' : '#fff',
+                  border: `2px solid ${isSelected ? '#7D8B6E' : '#DDD6CC'}`,
+                  backgroundColor: isSelected ? '#ECEAE4' : isDisabled ? '#F7F4EF' : '#ECEAE4',
                   fontSize: 14,
                   cursor: isDisabled ? 'not-allowed' : 'pointer',
                   opacity: isDisabled ? 0.5 : 1,
@@ -315,12 +315,12 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
                 }}
                 onMouseEnter={e => {
                   if (!isSelected && !isDisabled) {
-                    e.currentTarget.style.borderColor = '#dcd9d5';
+                    e.currentTarget.style.borderColor = '#C8C0B5';
                   }
                 }}
                 onMouseLeave={e => {
                   if (!isSelected && !isDisabled) {
-                    e.currentTarget.style.borderColor = '#edeae5';
+                    e.currentTarget.style.borderColor = '#DDD6CC';
                   }
                 }}
               >
@@ -331,8 +331,8 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
                       width: 20,
                       height: 20,
                       borderRadius: 4,
-                      border: `2px solid ${isSelected ? '#0e6e6e' : '#dcd9d5'}`,
-                      backgroundColor: isSelected ? '#0e6e6e' : 'transparent',
+                      border: `2px solid ${isSelected ? '#7D8B6E' : '#DDD6CC'}`,
+                      backgroundColor: isSelected ? '#7D8B6E' : 'transparent',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -371,37 +371,37 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
               width: '100%',
               padding: '12px 16px',
               borderRadius: 8,
-              border: '1px solid #dcd9d5',
+              border: '1px solid #DDD6CC',
               backgroundColor: '#fff',
-              color: '#1a1a1a',
+              color: '#2D2926',
               fontSize: 14,
               resize: 'none',
               outline: 'none',
               fontFamily: 'inherit',
             }}
             onFocus={e => {
-              e.currentTarget.style.boxShadow = '0 0 0 2px #0e6e6e';
+              e.currentTarget.style.boxShadow = '0 0 0 2px #7D8B6E';
               e.currentTarget.style.borderColor = 'transparent';
             }}
             onBlur={e => {
               e.currentTarget.style.boxShadow = 'none';
-              e.currentTarget.style.borderColor = '#dcd9d5';
+              e.currentTarget.style.borderColor = '#DDD6CC';
             }}
           />
-          <span style={{ position: 'absolute', bottom: 8, right: 12, fontSize: 12, color: '#999' }}>
+          <span style={{ position: 'absolute', bottom: 8, right: 12, fontSize: 12, color: '#7A746B' }}>
             {formData.customAvoidances.length}/300
           </span>
         </div>
-        <p style={{ fontSize: 12, color: '#999', marginTop: 4 }}>Optional</p>
+        <p style={{ fontSize: 12, color: '#7A746B', marginTop: 4 }}>Optional</p>
       </fieldset>
 
       {/* Q8: Open Description (KEY DIFFERENTIATOR) */}
       <fieldset
         style={{
-          border: '2px solid #0e6e6e',
+          border: '2px solid #7D8B6E',
           borderRadius: 12,
           padding: 24,
-          backgroundColor: 'rgba(240, 250, 250, 0.3)',
+          backgroundColor: 'rgba(236, 234, 228, 0.3)',
           marginBottom: 40,
         }}
       >
@@ -409,14 +409,14 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
           style={{
             fontSize: 16,
             fontWeight: 600,
-            color: '#1a1a1a',
+            color: '#2D2926',
             marginBottom: 4,
             padding: '0 8px',
           }}
         >
           In your own words, what do you want from your AI?
         </legend>
-        <p style={{ fontSize: 14, color: '#0e6e6e', fontWeight: 500, marginBottom: 12 }}>
+        <p style={{ fontSize: 14, color: '#7D8B6E', fontWeight: 500, marginBottom: 12 }}>
           This is the most important question. The more specific, the better.
         </p>
         <div style={{ position: 'relative' }}>
@@ -433,24 +433,24 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
               width: '100%',
               padding: '12px 16px',
               borderRadius: 8,
-              border: '1px solid rgba(14, 110, 110, 0.3)',
+              border: '1px solid rgba(125, 139, 110, 0.3)',
               backgroundColor: '#fff',
-              color: '#1a1a1a',
+              color: '#2D2926',
               fontSize: 16,
               resize: 'none',
               outline: 'none',
               fontFamily: 'inherit',
             }}
             onFocus={e => {
-              e.currentTarget.style.boxShadow = '0 0 0 2px #0e6e6e';
+              e.currentTarget.style.boxShadow = '0 0 0 2px #7D8B6E';
               e.currentTarget.style.borderColor = 'transparent';
             }}
             onBlur={e => {
               e.currentTarget.style.boxShadow = 'none';
-              e.currentTarget.style.borderColor = 'rgba(14, 110, 110, 0.3)';
+              e.currentTarget.style.borderColor = 'rgba(125, 139, 110, 0.3)';
             }}
           />
-          <span style={{ position: 'absolute', bottom: 8, right: 12, fontSize: 12, color: '#999' }}>
+          <span style={{ position: 'absolute', bottom: 8, right: 12, fontSize: 12, color: '#7A746B' }}>
             {formData.openDescription.length}/500
           </span>
         </div>
@@ -470,20 +470,20 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
             fontSize: 16,
             border: 'none',
             cursor: isValid && !isGenerating ? 'pointer' : 'not-allowed',
-            backgroundColor: isValid && !isGenerating ? '#0e6e6e' : '#d4d1ca',
-            color: isValid && !isGenerating ? '#fff' : '#999',
+            backgroundColor: isValid && !isGenerating ? '#7D8B6E' : '#d4d1ca',
+            color: isValid && !isGenerating ? '#fff' : '#7A746B',
             transition: 'all 0.2s',
           }}
           onMouseEnter={e => {
             if (isValid && !isGenerating) {
-              e.currentTarget.style.backgroundColor = '#0a5454';
+              e.currentTarget.style.backgroundColor = '#5C6650';
               e.currentTarget.style.transform = 'translateY(-1px)';
               e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
             }
           }}
           onMouseLeave={e => {
             if (isValid && !isGenerating) {
-              e.currentTarget.style.backgroundColor = '#0e6e6e';
+              e.currentTarget.style.backgroundColor = '#7D8B6E';
               e.currentTarget.style.transform = 'translateY(0)';
               e.currentTarget.style.boxShadow = 'none';
             }

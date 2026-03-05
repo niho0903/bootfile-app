@@ -50,7 +50,7 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
   return (
     <div>
       {/* Platform tabs */}
-      <div style={{ display: 'flex', borderBottom: '1px solid #dcd9d5', marginBottom: 24 }}>
+      <div style={{ display: 'flex', borderBottom: '1px solid #DDD6CC', marginBottom: 24 }}>
         {(Object.keys(PLATFORM_CONFIG) as Platform[]).map(platform => (
           <button
             key={platform}
@@ -59,25 +59,25 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
               padding: '12px 24px',
               fontSize: 14,
               fontWeight: 500,
-              borderBottom: `2px solid ${activeTab === platform ? '#0e6e6e' : 'transparent'}`,
-              color: activeTab === platform ? '#0e6e6e' : '#999',
+              borderBottom: `2px solid ${activeTab === platform ? '#7D8B6E' : 'transparent'}`,
+              color: activeTab === platform ? '#7D8B6E' : '#7A746B',
               backgroundColor: 'transparent',
               border: 'none',
               borderBottomWidth: 2,
               borderBottomStyle: 'solid',
-              borderBottomColor: activeTab === platform ? '#0e6e6e' : 'transparent',
+              borderBottomColor: activeTab === platform ? '#7D8B6E' : 'transparent',
               marginBottom: -1,
               cursor: 'pointer',
               transition: 'color 0.2s',
             }}
             onMouseEnter={e => {
               if (activeTab !== platform) {
-                e.currentTarget.style.color = '#555';
+                e.currentTarget.style.color = '#2D2926';
               }
             }}
             onMouseLeave={e => {
               if (activeTab !== platform) {
-                e.currentTarget.style.color = '#999';
+                e.currentTarget.style.color = '#7A746B';
               }
             }}
           >
@@ -89,14 +89,14 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
       {/* Instructions */}
       <div
         style={{
-          backgroundColor: '#f0fafa',
-          border: '1px solid #d0f0f0',
+          backgroundColor: '#ECEAE4',
+          border: '1px solid #DDD6CC',
           borderRadius: 8,
           padding: 16,
           marginBottom: 24,
         }}
       >
-        <p style={{ fontSize: 14, color: '#0a5454' }}>{config.instructions}</p>
+        <p style={{ fontSize: 14, color: '#5C6650' }}>{config.instructions}</p>
       </div>
 
       {/* Content + Copy */}
@@ -105,7 +105,7 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
           {/* Field 1 */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 600, color: '#555' }}>
+              <h3 style={{ fontSize: 14, fontWeight: 600, color: '#7A746B' }}>
                 Field 1: &ldquo;What would you like ChatGPT to know about you?&rdquo;
               </h3>
             </div>
@@ -121,7 +121,7 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
           {/* Field 2 */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 600, color: '#555' }}>
+              <h3 style={{ fontSize: 14, fontWeight: 600, color: '#7A746B' }}>
                 Field 2: &ldquo;How would you like ChatGPT to respond?&rdquo;
               </h3>
             </div>
@@ -151,7 +151,7 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
       {activeTab === 'gemini' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
           <div>
-            <h3 style={{ fontSize: 14, fontWeight: 600, color: '#555', marginBottom: 8 }}>
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: '#7A746B', marginBottom: 8 }}>
               Full Version (for Gem Instructions)
             </h3>
             <CopyButton
@@ -163,7 +163,7 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
             <ContentBlock text={formatted.gemini.gem} />
           </div>
           <div>
-            <h3 style={{ fontSize: 14, fontWeight: 600, color: '#555', marginBottom: 8 }}>
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: '#7A746B', marginBottom: 8 }}>
               Condensed Version (for Preferences)
             </h3>
             <CopyButton
@@ -187,9 +187,9 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
             display: 'inline-flex',
             alignItems: 'center',
             gap: 8,
-            backgroundColor: '#fff',
-            border: '1px solid #dcd9d5',
-            color: '#1a1a1a',
+            backgroundColor: '#ECEAE4',
+            border: '1px solid #DDD6CC',
+            color: '#2D2926',
             fontWeight: 500,
             padding: '10px 20px',
             borderRadius: 6,
@@ -198,8 +198,8 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
             textDecoration: 'none',
             transition: 'background-color 0.2s',
           }}
-          onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#f3f0ec')}
-          onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#fff')}
+          onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#ECEAE4')}
+          onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#ECEAE4')}
         >
           Open {config.label}
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -232,23 +232,25 @@ function CopyButton({
         padding: '12px 20px',
         borderRadius: 8,
         fontSize: 14,
-        border: 'none',
+        border: isCopied ? 'none' : '1.5px solid #7D8B6E',
         cursor: 'pointer',
         marginBottom: 12,
-        backgroundColor: isCopied ? '#059669' : '#0e6e6e',
-        color: '#fff',
+        backgroundColor: isCopied ? '#7D8B6E' : 'transparent',
+        color: isCopied ? '#fff' : '#7D8B6E',
         transition: 'all 0.2s',
       }}
       onMouseEnter={e => {
         if (!isCopied) {
-          e.currentTarget.style.backgroundColor = '#0a5454';
+          e.currentTarget.style.backgroundColor = '#7D8B6E';
+          e.currentTarget.style.color = '#fff';
           e.currentTarget.style.transform = 'translateY(-1px)';
           e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
         }
       }}
       onMouseLeave={e => {
         if (!isCopied) {
-          e.currentTarget.style.backgroundColor = '#0e6e6e';
+          e.currentTarget.style.backgroundColor = 'transparent';
+          e.currentTarget.style.color = '#7D8B6E';
           e.currentTarget.style.transform = 'translateY(0)';
           e.currentTarget.style.boxShadow = 'none';
         }
@@ -268,8 +270,8 @@ function ContentBlock({ text }: { text: string }) {
   return (
     <div
       style={{
-        backgroundColor: '#fff',
-        border: '1px solid #edeae5',
+        backgroundColor: '#F7F4EF',
+        border: '1px solid #DDD6CC',
         borderRadius: 8,
         padding: 16,
         maxHeight: 400,
@@ -280,7 +282,7 @@ function ContentBlock({ text }: { text: string }) {
         style={{
           whiteSpace: 'pre-wrap',
           fontSize: 14,
-          color: '#444',
+          color: '#2D2926',
           lineHeight: 1.6,
           fontFamily: 'inherit',
           margin: 0,
