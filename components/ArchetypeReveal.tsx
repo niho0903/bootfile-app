@@ -13,42 +13,83 @@ export function ArchetypeReveal({ primary, secondary }: ArchetypeRevealProps) {
   const secondaryArch = secondary ? ARCHETYPES[secondary] : null;
 
   return (
-    <div className="animate-[scaleIn_0.6s_cubic-bezier(0.16,1,0.3,1)_both]">
-      <div className="bg-white border border-[#dcd9d5] rounded-2xl p-8 md:p-10 shadow-md max-w-[640px] mx-auto text-center">
-        {/* Color accent bar */}
-        <div
-          className="w-12 h-1 rounded-full mx-auto mb-6"
-          style={{ backgroundColor: arch.color }}
-        />
+    <div
+      style={{
+        backgroundColor: '#fff',
+        border: '1px solid #dcd9d5',
+        borderRadius: 24,
+        padding: '40px 32px',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.06)',
+        textAlign: 'center',
+        maxWidth: 640,
+        margin: '0 auto',
+      }}
+    >
+      {/* Color accent bar */}
+      <div
+        style={{
+          width: 48,
+          height: 4,
+          borderRadius: 9999,
+          margin: '0 auto 24px',
+          backgroundColor: arch.color,
+        }}
+      />
 
-        {/* Icon */}
-        <div className="text-6xl mb-4">{arch.icon}</div>
+      {/* Icon */}
+      <div style={{ fontSize: 56, marginBottom: 16 }}>{arch.icon}</div>
 
-        {/* Name */}
-        <h1 className="font-heading text-3xl md:text-4xl text-gray-900 mb-2">
-          {arch.name}
-        </h1>
+      {/* Name */}
+      <h1
+        className="font-heading"
+        style={{
+          fontSize: 'clamp(1.8rem, 5vw, 2.5rem)',
+          color: '#1a1a1a',
+          marginBottom: 8,
+        }}
+      >
+        {arch.name}
+      </h1>
 
-        {/* Tagline */}
-        <p className="text-lg text-gray-500 italic mb-6">
-          &ldquo;{arch.tagline}&rdquo;
-        </p>
+      {/* Tagline */}
+      <p style={{ fontSize: 18, color: '#888', fontStyle: 'italic', marginBottom: 24 }}>
+        &ldquo;{arch.tagline}&rdquo;
+      </p>
 
-        {/* Description */}
-        <p className="text-base text-gray-700 leading-relaxed text-left max-w-[540px] mx-auto">
-          {arch.description}
-        </p>
+      {/* Description */}
+      <p
+        style={{
+          fontSize: 16,
+          color: '#555',
+          lineHeight: 1.7,
+          textAlign: 'left',
+          maxWidth: 500,
+          margin: '0 auto',
+        }}
+      >
+        {arch.description}
+      </p>
 
-        {/* Secondary badge */}
-        {secondaryArch && (
-          <div className="mt-6 pt-6 border-t border-[#edeae5]">
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#f7f6f2] text-sm text-gray-600">
-              <span>{secondaryArch.icon}</span>
-              You also have strong <span className="font-medium">{secondaryArch.name}</span> tendencies.
-            </span>
-          </div>
-        )}
-      </div>
+      {/* Secondary badge */}
+      {secondaryArch && (
+        <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid #edeae5' }}>
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '8px 18px',
+              borderRadius: 9999,
+              backgroundColor: '#f7f6f2',
+              fontSize: 14,
+              color: '#666',
+            }}
+          >
+            <span>{secondaryArch.icon}</span>
+            You also have strong <span style={{ fontWeight: 600 }}>{secondaryArch.name}</span> tendencies.
+          </span>
+        </div>
+      )}
     </div>
   );
 }

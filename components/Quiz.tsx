@@ -13,7 +13,6 @@ export function Quiz() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
 
-  // Clear prior quiz state on mount
   useEffect(() => {
     sessionStorage.removeItem('bootfile_quiz');
     sessionStorage.removeItem('bootfile_output');
@@ -38,7 +37,6 @@ export function Quiz() {
           setIsVisible(true);
         }, 300);
       } else {
-        // Final answer — calculate and save
         const result = calculateResult(newAnswers);
         sessionStorage.setItem('bootfile_quiz', JSON.stringify({
           answers: newAnswers,
@@ -53,7 +51,6 @@ export function Quiz() {
     }, 400);
   }, [currentQ, answers, isTransitioning, router]);
 
-  // Keyboard support
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const keyMap: Record<string, AnswerKey> = {
@@ -74,59 +71,155 @@ export function Quiz() {
   const answerKeys: AnswerKey[] = ['A', 'B', 'C', 'D'];
 
   return (
-    <div className="min-h-screen bg-[#f7f6f2]">
-      {/* Progress bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-[#edeae5]">
-        <div className="max-w-[960px] mx-auto px-5 py-3 flex items-center justify-between">
-          <span className="text-sm text-gray-500 font-medium">
+    <div style={{ minHeight: '100vh', backgroundColor: '#f7f6f2' }}>
+      {/* Progress header */}
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 50,
+          backgroundColor: 'rgba(255,255,255,0.92)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          borderBottom: '1px solid #edeae5',
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 800,
+            margin: '0 auto',
+            padding: '14px 24px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <span style={{ fontSize: 14, color: '#888', fontWeight: 500 }}>
             Question {currentQ + 1} of {QUESTIONS.length}
           </span>
-          <span className="text-sm text-gray-400">BootFile</span>
+          <span className="font-heading" style={{ fontSize: 16, color: '#aaa' }}>
+            BootFile
+          </span>
         </div>
-        <div className="h-1 bg-[#edeae5]">
+        {/* Progress bar */}
+        <div style={{ height: 4, backgroundColor: '#edeae5' }}>
           <div
-            className="h-full bg-[#0e6e6e] transition-all duration-500 ease-out"
-            style={{ width: `${progressPercent}%` }}
+            style={{
+              height: '100%',
+              backgroundColor: '#0e6e6e',
+              width: `${progressPercent}%`,
+              transition: 'width 0.5s ease-out',
+              borderRadius: '0 2px 2px 0',
+            }}
           />
         </div>
       </div>
 
-      {/* Question */}
-      <div className="pt-24 pb-16 px-5">
+      {/* Question area — vertically centered like TurboTax */}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          padding: '100px 24px 60px',
+        }}
+      >
         <div
-          className="max-w-[640px] mx-auto transition-opacity duration-300"
-          style={{ opacity: isVisible ? 1 : 0 }}
+          style={{
+            maxWidth: 600,
+            width: '100%',
+            opacity: isVisible ? 1 : 0,
+            transition: 'opacity 0.3s ease',
+          }}
         >
-          <h2 className="font-heading text-2xl md:text-3xl text-gray-900 mb-8 leading-snug">
+          {/* Question number pill */}
+          <div
+            style={{
+              display: 'inline-block',
+              padding: '4px 14px',
+              borderRadius: 9999,
+              backgroundColor: '#f0fafa',
+              color: '#0e6e6e',
+              fontSize: 13,
+              fontWeight: 600,
+              marginBottom: 20,
+            }}
+          >
+            {currentQ + 1} / {QUESTIONS.length}
+          </div>
+
+          {/* Question text */}
+          <h2
+            className="font-heading"
+            style={{
+              fontSize: 'clamp(1.5rem, 4vw, 2rem)',
+              lineHeight: 1.3,
+              color: '#1a1a1a',
+              marginBottom: 36,
+              letterSpacing: '-0.01em',
+            }}
+          >
             {question.text}
           </h2>
 
-          <div className="space-y-3">
+          {/* Answer cards */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {answerKeys.map((key) => {
               const answer = question.answers[key];
               const isSelected = selectedAnswer === key;
+              const isFaded = isTransitioning && !isSelected;
 
               return (
                 <button
                   key={key}
                   onClick={() => handleAnswer(key)}
                   disabled={isTransitioning}
-                  className={`w-full text-left p-4 rounded-lg border-2 transition-all duration-200 flex items-start gap-4 min-h-[56px] ${
-                    isSelected
-                      ? 'border-[#0e6e6e] bg-[#f0fafa]'
-                      : 'border-[#edeae5] bg-white hover:border-[#dcd9d5] hover:bg-[#fdfcfb]'
-                  } ${isTransitioning && !isSelected ? 'opacity-60' : ''}`}
+                  style={{
+                    width: '100%',
+                    textAlign: 'left',
+                    padding: '18px 20px',
+                    borderRadius: 14,
+                    border: isSelected ? '2px solid #0e6e6e' : '2px solid #e0ddd8',
+                    backgroundColor: isSelected ? '#f0fafa' : '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 16,
+                    cursor: isTransitioning ? 'default' : 'pointer',
+                    opacity: isFaded ? 0.4 : 1,
+                    transition: 'all 0.2s ease',
+                    boxShadow: isSelected
+                      ? '0 0 0 1px #0e6e6e, 0 2px 8px rgba(14,110,110,0.12)'
+                      : '0 1px 3px rgba(0,0,0,0.04)',
+                    outline: 'none',
+                    fontFamily: 'inherit',
+                    fontSize: 'inherit',
+                  }}
                 >
+                  {/* Letter badge */}
                   <span
-                    className={`flex-shrink-0 w-8 h-8 rounded-md flex items-center justify-center text-sm font-semibold transition-colors ${
-                      isSelected
-                        ? 'bg-[#0e6e6e] text-white'
-                        : 'bg-[#f7f6f2] text-gray-500'
-                    }`}
+                    style={{
+                      flexShrink: 0,
+                      width: 38,
+                      height: 38,
+                      borderRadius: 10,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 15,
+                      fontWeight: 700,
+                      backgroundColor: isSelected ? '#0e6e6e' : '#f3f0ec',
+                      color: isSelected ? '#fff' : '#888',
+                      transition: 'all 0.2s ease',
+                    }}
                   >
                     {key}
                   </span>
-                  <span className="text-base text-gray-800 pt-1">
+                  {/* Answer text */}
+                  <span style={{ fontSize: 16, color: '#333', lineHeight: 1.5 }}>
                     {answer.text}
                   </span>
                 </button>
@@ -134,8 +227,16 @@ export function Quiz() {
             })}
           </div>
 
-          <p className="mt-6 text-center text-xs text-gray-400">
-            Press 1-4 or A-D to select
+          {/* Keyboard hint */}
+          <p
+            style={{
+              marginTop: 28,
+              textAlign: 'center',
+              fontSize: 13,
+              color: '#bbb',
+            }}
+          >
+            Press 1&ndash;4 or A&ndash;D to select
           </p>
         </div>
       </div>

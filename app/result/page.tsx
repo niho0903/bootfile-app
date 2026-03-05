@@ -33,48 +33,65 @@ export default function ResultPage() {
 
   if (!quizState) {
     return (
-      <div className="min-h-screen bg-[#f7f6f2] flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-[#0e6e6e] border-t-transparent rounded-full" />
+      <div style={{ minHeight: '100vh', backgroundColor: '#f7f6f2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 32, height: 32, border: '3px solid #0e6e6e', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
       </div>
     );
   }
 
-  const handleCheckout = () => {
-    router.push('/checkout');
-  };
-
   return (
     <>
       <Header />
-      <main className="pt-[80px] pb-16 px-5">
-        <div className="max-w-[640px] mx-auto">
-          {/* Archetype Reveal */}
+      <main style={{ paddingTop: 80, paddingBottom: 64 }}>
+        <div style={{ maxWidth: 640, margin: '0 auto', padding: '0 24px' }}>
           <ArchetypeReveal
             primary={quizState.primary}
             secondary={quizState.secondary}
           />
 
           {/* Conversion Hook */}
-          <div className="mt-10 bg-white border-2 border-[#0e6e6e]/20 rounded-2xl p-8 text-center">
-            <p className="text-base text-gray-700 leading-relaxed mb-6">
+          <div
+            style={{
+              marginTop: 40,
+              backgroundColor: '#fff',
+              border: '2px solid rgba(14,110,110,0.15)',
+              borderRadius: 20,
+              padding: 32,
+              textAlign: 'center',
+              boxShadow: '0 4px 16px rgba(14,110,110,0.06)',
+            }}
+          >
+            <p style={{ fontSize: 16, color: '#444', lineHeight: 1.7, marginBottom: 24 }}>
               Your AI doesn&apos;t know any of this about you. That&apos;s why it
-              gives you <em className="text-gray-900 font-medium">generic, one-size-fits-all responses</em>.
+              gives you <em style={{ color: '#1a1a1a', fontWeight: 600 }}>generic, one-size-fits-all responses</em>.
               Your BootFile fixes that in 60 seconds.
             </p>
             <button
-              onClick={handleCheckout}
-              className="w-full bg-[#0e6e6e] hover:bg-[#0a5454] active:bg-[#073d3d] text-white font-medium px-8 py-4 rounded-lg min-h-[52px] text-base transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 cursor-pointer"
+              onClick={() => router.push('/checkout')}
+              style={{
+                width: '100%',
+                backgroundColor: '#0e6e6e',
+                color: '#fff',
+                fontWeight: 600,
+                padding: '16px 32px',
+                borderRadius: 12,
+                fontSize: 16,
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(14,110,110,0.3)',
+                fontFamily: 'inherit',
+              }}
             >
               Generate My BootFile &mdash; $2.99
             </button>
-            <p className="mt-3 text-xs text-gray-400">
+            <p style={{ marginTop: 12, fontSize: 13, color: '#999' }}>
               One-time purchase. Works on ChatGPT, Claude, Gemini &amp; more.
             </p>
           </div>
 
           {/* Share */}
-          <div className="mt-10 pt-8 border-t border-[#edeae5]">
-            <p className="text-sm text-gray-500 text-center mb-4">Share your result</p>
+          <div style={{ marginTop: 40, paddingTop: 32, borderTop: '1px solid #edeae5' }}>
+            <p style={{ fontSize: 14, color: '#888', textAlign: 'center', marginBottom: 16 }}>Share your result</p>
             <ShareButtons archetypeId={quizState.primary} />
           </div>
         </div>
