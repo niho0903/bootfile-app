@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, Suspense } from 'react';
+import { useEffect, useState, useCallback, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -22,6 +22,9 @@ function BuildContent() {
   const [archetypeId, setArchetypeId] = useState<ArchetypeId | null>(null);
   const [previewText, setPreviewText] = useState<string | null>(null);
   const [bootfileText, setBootfileText] = useState<string | null>(null);
+  // Tracks a paid Stripe session that's waiting for supplementary data
+  const [pendingSessionId, setPendingSessionId] = useState<string | null>(null);
+  const initRef = useRef(false);
 
   const getQuizState = useCallback(() => {
     const raw = localStorage.getItem('bootfile_quiz');
@@ -76,7 +79,10 @@ function BuildContent() {
 
     const body = buildGenerateBody(supplementary);
     if (!body) {
-      router.push('/quiz');
+      setError({
+        message: 'Quiz data not found. Please retake the quiz.',
+        retry: () => router.push('/quiz'),
+      });
       return;
     }
 
@@ -112,13 +118,20 @@ function BuildContent() {
 
     const supplementary = getSupplementaryData();
     if (!supplementary) {
+      // Supplementary data lost — save the session_id so we can resume
+      // after the user re-fills the form
+      setPendingSessionId(sessionId);
+      localStorage.setItem('bootfile_pending_session', sessionId);
       setState('questions');
       return;
     }
 
     const body = buildGenerateBody(supplementary);
     if (!body) {
-      router.push('/quiz');
+      setError({
+        message: 'Quiz data not found. Please retake the quiz.',
+        retry: () => router.push('/quiz'),
+      });
       return;
     }
 
@@ -132,6 +145,7 @@ function BuildContent() {
 
       if (data.bootfile) {
         localStorage.setItem('bootfile_output', data.bootfile);
+        localStorage.removeItem('bootfile_pending_session');
         setBootfileText(data.bootfile);
         setState('unlocked');
 
@@ -166,53 +180,113 @@ function BuildContent() {
     }
   }, [getSupplementaryData, buildGenerateBody, router]);
 
-  // Initialize state on mount
+  // Initialize state on mount — runs once via ref guard
   useEffect(() => {
-    const quizState = getQuizState();
-    if (!quizState) {
-      router.push('/quiz');
-      return;
-    }
-    setArchetypeId(quizState.primary as ArchetypeId);
+    if (initRef.current) return;
+    initRef.current = true;
 
-    // Check for existing full output
-    const existingOutput = localStorage.getItem('bootfile_output');
-    if (existingOutput) {
-      setBootfileText(existingOutput);
-      setState('unlocked');
-      return;
-    }
+    const init = async () => {
+      // 1. Check for existing full output first (already unlocked)
+      const existingOutput = localStorage.getItem('bootfile_output');
+      if (existingOutput) {
+        const quizState = getQuizState();
+        if (quizState) setArchetypeId(quizState.primary as ArchetypeId);
+        setBootfileText(existingOutput);
+        setState('unlocked');
+        return;
+      }
 
-    // Check for session_id from Stripe return
-    const sessionId = searchParams.get('session_id');
-    if (sessionId) {
-      generateFull(sessionId);
-      return;
-    }
+      // 2. Check for session_id from Stripe return
+      const sessionId = searchParams.get('session_id');
+      if (sessionId) {
+        // Try local quiz data first
+        let quizState = getQuizState();
 
-    // Check for existing preview
-    const existingPreview = localStorage.getItem('bootfile_preview');
-    if (existingPreview) {
-      setPreviewText(existingPreview);
-      setState('preview');
-      return;
-    }
+        // If quiz data is missing, recover from Stripe metadata
+        if (!quizState) {
+          try {
+            const res = await fetch(`/api/verify-session?session_id=${encodeURIComponent(sessionId)}`);
+            const data = await res.json();
+            if (data.paid && data.archetypeId) {
+              quizState = {
+                primary: data.archetypeId,
+                secondary: null,
+                tertiary: null,
+                lowest: [],
+                scores: data.scoresJson ? JSON.parse(data.scoresJson) : {},
+                answers: {},
+              };
+              localStorage.setItem('bootfile_quiz', JSON.stringify(quizState));
+            }
+          } catch {
+            // Recovery failed, will fall through to error
+          }
+        }
 
-    // Check if supplementary data exists but no preview (tab closed during generation)
-    const existingSupplementary = localStorage.getItem('bootfile_supplementary');
-    if (existingSupplementary) {
-      generatePreview();
-      return;
-    }
+        if (!quizState) {
+          setError({
+            message: 'Quiz data not found. Please retake the quiz.',
+            retry: () => router.push('/quiz'),
+          });
+          return;
+        }
 
-    // Default: start with questions
-    setState('questions');
-  }, [router, searchParams, getQuizState, generatePreview, generateFull]);
+        setArchetypeId(quizState.primary as ArchetypeId);
+        generateFull(sessionId);
+        return;
+      }
+
+      // 3. Normal flow — need quiz data
+      const quizState = getQuizState();
+      if (!quizState) {
+        router.push('/quiz');
+        return;
+      }
+      setArchetypeId(quizState.primary as ArchetypeId);
+
+      // 4. Check for existing preview
+      const existingPreview = localStorage.getItem('bootfile_preview');
+      if (existingPreview) {
+        setPreviewText(existingPreview);
+        setState('preview');
+        return;
+      }
+
+      // 5. Check for pending session (user paid but supplementary data was lost)
+      const pendingSession = localStorage.getItem('bootfile_pending_session');
+      if (pendingSession) {
+        setPendingSessionId(pendingSession);
+        setState('questions');
+        return;
+      }
+
+      // 6. Check if supplementary data exists but no preview (tab closed during generation)
+      const existingSupplementary = localStorage.getItem('bootfile_supplementary');
+      if (existingSupplementary) {
+        generatePreview();
+        return;
+      }
+
+      // 7. Default: start with questions
+      setState('questions');
+    };
+
+    init();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleQuestionsSubmit = useCallback((data: SupplementaryAnswers) => {
     localStorage.setItem('bootfile_supplementary', JSON.stringify(data));
-    generatePreview();
-  }, [generatePreview]);
+
+    // If user already paid (session_id from Stripe), skip preview → go to full generation
+    const sessionId = pendingSessionId || localStorage.getItem('bootfile_pending_session');
+    if (sessionId) {
+      setPendingSessionId(null);
+      generateFull(sessionId);
+    } else {
+      generatePreview();
+    }
+  }, [pendingSessionId, generatePreview, generateFull]);
 
   const handleUnlock = useCallback(async () => {
     const quizState = getQuizState();

@@ -94,7 +94,7 @@ export default function ResultPage() {
             </button>
 
             <p style={{ marginTop: 12, fontSize: '0.8rem', color: '#7A746B' }}>
-              Takes about 3 more minutes. $4.99.
+              Takes about 3 more minutes.
             </p>
           </div>
 

@@ -49,6 +49,18 @@ export async function POST(req: NextRequest) {
     }
 
     if (await isSessionConsumed(sessionId)) {
+      // If already consumed, try to return the existing bootfile from Supabase
+      const supabase = getSupabaseAdmin();
+      if (supabase) {
+        const { data: existing } = await supabase
+          .from('bootfile_versions')
+          .select('bootfile_text')
+          .eq('stripe_session_id', sessionId)
+          .single();
+        if (existing?.bootfile_text) {
+          return NextResponse.json({ bootfile: existing.bootfile_text });
+        }
+      }
       return NextResponse.json({ error: 'This payment session has already been used.' }, { status: 403 });
     }
 
