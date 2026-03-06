@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { formatForPlatforms, PlatformId, PLATFORM_INSTRUCTIONS, extractTryThisFirst, extractFirstMessage } from '@/lib/platform-format';
+import { formatForPlatforms, PlatformId, PLATFORM_INSTRUCTIONS, extractFirstMessage } from '@/lib/platform-format';
 
 interface BootFileDisplayProps {
   bootfileText: string;
@@ -24,7 +24,6 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const formatted = formatForPlatforms(bootfileText);
   const instructions = PLATFORM_INSTRUCTIONS[activeTab];
-  const tryThisFirst = extractTryThisFirst(bootfileText);
   const firstMessage = extractFirstMessage(bootfileText);
 
   const handleCopy = async (text: string, field: string) => {
@@ -256,33 +255,6 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
           >
             &ldquo;{firstMessage}&rdquo;
           </p>
-        </div>
-      )}
-
-      {/* Try This First */}
-      {tryThisFirst && (
-        <div
-          style={{
-            marginTop: 32,
-            backgroundColor: '#F0EDE6',
-            border: '1px solid #DDD6CC',
-            borderRadius: 12,
-            padding: 24,
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7D8B6E" strokeWidth="2">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-            </svg>
-            <h3 style={{ fontSize: 15, fontWeight: 600, color: '#2D2926', margin: 0 }}>
-              Try This First
-            </h3>
-          </div>
-          <p style={{ fontSize: 13, color: '#7A746B', marginBottom: 12, lineHeight: 1.5 }}>
-            Paste your BootFile, then send this as your first message to see the difference.
-          </p>
-          <CopyButton text={tryThisFirst} field="try-this" copiedField={copiedField} onCopy={handleCopy} />
-          <ContentBlock text={tryThisFirst} />
         </div>
       )}
 

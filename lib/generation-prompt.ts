@@ -86,7 +86,7 @@ The generated BootFile must:
 - Use second person for user context ("You are...") and direct imperatives for behavioral rules ("Lead with the answer." "Always show your reasoning.")
 - Never mention the BootFile product, the quiz, archetypes, or any meta-reference to this generation process
 - Include behavioral trigger phrases that teach the user HOW to talk to their AI \u2014 this is one of the highest-value features because most people don't know they can control AI behavior with short activation commands
-- The "Try This First" prompt must be so relevant and specific that when the user pastes it into their AI after applying the BootFile, the response is dramatically different from what they'd get without the BootFile \u2014 this is the proof-of-concept moment that creates evangelists
+- The Quick Commands must be so relevant and specific to the user's domain and use cases that they immediately demonstrate the value of the BootFile
 
 ## Output Structure
 
@@ -117,10 +117,7 @@ A single opening line the AI should use as its FIRST response in any new convers
 3-5 bullet points. Hard behavioral prohibitions. The most memorable, quotable rules in the BootFile.
 
 ### Quick Commands
-4-6 trigger phrases. These are short words or phrases the user can type to activate specific AI behaviors. Format each as: "trigger" = what the AI should do. These MUST be customized to the user's archetype, domain, and use cases \u2014 not generic. Include at least one mode-switch (e.g., work vs. personal), one depth-control (e.g., "go deeper" vs. "just the answer"), and one reasoning-control (e.g., "challenge this" or "steelman this"). These triggers teach users HOW to talk to their AI, which is one of the most valuable things a BootFile provides.
-
-### Try This First
-A single ready-to-paste prompt (3-5 sentences) that this specific user should send as their FIRST message after applying the BootFile. It must be relevant to their DOMAIN and PRIMARY_USES, and designed to showcase the dramatic difference between an AI with and without this BootFile. This is the "holy shit, this actually works" moment. Make it specific to their world \u2014 not a generic demo. If they're in marketing, make it a marketing problem. If they're a student, make it a learning challenge. If they're personal, make it a real-life decision.`;
+4-6 trigger phrases. These are short words or phrases the user can type to activate specific AI behaviors. Format each as: "trigger" = what the AI should do. These MUST be customized to the user's archetype, domain, and use cases \u2014 not generic. Include at least one mode-switch (e.g., work vs. personal), one depth-control (e.g., "go deeper" vs. "just the answer"), and one reasoning-control (e.g., "challenge this" or "steelman this"). These triggers teach users HOW to talk to their AI, which is one of the most valuable things a BootFile provides.`;
 
   const userMessage = `Generate a BootFile for this user.
 
@@ -250,7 +247,7 @@ The user's lowest archetypes represent cognitive blind spots. Add compensating b
 - Tertiary (if within 5 pts): 5-10% influence (subtle coloring in 1-2 rules)
 - Result must feel like a single cohesive voice
 
-Now generate the BootFile. Output ONLY the BootFile text \u2014 no meta-commentary, no preamble, no explanation. Start directly with "### About Me" and end with "### Try This First".`;
+Now generate the BootFile. Output ONLY the BootFile text \u2014 no meta-commentary, no preamble, no explanation. Start directly with "### About Me" and end with "### Quick Commands".`;
 
   return { systemPrompt, userMessage };
 }

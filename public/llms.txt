@@ -29,7 +29,7 @@ BootFile is a web app that helps people discover their AI reasoning style and ge
 - Communication Rules — how the AI should interact with the user
 - Format Preferences — structural preferences for responses
 - Never Do This — explicit boundaries and anti-patterns
-- Try This First — a starter prompt to test the new setup
+- Quick Commands — trigger phrases for specific AI behaviors
 
 ## Supported Platforms
 - ChatGPT (two-field Custom Instructions)
