@@ -18,7 +18,7 @@ const faqs = [
   {
     question: 'How long does the quiz take?',
     answer:
-      'About two minutes. It\u2019s eight multiple-choice questions designed to identify your reasoning style and map it to one of eight AI interaction archetypes.',
+      'About five minutes. A short quiz identifies your reasoning style, then a few follow-up questions personalize your BootFile to your exact needs.',
   },
   {
     question: 'Which AI platforms does BootFile work with?',
@@ -40,7 +40,7 @@ const faqs = [
 export const metadata = {
   title: 'BootFile | Know Your AI Style',
   description:
-    'Take the 2-minute quiz. Get a personalized AI instruction profile that tells your AI how to reason with you, not just how to talk.',
+    'Take the quiz. Get a personalized AI instruction profile that tells your AI how to reason with you, not just how to talk.',
 };
 
 export default function LandingPage() {
@@ -83,7 +83,7 @@ export default function LandingPage() {
                 fontWeight: 400,
               }}
             >
-              Your AI doesn&apos;t know yet. It takes two minutes to fix that.
+              Your AI doesn&apos;t know yet. It takes five minutes to fix that.
             </p>
 
             <Link
@@ -214,7 +214,7 @@ export default function LandingPage() {
               marginBottom: 24,
             }}
           >
-            Two minutes. Eight questions.
+            Five minutes. One profile that changes everything.
           </h2>
 
           <Link

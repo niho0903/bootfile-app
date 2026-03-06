@@ -103,7 +103,7 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
   return (
     <form onSubmit={handleSubmit}>
       <div style={{ textAlign: 'center', marginBottom: 32 }}>
-        <p style={{ fontSize: 14, color: '#7A746B' }}>8 questions &mdash; takes about 3 minutes</p>
+        <p style={{ fontSize: 14, color: '#7A746B' }}>A few quick questions to personalize your BootFile</p>
       </div>
 
       {/* Q1: What's your world? */}

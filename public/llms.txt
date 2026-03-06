@@ -6,7 +6,7 @@
 BootFile is a web app that helps people discover their AI reasoning style and generates a custom instruction profile they can paste into any major AI platform. It replaces the blank "custom instructions" text box with a structured, tested instruction set tailored to how the user actually thinks.
 
 ## How It Works
-1. Take a free 2-minute quiz (8 questions).
+1. Take a free quiz (about 5 minutes total).
 2. Discover your AI reasoning archetype.
 3. Answer a few follow-up questions to personalize your BootFile.
 4. Preview your profile, then purchase your full BootFile ($4.99).

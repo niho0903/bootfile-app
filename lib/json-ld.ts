@@ -22,7 +22,7 @@ export function webApplicationJsonLd() {
     applicationCategory: 'ProductivityApplication',
     operatingSystem: 'Any',
     description:
-      'Take a 2-minute quiz to discover your AI reasoning style. Get a personalized instruction profile that works across ChatGPT, Claude, Gemini, Grok, DeepSeek, and Copilot.',
+      'Take a short quiz to discover your AI reasoning style. Get a personalized instruction profile that works across ChatGPT, Claude, Gemini, Grok, DeepSeek, and Copilot.',
     offers: {
       '@type': 'Offer',
       name: 'BootFile',
@@ -32,7 +32,7 @@ export function webApplicationJsonLd() {
         'Personalized AI instruction profile for all 6 platforms.',
     },
     featureList: [
-      '2-minute reasoning style quiz',
+      'Reasoning style quiz',
       '8 AI interaction archetypes',
       'Custom instructions for ChatGPT, Claude, Gemini, Grok, DeepSeek, and Copilot',
     ],

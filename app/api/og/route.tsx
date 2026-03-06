@@ -138,7 +138,7 @@ export async function GET(req: NextRequest) {
               textAlign: 'center',
             }}
           >
-            2-minute quiz &middot; 8 archetypes &middot; personalized AI instructions
+            Quick quiz &middot; 8 archetypes &middot; personalized AI instructions
           </div>
         </div>
       ),
