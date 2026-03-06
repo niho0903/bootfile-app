@@ -14,34 +14,6 @@ import { SupplementaryAnswers } from '@/lib/supplementary';
 
 type BuildState = 'questions' | 'generating_preview' | 'preview' | 'generating_full' | 'unlocked';
 
-// --- Cookie helpers (survive private browsing + Stripe redirect) ---
-function setCookie(name: string, value: string, maxAge: number = 7200) {
-  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${maxAge}; SameSite=Lax`;
-}
-
-function getCookie(name: string): string | null {
-  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
-  return match ? decodeURIComponent(match[1]) : null;
-}
-
-function deleteCookie(name: string) {
-  document.cookie = `${name}=; path=/; max-age=0`;
-}
-
-// --- localStorage with cookie fallback ---
-function safeGet(key: string, cookieKey?: string): string | null {
-  const val = localStorage.getItem(key);
-  if (val) return val;
-  if (cookieKey) {
-    const cookieVal = getCookie(cookieKey);
-    if (cookieVal) {
-      localStorage.setItem(key, cookieVal);
-      return cookieVal;
-    }
-  }
-  return null;
-}
-
 function BuildContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -50,25 +22,26 @@ function BuildContent() {
   const [archetypeId, setArchetypeId] = useState<ArchetypeId | null>(null);
   const [previewText, setPreviewText] = useState<string | null>(null);
   const [bootfileText, setBootfileText] = useState<string | null>(null);
-  const [pendingSessionId, setPendingSessionId] = useState<string | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const initRef = useRef(false);
 
+  // --- Helpers ---
+
   const getQuizState = useCallback(() => {
-    const raw = safeGet('bootfile_quiz', 'bf_q');
-    if (!raw) return null;
     try {
+      const raw = localStorage.getItem('bootfile_quiz');
+      if (!raw) return null;
       return JSON.parse(raw);
     } catch {
       return null;
     }
   }, []);
 
-  const getSupplementaryData = useCallback(() => {
-    const raw = safeGet('bootfile_supplementary', 'bf_s');
-    if (!raw) return null;
+  const getSupplementaryData = useCallback((): SupplementaryAnswers | null => {
     try {
+      const raw = localStorage.getItem('bootfile_supplementary');
+      if (!raw) return null;
       return JSON.parse(raw);
     } catch {
       return null;
@@ -95,6 +68,8 @@ function BuildContent() {
       openDescription: supplementary.openDescription,
     };
   }, [getQuizState]);
+
+  // --- Actions ---
 
   const generatePreview = useCallback(async () => {
     setState('generating_preview');
@@ -124,7 +99,7 @@ function BuildContent() {
       const data = await res.json();
 
       if (data.preview) {
-        localStorage.setItem('bootfile_preview', data.preview);
+        try { localStorage.setItem('bootfile_preview', data.preview); } catch { /* */ }
         setPreviewText(data.preview);
         setState('preview');
       } else {
@@ -141,16 +116,20 @@ function BuildContent() {
     }
   }, [getSupplementaryData, buildGenerateBody, router]);
 
-  const generateFull = useCallback(async (paymentId: string, isCheckoutSession: boolean = false) => {
+  const generateFull = useCallback(async (paymentIntentId: string) => {
     setState('generating_full');
     setError(null);
     setClientSecret(null);
 
     const supplementary = getSupplementaryData();
     if (!supplementary) {
-      setPendingSessionId(paymentId);
-      try { localStorage.setItem('bootfile_pending_session', paymentId); } catch { /* private mode */ }
-      setState('questions');
+      setError({
+        message: 'Session data was lost. Please start over.',
+        retry: () => {
+          try { localStorage.removeItem('bootfile_preview'); } catch { /* */ }
+          setState('questions');
+        },
+      });
       return;
     }
 
@@ -167,25 +146,19 @@ function BuildContent() {
       const res = await fetch('/api/generate-full', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...body,
-          ...(isCheckoutSession ? { sessionId: paymentId } : { paymentIntentId: paymentId }),
-        }),
+        body: JSON.stringify({ ...body, paymentIntentId }),
       });
       const data = await res.json();
 
       if (data.bootfile) {
         try {
           localStorage.setItem('bootfile_output', data.bootfile);
-          localStorage.removeItem('bootfile_pending_session');
-        } catch { /* private mode */ }
-        deleteCookie('bf_q');
-        deleteCookie('bf_s');
+        } catch { /* */ }
         setBootfileText(data.bootfile);
         setState('unlocked');
 
         // Fire-and-forget purchase tracking
-        const quizId = safeGet('bootfile_quiz_id') || null;
+        const quizId = localStorage.getItem('bootfile_quiz_id') || null;
         fetch('/api/track-purchase', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -199,141 +172,94 @@ function BuildContent() {
           }),
         }).catch(() => { /* non-blocking */ });
 
-        // Clean URL
-        window.history.replaceState({}, '', '/build');
+        // Clean URL if needed
+        if (window.location.search) {
+          window.history.replaceState({}, '', '/build');
+        }
       } else {
         setError({
           message: data.error || 'Generation failed. Please try again.',
-          retry: () => generateFull(paymentId, isCheckoutSession),
+          retry: () => generateFull(paymentIntentId),
         });
       }
     } catch {
       setError({
         message: 'Something went wrong. Please try again.',
-        retry: () => generateFull(paymentId, isCheckoutSession),
+        retry: () => generateFull(paymentIntentId),
       });
     }
   }, [getSupplementaryData, buildGenerateBody, router]);
 
-  // Initialize state on mount — runs once via ref guard
+  // --- Init (runs once) ---
+
   useEffect(() => {
     if (initRef.current) return;
     initRef.current = true;
 
-    const init = async () => {
-      // 1. Check for existing full output (already unlocked)
-      const existingOutput = safeGet('bootfile_output');
-      if (existingOutput) {
-        const quizState = getQuizState();
-        if (quizState) setArchetypeId(quizState.primary as ArchetypeId);
-        setBootfileText(existingOutput);
-        setState('unlocked');
-        return;
-      }
-
-      // 2. Check for payment_intent return (3DS redirect or bank redirect)
-      const paymentIntentParam = searchParams.get('payment_intent');
-      const redirectStatus = searchParams.get('redirect_status');
-      if (paymentIntentParam && redirectStatus === 'succeeded') {
-        const quizState = getQuizState();
-        if (quizState) setArchetypeId(quizState.primary as ArchetypeId);
-        generateFull(paymentIntentParam);
-        // Clean URL
-        window.history.replaceState({}, '', '/build');
-        return;
-      }
-
-      // 3. Check for session_id from old Stripe Checkout return (backward compat)
-      const sessionId = searchParams.get('session_id');
-      if (sessionId) {
-        let quizState = getQuizState();
-
-        if (!quizState) {
-          try {
-            const res = await fetch(`/api/verify-session?session_id=${encodeURIComponent(sessionId)}`);
-            const data = await res.json();
-            if (data.paid && data.archetypeId) {
-              quizState = {
-                primary: data.archetypeId,
-                secondary: null,
-                tertiary: null,
-                lowest: [],
-                scores: data.scoresJson ? JSON.parse(data.scoresJson) : {},
-                answers: {},
-              };
-              try { localStorage.setItem('bootfile_quiz', JSON.stringify(quizState)); } catch { /* private mode */ }
-            }
-          } catch {
-            // Recovery failed
-          }
-        }
-
-        if (!quizState) {
-          setError({
-            message: 'Quiz data not found. Please retake the quiz.',
-            retry: () => router.push('/quiz'),
-          });
-          return;
-        }
-
-        setArchetypeId(quizState.primary as ArchetypeId);
-        generateFull(sessionId, true);
-        return;
-      }
-
-      // 4. Normal flow — need quiz data
+    // 1. Already have a full bootfile? → show it
+    const existingOutput = localStorage.getItem('bootfile_output');
+    if (existingOutput) {
       const quizState = getQuizState();
-      if (!quizState) {
-        router.push('/quiz');
-        return;
+      if (quizState) setArchetypeId(quizState.primary as ArchetypeId);
+      setBootfileText(existingOutput);
+      setState('unlocked');
+      return;
+    }
+
+    // 2. Returning from 3DS/bank redirect with payment_intent?
+    const piParam = searchParams.get('payment_intent');
+    const redirectStatus = searchParams.get('redirect_status');
+    if (piParam && redirectStatus === 'succeeded') {
+      const quizState = getQuizState();
+      if (quizState) {
+        setArchetypeId(quizState.primary as ArchetypeId);
+        generateFull(piParam);
+      } else {
+        setError({
+          message: 'Quiz data not found. Please retake the quiz.',
+          retry: () => router.push('/quiz'),
+        });
       }
-      setArchetypeId(quizState.primary as ArchetypeId);
+      window.history.replaceState({}, '', '/build');
+      return;
+    }
 
-      // 5. Check for existing preview
-      const existingPreview = safeGet('bootfile_preview');
-      if (existingPreview) {
-        setPreviewText(existingPreview);
-        setState('preview');
-        return;
-      }
+    // 3. Need quiz data to proceed
+    const quizState = getQuizState();
+    if (!quizState) {
+      router.push('/quiz');
+      return;
+    }
+    setArchetypeId(quizState.primary as ArchetypeId);
 
-      // 6. Check for pending session (user paid but supplementary was lost)
-      const pendingSession = safeGet('bootfile_pending_session');
-      if (pendingSession) {
-        setPendingSessionId(pendingSession);
-        setState('questions');
-        return;
-      }
+    // 4. Already have a preview? → show it
+    const existingPreview = localStorage.getItem('bootfile_preview');
+    if (existingPreview) {
+      setPreviewText(existingPreview);
+      setState('preview');
+      return;
+    }
 
-      // 7. Supplementary data exists but no preview (tab closed during generation)
-      const existingSupplementary = safeGet('bootfile_supplementary', 'bf_s');
-      if (existingSupplementary) {
-        generatePreview();
-        return;
-      }
+    // 5. Have supplementary data but no preview? (tab closed during generation)
+    const existingSupplementary = localStorage.getItem('bootfile_supplementary');
+    if (existingSupplementary) {
+      generatePreview();
+      return;
+    }
 
-      // 8. Default: start with questions
-      setState('questions');
-    };
-
-    init();
+    // 6. Default: show supplementary questions
+    setState('questions');
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleQuestionsSubmit = useCallback((data: SupplementaryAnswers) => {
-    const dataJson = JSON.stringify(data);
-    try { localStorage.setItem('bootfile_supplementary', dataJson); } catch { /* private mode */ }
-    setCookie('bf_s', dataJson);
+  // --- Handlers ---
 
-    // If user already paid, skip preview and go straight to full generation
-    const sessionId = pendingSessionId || safeGet('bootfile_pending_session');
-    if (sessionId) {
-      setPendingSessionId(null);
-      generateFull(sessionId);
-    } else {
-      generatePreview();
-    }
-  }, [pendingSessionId, generatePreview, generateFull]);
+  const handleQuestionsSubmit = useCallback((data: SupplementaryAnswers) => {
+    try {
+      localStorage.setItem('bootfile_supplementary', JSON.stringify(data));
+    } catch { /* */ }
+    generatePreview();
+  }, [generatePreview]);
 
   const handleUnlock = useCallback(async () => {
     const quizState = getQuizState();
@@ -376,12 +302,12 @@ function BuildContent() {
     generateFull(paymentIntentId);
   }, [generateFull]);
 
-  // Error state
+  // --- Render ---
+
   if (error) {
     return <BuildError message={error.message} onRetry={error.retry} />;
   }
 
-  // Loading states
   if (state === 'generating_preview') {
     return <BuildLoading stage="preview" />;
   }
@@ -390,7 +316,7 @@ function BuildContent() {
     return <BuildLoading stage="full" />;
   }
 
-  // Content states
+  // Still initializing
   if (!state || !archetypeId) {
     return (
       <div style={{ minHeight: '100vh', backgroundColor: '#F7F4EF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -444,6 +370,7 @@ function BuildContent() {
     );
   }
 
+  // Fallback spinner
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#F7F4EF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ width: 32, height: 32, border: '2px solid #7D8B6E', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
