@@ -13,7 +13,7 @@ const faqs = [
   {
     question: 'What is a BootFile?',
     answer:
-      'A BootFile is a personalized AI instruction profile based on how you think. It tells your AI how to reason with you, how to format responses, and what to avoid \u2014 so every conversation feels like the AI already knows you.',
+      'A BootFile is a personalized AI instruction profile based on how you think. It tells your AI how to reason with you, how to format responses, and what to avoid, so every conversation feels like the AI already knows you.',
   },
   {
     question: 'How long does the quiz take?',
@@ -28,7 +28,7 @@ const faqs = [
   {
     question: 'How much does it cost?',
     answer:
-      'The quiz is free. A Starter BootFile (one platform) is $0.99. The Complete BootFile (all 6 platforms plus bonus content) is $2.99.',
+      'The quiz is free. A BootFile is $4.99, one-time. It includes all 6 AI platform formats.',
   },
   {
     question: 'Is my data private?',
@@ -38,7 +38,7 @@ const faqs = [
 ];
 
 export const metadata = {
-  title: 'BootFile \u2014 Know Your AI Style',
+  title: 'BootFile | Know Your AI Style',
   description:
     'Take the 2-minute quiz. Get a personalized AI instruction profile that tells your AI how to reason with you, not just how to talk.',
 };

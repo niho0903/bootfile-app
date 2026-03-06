@@ -19,12 +19,15 @@ export function Quiz() {
   const [consentChecked, setConsentChecked] = useState(false);
 
   useEffect(() => {
-    sessionStorage.removeItem('bootfile_quiz');
-    sessionStorage.removeItem('bootfile_output');
+    localStorage.removeItem('bootfile_quiz');
+    localStorage.removeItem('bootfile_output');
+    localStorage.removeItem('bootfile_preview');
+    localStorage.removeItem('bootfile_supplementary');
+    localStorage.removeItem('bootfile_build_state');
   }, []);
 
   const finishQuiz = useCallback((quizData: Record<string, unknown>) => {
-    sessionStorage.setItem('bootfile_quiz', JSON.stringify(quizData));
+    localStorage.setItem('bootfile_quiz', JSON.stringify(quizData));
 
     // Fire-and-forget tracking
     fetch('/api/track-quiz', {
@@ -42,7 +45,7 @@ export function Quiz() {
       .then(res => res.json())
       .then(data => {
         if (data.quizId) {
-          sessionStorage.setItem('bootfile_quiz_id', data.quizId);
+          localStorage.setItem('bootfile_quiz_id', data.quizId);
         }
       })
       .catch(() => { /* non-blocking */ });
@@ -80,7 +83,7 @@ export function Quiz() {
           lowest: result.lowest,
         };
         // Store quiz data temporarily so Q9 screen can access it
-        sessionStorage.setItem('bootfile_quiz', JSON.stringify(quizData));
+        localStorage.setItem('bootfile_quiz', JSON.stringify(quizData));
         setIsVisible(false);
         setTimeout(() => {
           setShowOpenText(true);
@@ -91,7 +94,7 @@ export function Quiz() {
   }, [currentQ, answers, isTransitioning]);
 
   const handleQ9Submit = useCallback(() => {
-    const raw = sessionStorage.getItem('bootfile_quiz');
+    const raw = localStorage.getItem('bootfile_quiz');
     const quizData = raw ? JSON.parse(raw) : {};
     quizData.openQuizResponse = openQuizResponse;
     quizData.consentChecked = consentChecked;
@@ -99,7 +102,7 @@ export function Quiz() {
   }, [openQuizResponse, consentChecked, finishQuiz]);
 
   const handleQ9Skip = useCallback(() => {
-    const raw = sessionStorage.getItem('bootfile_quiz');
+    const raw = localStorage.getItem('bootfile_quiz');
     const quizData = raw ? JSON.parse(raw) : {};
     quizData.openQuizResponse = '';
     quizData.consentChecked = false;
@@ -206,7 +209,7 @@ export function Quiz() {
                 fontWeight: 400,
               }}
             >
-              One last thing &mdash; totally optional.
+              One last thing. Totally optional.
             </h2>
             <p style={{ fontSize: '0.95rem', color: '#7A746B', lineHeight: 1.6, marginBottom: 24 }}>
               What frustrates you most when talking to AI? Your answer helps us improve BootFile for everyone.

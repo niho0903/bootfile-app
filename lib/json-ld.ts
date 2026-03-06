@@ -9,7 +9,7 @@ export function organizationJsonLd() {
     logo: `${BASE_URL}/api/og`,
     sameAs: [],
     description:
-      'BootFile creates personalized AI instruction profiles based on how you think — not generic templates.',
+      'BootFile creates personalized AI instruction profiles based on how you think, not generic templates.',
   };
 }
 
@@ -23,23 +23,14 @@ export function webApplicationJsonLd() {
     operatingSystem: 'Any',
     description:
       'Take a 2-minute quiz to discover your AI reasoning style. Get a personalized instruction profile that works across ChatGPT, Claude, Gemini, Grok, DeepSeek, and Copilot.',
-    offers: [
-      {
-        '@type': 'Offer',
-        name: 'Starter BootFile',
-        price: '0.99',
-        priceCurrency: 'USD',
-        description: 'Personalized AI instruction profile for one platform.',
-      },
-      {
-        '@type': 'Offer',
-        name: 'Complete BootFile',
-        price: '2.99',
-        priceCurrency: 'USD',
-        description:
-          'Full AI instruction profile formatted for all 6 platforms plus bonus content.',
-      },
-    ],
+    offers: {
+      '@type': 'Offer',
+      name: 'BootFile',
+      price: '4.99',
+      priceCurrency: 'USD',
+      description:
+        'Personalized AI instruction profile for all 6 platforms.',
+    },
     featureList: [
       '2-minute reasoning style quiz',
       '8 AI interaction archetypes',

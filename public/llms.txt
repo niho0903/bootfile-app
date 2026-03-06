@@ -8,9 +8,10 @@ BootFile is a web app that helps people discover their AI reasoning style and ge
 ## How It Works
 1. Take a free 2-minute quiz (8 questions).
 2. Discover your AI reasoning archetype.
-3. Purchase your personalized BootFile ($0.99 starter / $2.99 complete).
-4. Paste it into your AI platform of choice.
-5. Every conversation from that point forward is shaped by your thinking style.
+3. Answer a few follow-up questions to personalize your BootFile.
+4. Preview your profile, then purchase your full BootFile ($4.99).
+5. Paste it into your AI platform of choice.
+6. Every conversation from that point forward is shaped by your thinking style.
 
 ## The 8 Archetypes
 - The Surgeon — "Cut the fluff." Direct, convergent reasoning. Wants precision and confidence.
@@ -39,8 +40,7 @@ BootFile is a web app that helps people discover their AI reasoning style and ge
 - Microsoft Copilot (condensed Personalization)
 
 ## Pricing
-- Starter: $0.99 — one platform format
-- Complete: $2.99 — all 6 platform formats + bonus content
+- $4.99 — one-time purchase, all 6 platform formats
 
 ## Key URLs
 - Homepage: https://bootfile.ai
