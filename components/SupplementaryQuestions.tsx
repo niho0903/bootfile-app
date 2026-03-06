@@ -304,7 +304,7 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
         <legend style={{ ...legendStyle, marginBottom: 4 }}>
           When AI gets it wrong, what bothers you most?
         </legend>
-        <p style={{ fontSize: 12, color: '#7A746B', marginBottom: 12 }}>Pick up to 2</p>
+        <p style={{ fontSize: 12, color: '#7A746B', marginBottom: 12 }}>Pick 1 or 2</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {petPeeveOptions.map(peeve => {
             const isSelected = formData.petPeeves.includes(peeve);

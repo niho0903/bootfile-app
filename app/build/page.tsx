@@ -14,6 +14,36 @@ import { SupplementaryAnswers } from '@/lib/supplementary';
 
 type BuildState = 'questions' | 'generating_preview' | 'preview' | 'generating_full' | 'unlocked';
 
+// --- Cookie helpers (survive private browsing + Stripe redirect) ---
+function setCookie(name: string, value: string, maxAge: number = 7200) {
+  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${maxAge}; SameSite=Lax`;
+}
+
+function getCookie(name: string): string | null {
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+function deleteCookie(name: string) {
+  document.cookie = `${name}=; path=/; max-age=0`;
+}
+
+// --- localStorage with cookie fallback ---
+function safeGet(key: string, cookieKey?: string): string | null {
+  const val = localStorage.getItem(key);
+  if (val) return val;
+  // Fallback: try cookie (private browsing may wipe localStorage on external redirect)
+  if (cookieKey) {
+    const cookieVal = getCookie(cookieKey);
+    if (cookieVal) {
+      // Restore to localStorage for future reads
+      localStorage.setItem(key, cookieVal);
+      return cookieVal;
+    }
+  }
+  return null;
+}
+
 function BuildContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -22,12 +52,11 @@ function BuildContent() {
   const [archetypeId, setArchetypeId] = useState<ArchetypeId | null>(null);
   const [previewText, setPreviewText] = useState<string | null>(null);
   const [bootfileText, setBootfileText] = useState<string | null>(null);
-  // Tracks a paid Stripe session that's waiting for supplementary data
   const [pendingSessionId, setPendingSessionId] = useState<string | null>(null);
   const initRef = useRef(false);
 
   const getQuizState = useCallback(() => {
-    const raw = localStorage.getItem('bootfile_quiz');
+    const raw = safeGet('bootfile_quiz', 'bf_q');
     if (!raw) return null;
     try {
       return JSON.parse(raw);
@@ -37,7 +66,7 @@ function BuildContent() {
   }, []);
 
   const getSupplementaryData = useCallback(() => {
-    const raw = localStorage.getItem('bootfile_supplementary');
+    const raw = safeGet('bootfile_supplementary', 'bf_s');
     if (!raw) return null;
     try {
       return JSON.parse(raw);
@@ -118,10 +147,9 @@ function BuildContent() {
 
     const supplementary = getSupplementaryData();
     if (!supplementary) {
-      // Supplementary data lost — save the session_id so we can resume
-      // after the user re-fills the form
+      // Supplementary data lost — save session_id so we can resume after user re-fills
       setPendingSessionId(sessionId);
-      localStorage.setItem('bootfile_pending_session', sessionId);
+      try { localStorage.setItem('bootfile_pending_session', sessionId); } catch { /* private mode */ }
       setState('questions');
       return;
     }
@@ -144,13 +172,18 @@ function BuildContent() {
       const data = await res.json();
 
       if (data.bootfile) {
-        localStorage.setItem('bootfile_output', data.bootfile);
-        localStorage.removeItem('bootfile_pending_session');
+        try {
+          localStorage.setItem('bootfile_output', data.bootfile);
+          localStorage.removeItem('bootfile_pending_session');
+        } catch { /* private mode */ }
+        // Clean up cookies
+        deleteCookie('bf_q');
+        deleteCookie('bf_s');
         setBootfileText(data.bootfile);
         setState('unlocked');
 
         // Fire-and-forget purchase tracking
-        const quizId = localStorage.getItem('bootfile_quiz_id');
+        const quizId = safeGet('bootfile_quiz_id') || null;
         fetch('/api/track-purchase', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -186,8 +219,8 @@ function BuildContent() {
     initRef.current = true;
 
     const init = async () => {
-      // 1. Check for existing full output first (already unlocked)
-      const existingOutput = localStorage.getItem('bootfile_output');
+      // 1. Check for existing full output (already unlocked)
+      const existingOutput = safeGet('bootfile_output');
       if (existingOutput) {
         const quizState = getQuizState();
         if (quizState) setArchetypeId(quizState.primary as ArchetypeId);
@@ -199,10 +232,10 @@ function BuildContent() {
       // 2. Check for session_id from Stripe return
       const sessionId = searchParams.get('session_id');
       if (sessionId) {
-        // Try local quiz data first
+        // Try local quiz data (with cookie fallback)
         let quizState = getQuizState();
 
-        // If quiz data is missing, recover from Stripe metadata
+        // If still missing, recover from Stripe metadata
         if (!quizState) {
           try {
             const res = await fetch(`/api/verify-session?session_id=${encodeURIComponent(sessionId)}`);
@@ -216,10 +249,10 @@ function BuildContent() {
                 scores: data.scoresJson ? JSON.parse(data.scoresJson) : {},
                 answers: {},
               };
-              localStorage.setItem('bootfile_quiz', JSON.stringify(quizState));
+              try { localStorage.setItem('bootfile_quiz', JSON.stringify(quizState)); } catch { /* private mode */ }
             }
           } catch {
-            // Recovery failed, will fall through to error
+            // Recovery failed
           }
         }
 
@@ -245,23 +278,23 @@ function BuildContent() {
       setArchetypeId(quizState.primary as ArchetypeId);
 
       // 4. Check for existing preview
-      const existingPreview = localStorage.getItem('bootfile_preview');
+      const existingPreview = safeGet('bootfile_preview');
       if (existingPreview) {
         setPreviewText(existingPreview);
         setState('preview');
         return;
       }
 
-      // 5. Check for pending session (user paid but supplementary data was lost)
-      const pendingSession = localStorage.getItem('bootfile_pending_session');
+      // 5. Check for pending session (user paid but supplementary was lost)
+      const pendingSession = safeGet('bootfile_pending_session');
       if (pendingSession) {
         setPendingSessionId(pendingSession);
         setState('questions');
         return;
       }
 
-      // 6. Check if supplementary data exists but no preview (tab closed during generation)
-      const existingSupplementary = localStorage.getItem('bootfile_supplementary');
+      // 6. Supplementary data exists but no preview (tab closed during generation)
+      const existingSupplementary = safeGet('bootfile_supplementary', 'bf_s');
       if (existingSupplementary) {
         generatePreview();
         return;
@@ -276,10 +309,12 @@ function BuildContent() {
   }, []);
 
   const handleQuestionsSubmit = useCallback((data: SupplementaryAnswers) => {
-    localStorage.setItem('bootfile_supplementary', JSON.stringify(data));
+    const dataJson = JSON.stringify(data);
+    try { localStorage.setItem('bootfile_supplementary', dataJson); } catch { /* private mode */ }
+    setCookie('bf_s', dataJson);
 
-    // If user already paid (session_id from Stripe), skip preview → go to full generation
-    const sessionId = pendingSessionId || localStorage.getItem('bootfile_pending_session');
+    // If user already paid, skip preview and go straight to full generation
+    const sessionId = pendingSessionId || safeGet('bootfile_pending_session');
     if (sessionId) {
       setPendingSessionId(null);
       generateFull(sessionId);
@@ -291,6 +326,13 @@ function BuildContent() {
   const handleUnlock = useCallback(async () => {
     const quizState = getQuizState();
     if (!quizState) return;
+
+    // Save quiz + supplementary data to cookies before Stripe redirect
+    // (private browsing may wipe localStorage on external navigation)
+    const quizRaw = localStorage.getItem('bootfile_quiz');
+    const suppRaw = localStorage.getItem('bootfile_supplementary');
+    if (quizRaw) setCookie('bf_q', quizRaw);
+    if (suppRaw) setCookie('bf_s', suppRaw);
 
     try {
       const res = await fetch('/api/checkout', {
