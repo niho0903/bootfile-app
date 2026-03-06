@@ -17,16 +17,16 @@ export async function generateMetadata({ params }: { params: Promise<{ archetype
   if (!arch) return {};
 
   return {
-    title: `I'm ${arch.name} \u2014 What's your AI style?`,
+    title: `I'm ${arch.name} | What's your AI style?`,
     description: arch.description,
     openGraph: {
-      title: `I'm ${arch.name} \u2014 What's your AI style? | BootFile`,
+      title: `I'm ${arch.name} | What's your AI style? | BootFile`,
       description: arch.description,
       images: [{ url: `${BASE_URL}/api/og?archetype=${archetype}`, width: 1200, height: 630 }],
     },
     twitter: {
       card: 'summary_large_image' as const,
-      title: `I'm ${arch.name} \u2014 What's your AI style?`,
+      title: `I'm ${arch.name} | What's your AI style?`,
       description: arch.description,
       images: [`${BASE_URL}/api/og?archetype=${archetype}`],
     },

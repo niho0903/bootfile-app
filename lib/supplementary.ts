@@ -40,7 +40,7 @@ export const DECISION_STYLE_OPTIONS = [
 ];
 
 export const RESPONSE_LENGTH_OPTIONS = [
-  { label: 'Short and sharp \u2014 just the answer', value: 'short' as const },
+  { label: 'Short and sharp, just the answer', value: 'short' as const },
   { label: 'Enough to understand the reasoning', value: 'medium' as const },
   { label: 'Give me the full picture', value: 'long' as const },
 ];

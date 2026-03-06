@@ -30,7 +30,7 @@ export function ShareButtons({ archetypeId }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
   const arch = ARCHETYPES[archetypeId];
   const shareUrl = getShareUrl(archetypeId);
-  const shareText = `I just found out I'm "${arch.name}" \u2014 it completely changed how my AI responds to me. Take the free quiz and see yours`;
+  const shareText = `I just found out I'm "${arch.name}" and it completely changed how my AI responds to me. Take the free quiz and see yours`;
 
   const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
   const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;

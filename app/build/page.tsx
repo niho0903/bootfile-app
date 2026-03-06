@@ -32,11 +32,9 @@ function deleteCookie(name: string) {
 function safeGet(key: string, cookieKey?: string): string | null {
   const val = localStorage.getItem(key);
   if (val) return val;
-  // Fallback: try cookie (private browsing may wipe localStorage on external redirect)
   if (cookieKey) {
     const cookieVal = getCookie(cookieKey);
     if (cookieVal) {
-      // Restore to localStorage for future reads
       localStorage.setItem(key, cookieVal);
       return cookieVal;
     }
@@ -53,6 +51,8 @@ function BuildContent() {
   const [previewText, setPreviewText] = useState<string | null>(null);
   const [bootfileText, setBootfileText] = useState<string | null>(null);
   const [pendingSessionId, setPendingSessionId] = useState<string | null>(null);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
   const initRef = useRef(false);
 
   const getQuizState = useCallback(() => {
@@ -141,15 +141,15 @@ function BuildContent() {
     }
   }, [getSupplementaryData, buildGenerateBody, router]);
 
-  const generateFull = useCallback(async (sessionId: string) => {
+  const generateFull = useCallback(async (paymentId: string, isCheckoutSession: boolean = false) => {
     setState('generating_full');
     setError(null);
+    setClientSecret(null);
 
     const supplementary = getSupplementaryData();
     if (!supplementary) {
-      // Supplementary data lost — save session_id so we can resume after user re-fills
-      setPendingSessionId(sessionId);
-      try { localStorage.setItem('bootfile_pending_session', sessionId); } catch { /* private mode */ }
+      setPendingSessionId(paymentId);
+      try { localStorage.setItem('bootfile_pending_session', paymentId); } catch { /* private mode */ }
       setState('questions');
       return;
     }
@@ -167,7 +167,10 @@ function BuildContent() {
       const res = await fetch('/api/generate-full', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...body, sessionId }),
+        body: JSON.stringify({
+          ...body,
+          ...(isCheckoutSession ? { sessionId: paymentId } : { paymentIntentId: paymentId }),
+        }),
       });
       const data = await res.json();
 
@@ -176,7 +179,6 @@ function BuildContent() {
           localStorage.setItem('bootfile_output', data.bootfile);
           localStorage.removeItem('bootfile_pending_session');
         } catch { /* private mode */ }
-        // Clean up cookies
         deleteCookie('bf_q');
         deleteCookie('bf_s');
         setBootfileText(data.bootfile);
@@ -202,13 +204,13 @@ function BuildContent() {
       } else {
         setError({
           message: data.error || 'Generation failed. Please try again.',
-          retry: () => generateFull(sessionId),
+          retry: () => generateFull(paymentId, isCheckoutSession),
         });
       }
     } catch {
       setError({
         message: 'Something went wrong. Please try again.',
-        retry: () => generateFull(sessionId),
+        retry: () => generateFull(paymentId, isCheckoutSession),
       });
     }
   }, [getSupplementaryData, buildGenerateBody, router]);
@@ -229,13 +231,23 @@ function BuildContent() {
         return;
       }
 
-      // 2. Check for session_id from Stripe return
+      // 2. Check for payment_intent return (3DS redirect or bank redirect)
+      const paymentIntentParam = searchParams.get('payment_intent');
+      const redirectStatus = searchParams.get('redirect_status');
+      if (paymentIntentParam && redirectStatus === 'succeeded') {
+        const quizState = getQuizState();
+        if (quizState) setArchetypeId(quizState.primary as ArchetypeId);
+        generateFull(paymentIntentParam);
+        // Clean URL
+        window.history.replaceState({}, '', '/build');
+        return;
+      }
+
+      // 3. Check for session_id from old Stripe Checkout return (backward compat)
       const sessionId = searchParams.get('session_id');
       if (sessionId) {
-        // Try local quiz data (with cookie fallback)
         let quizState = getQuizState();
 
-        // If still missing, recover from Stripe metadata
         if (!quizState) {
           try {
             const res = await fetch(`/api/verify-session?session_id=${encodeURIComponent(sessionId)}`);
@@ -265,11 +277,11 @@ function BuildContent() {
         }
 
         setArchetypeId(quizState.primary as ArchetypeId);
-        generateFull(sessionId);
+        generateFull(sessionId, true);
         return;
       }
 
-      // 3. Normal flow — need quiz data
+      // 4. Normal flow — need quiz data
       const quizState = getQuizState();
       if (!quizState) {
         router.push('/quiz');
@@ -277,7 +289,7 @@ function BuildContent() {
       }
       setArchetypeId(quizState.primary as ArchetypeId);
 
-      // 4. Check for existing preview
+      // 5. Check for existing preview
       const existingPreview = safeGet('bootfile_preview');
       if (existingPreview) {
         setPreviewText(existingPreview);
@@ -285,7 +297,7 @@ function BuildContent() {
         return;
       }
 
-      // 5. Check for pending session (user paid but supplementary was lost)
+      // 6. Check for pending session (user paid but supplementary was lost)
       const pendingSession = safeGet('bootfile_pending_session');
       if (pendingSession) {
         setPendingSessionId(pendingSession);
@@ -293,14 +305,14 @@ function BuildContent() {
         return;
       }
 
-      // 6. Supplementary data exists but no preview (tab closed during generation)
+      // 7. Supplementary data exists but no preview (tab closed during generation)
       const existingSupplementary = safeGet('bootfile_supplementary', 'bf_s');
       if (existingSupplementary) {
         generatePreview();
         return;
       }
 
-      // 7. Default: start with questions
+      // 8. Default: start with questions
       setState('questions');
     };
 
@@ -327,15 +339,11 @@ function BuildContent() {
     const quizState = getQuizState();
     if (!quizState) return;
 
-    // Save quiz + supplementary data to cookies before Stripe redirect
-    // (private browsing may wipe localStorage on external navigation)
-    const quizRaw = localStorage.getItem('bootfile_quiz');
-    const suppRaw = localStorage.getItem('bootfile_supplementary');
-    if (quizRaw) setCookie('bf_q', quizRaw);
-    if (suppRaw) setCookie('bf_s', suppRaw);
+    setPaymentLoading(true);
+    setError(null);
 
     try {
-      const res = await fetch('/api/checkout', {
+      const res = await fetch('/api/create-payment-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -344,11 +352,12 @@ function BuildContent() {
         }),
       });
       const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
+
+      if (data.clientSecret) {
+        setClientSecret(data.clientSecret);
       } else {
         setError({
-          message: data.error || 'Checkout failed. Please try again.',
+          message: data.error || 'Payment setup failed. Please try again.',
           retry: handleUnlock,
         });
       }
@@ -357,8 +366,15 @@ function BuildContent() {
         message: 'Something went wrong. Please try again.',
         retry: handleUnlock,
       });
+    } finally {
+      setPaymentLoading(false);
     }
   }, [getQuizState]);
+
+  const handlePaymentSuccess = useCallback((paymentIntentId: string) => {
+    setClientSecret(null);
+    generateFull(paymentIntentId);
+  }, [generateFull]);
 
   // Error state
   if (error) {
@@ -406,6 +422,9 @@ function BuildContent() {
             previewText={previewText}
             archetypeId={archetypeId}
             onUnlock={handleUnlock}
+            clientSecret={clientSecret}
+            onPaymentSuccess={handlePaymentSuccess}
+            paymentLoading={paymentLoading}
           />
         </main>
         <Footer />

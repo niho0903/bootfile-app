@@ -15,15 +15,6 @@ export const metadata: Metadata = {
   },
 };
 
-const PLATFORM_ICONS: Record<string, string> = {
-  chatgpt: '\uD83D\uDCAC',
-  claude: '\uD83E\uDDE0',
-  gemini: '\u2728',
-  grok: '\uD83E\uDD16',
-  deepseek: '\uD83D\uDD0D',
-  copilot: '\uD83D\uDE80',
-};
-
 export default function GuidesPage() {
   const guides = getAllGuides();
 
@@ -75,8 +66,22 @@ export default function GuidesPage() {
                 transition: 'background-color 0.2s ease',
               }}
             >
-              <span style={{ fontSize: '2rem', lineHeight: 1 }}>
-                {PLATFORM_ICONS[guide.platform] ?? '\uD83D\uDCBB'}
+              <span
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  backgroundColor: '#F7F4EF',
+                  border: '1px solid #DDD6CC',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 16,
+                  fontWeight: 600,
+                  color: '#5C6650',
+                }}
+              >
+                {guide.platformName[0]}
               </span>
               <span
                 style={{

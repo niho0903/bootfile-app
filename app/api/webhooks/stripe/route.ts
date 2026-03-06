@@ -26,16 +26,40 @@ export async function POST(req: NextRequest) {
   }
 
   switch (event.type) {
+    // New embedded checkout flow
+    case 'payment_intent.succeeded': {
+      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+      if (paymentIntent.metadata?.product === 'bootfile') {
+        console.log('[WEBHOOK] PaymentIntent succeeded:', {
+          paymentIntentId: paymentIntent.id,
+          archetypeId: paymentIntent.metadata?.archetype_id,
+        });
+      }
+      break;
+    }
+    case 'payment_intent.payment_failed': {
+      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+      if (paymentIntent.metadata?.product === 'bootfile') {
+        console.error('[WEBHOOK] PaymentIntent failed:', {
+          paymentIntentId: paymentIntent.id,
+        });
+      }
+      break;
+    }
+    // Legacy checkout session flow (backward compat)
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session;
       if (session.payment_status === 'paid') {
-        await handleFulfillment(session);
+        console.log('[WEBHOOK] Checkout session completed:', {
+          sessionId: session.id,
+          archetypeId: session.metadata?.archetype_id,
+        });
       }
       break;
     }
     case 'checkout.session.async_payment_succeeded': {
       const session = event.data.object as Stripe.Checkout.Session;
-      await handleFulfillment(session);
+      console.log('[WEBHOOK] Async payment succeeded:', { sessionId: session.id });
       break;
     }
     case 'checkout.session.async_payment_failed': {
@@ -47,13 +71,5 @@ export async function POST(req: NextRequest) {
   return new Response(JSON.stringify({ received: true }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' },
-  });
-}
-
-async function handleFulfillment(session: Stripe.Checkout.Session) {
-  // Log only non-PII
-  console.log('[WEBHOOK] Order fulfilled:', {
-    sessionId: session.id,
-    archetypeId: session.metadata?.archetype_id,
   });
 }

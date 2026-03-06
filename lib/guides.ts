@@ -19,7 +19,7 @@ const guides: Guide[] = [
       'Step-by-step guide to setting up your BootFile in ChatGPT\'s Custom Instructions so every conversation matches your thinking style.',
     updatedAt: '2025-06-01',
     intro:
-      'ChatGPT\'s Custom Instructions feature lets you set persistent context that applies to every new conversation. Instead of repeating your preferences each time, your BootFile sits in the background and shapes how ChatGPT responds — automatically.',
+      'ChatGPT\'s Custom Instructions feature lets you set persistent context that applies to every new conversation. Instead of repeating your preferences each time, your BootFile sits in the background and shapes how ChatGPT responds automatically.',
     steps: [
       {
         title: 'Open ChatGPT Settings',
@@ -30,11 +30,11 @@ const guides: Guide[] = [
         text: 'Click "Personalization" in the left sidebar, then click "Custom Instructions." You\'ll see two text fields.',
       },
       {
-        title: 'Paste Field 1 — About You',
+        title: 'Paste Field 1: About You',
         text: 'Copy the first section of your BootFile (your reasoning profile and thinking style) and paste it into "What would you like ChatGPT to know about you?"',
       },
       {
-        title: 'Paste Field 2 — Response Preferences',
+        title: 'Paste Field 2: Response Preferences',
         text: 'Copy the second section (communication rules, format preferences, and boundaries) and paste it into "How would you like ChatGPT to respond?"',
       },
       {
@@ -43,10 +43,10 @@ const guides: Guide[] = [
       },
     ],
     tips: [
-      'Custom Instructions apply to all new conversations automatically — you don\'t need to paste them each time.',
+      'Custom Instructions apply to all new conversations automatically. You don\'t need to paste them each time.',
       'If a response feels off, you can always override in-conversation by saying "be more direct" or "give me more detail."',
       'BootFile formats your instructions specifically for ChatGPT\'s two-field layout so nothing important gets cut.',
-      'Free and Plus accounts both support Custom Instructions — no upgrade required.',
+      'Free and Plus accounts both support Custom Instructions. No upgrade required.',
     ],
     ctaText: 'Get your ChatGPT-ready BootFile',
   },
@@ -74,12 +74,12 @@ const guides: Guide[] = [
       },
       {
         title: 'Save and Test',
-        text: 'Click "Save." Start a new conversation and notice how Claude\'s responses align with your thinking style — more direct, more structured, or more collaborative depending on your archetype.',
+        text: 'Click "Save." Start a new conversation and notice how Claude\'s responses align with your thinking style: more direct, more structured, or more collaborative depending on your archetype.',
       },
     ],
     tips: [
       'Claude\'s single-field format means your BootFile can be more detailed than platforms with character limits.',
-      'Claude is particularly responsive to reasoning-style instructions — it adapts well to "push back on my ideas" or "lead with the answer" directives.',
+      'Claude is particularly responsive to reasoning-style instructions. It adapts well to "push back on my ideas" or "lead with the answer" directives.',
       'Instructions persist across conversations but you can override them anytime by explicitly asking Claude to respond differently.',
       'Both Free and Pro accounts support custom instructions.',
     ],
@@ -93,7 +93,7 @@ const guides: Guide[] = [
       'Step-by-step guide to setting up your BootFile in Gemini using Gems or Preferences for tailored AI responses.',
     updatedAt: '2025-06-01',
     intro:
-      'Google Gemini offers two ways to personalize your experience: Gems (detailed custom personas) and Preferences (lighter-weight settings). Your BootFile works with both — choose the option that fits your workflow.',
+      'Google Gemini offers two ways to personalize your experience: Gems (detailed custom personas) and Preferences (lighter-weight settings). Your BootFile works with both, so choose the option that fits your workflow.',
     steps: [
       {
         title: 'Choose Your Setup Method',
@@ -105,17 +105,17 @@ const guides: Guide[] = [
       },
       {
         title: 'Option B: Set Preferences',
-        text: 'Go to Settings → Preferences. Paste the condensed version of your BootFile into the preferences field. This applies lighter-weight instructions to all conversations.',
+        text: 'Go to Settings, then Preferences. Paste the condensed version of your BootFile into the preferences field. This applies lighter-weight instructions to all conversations.',
       },
       {
         title: 'Test Your Setup',
-        text: 'Start a new conversation (or activate your Gem) and ask a question. Compare the response to what you\'d normally get — you should notice the AI adapting to your reasoning style.',
+        text: 'Start a new conversation (or activate your Gem) and ask a question. Compare the response to what you\'d normally get. You should notice the AI adapting to your reasoning style.',
       },
     ],
     tips: [
       'Gems give you the full BootFile experience with no compromises on instruction length.',
       'Preferences are best when you want subtle adjustments across all conversations without activating a specific Gem.',
-      'Your BootFile includes both formats — full for Gems and condensed for Preferences.',
+      'Your BootFile includes both formats: full for Gems and condensed for Preferences.',
       'Gemini Advanced users get the most benefit from Gems, but Preferences work on all tiers.',
     ],
     ctaText: 'Get your Gemini-ready BootFile',
@@ -128,7 +128,7 @@ const guides: Guide[] = [
       'Step-by-step guide to setting up your BootFile in Grok\'s Personalization settings on X (formerly Twitter).',
     updatedAt: '2025-06-01',
     intro:
-      'Grok supports personalized instructions through its Personalization settings. Like ChatGPT, it uses a two-field format — one for context about you and one for response preferences. Your BootFile is pre-formatted for both fields.',
+      'Grok supports personalized instructions through its Personalization settings. Like ChatGPT, it uses a two-field format: one for context about you and one for response preferences. Your BootFile is pre-formatted for both fields.',
     steps: [
       {
         title: 'Open Grok Settings',
@@ -139,11 +139,11 @@ const guides: Guide[] = [
         text: 'Find the "Personalization" section in Settings. You\'ll see two text fields: "About You" and response preferences.',
       },
       {
-        title: 'Paste Field 1 — About You',
+        title: 'Paste Field 1: About You',
         text: 'Copy the first section of your BootFile (reasoning profile and thinking style) and paste it into the "About You" field.',
       },
       {
-        title: 'Paste Field 2 — Response Preferences',
+        title: 'Paste Field 2: Response Preferences',
         text: 'Copy the second section (communication rules and boundaries) and paste it into the response preferences field.',
       },
       {
@@ -154,7 +154,7 @@ const guides: Guide[] = [
     tips: [
       'Grok uses the same two-field layout as ChatGPT, so your BootFile formats instructions the same way for both.',
       'Personalization settings persist across all your Grok conversations.',
-      'Grok tends to have a more casual tone by default — your BootFile can either lean into that or override it depending on your archetype.',
+      'Grok tends to have a more casual tone by default. Your BootFile can either lean into that or override it depending on your archetype.',
       'Premium and Premium+ users both have access to personalization features.',
     ],
     ctaText: 'Get your Grok-ready BootFile',
@@ -218,7 +218,7 @@ const guides: Guide[] = [
       },
       {
         title: 'Save and Test',
-        text: 'Click "Save" and open a new conversation. Copilot will now respond according to your thinking style — whether that\'s more direct, more detailed, or more collaborative.',
+        text: 'Click "Save" and open a new conversation. Copilot will now respond according to your thinking style, whether that\'s more direct, more detailed, or more collaborative.',
       },
     ],
     tips: [

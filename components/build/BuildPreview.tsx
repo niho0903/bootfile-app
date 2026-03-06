@@ -3,14 +3,25 @@
 import { ArchetypeId } from '@/lib/questions';
 import { ARCHETYPES } from '@/lib/archetypes';
 import { getPlaceholderSections } from '@/lib/preview-placeholder';
+import { BuildPayment } from './BuildPayment';
 
 interface BuildPreviewProps {
   previewText: string;
   archetypeId: ArchetypeId;
   onUnlock: () => void;
+  clientSecret: string | null;
+  onPaymentSuccess: (paymentIntentId: string) => void;
+  paymentLoading?: boolean;
 }
 
-export function BuildPreview({ previewText, archetypeId, onUnlock }: BuildPreviewProps) {
+export function BuildPreview({
+  previewText,
+  archetypeId,
+  onUnlock,
+  clientSecret,
+  onPaymentSuccess,
+  paymentLoading,
+}: BuildPreviewProps) {
   const arch = ARCHETYPES[archetypeId];
   const placeholders = getPlaceholderSections(archetypeId);
 
@@ -122,32 +133,54 @@ export function BuildPreview({ previewText, archetypeId, onUnlock }: BuildPrevie
             </li>
           ))}
         </ul>
-        <p style={{ fontSize: 28, fontWeight: 600, color: '#F7F4EF', marginBottom: 4 }}>$4.99</p>
-        <p style={{ fontSize: 13, color: '#A09B93', marginBottom: 20 }}>one-time, no subscription</p>
-        <button
-          onClick={onUnlock}
-          style={{
-            width: '100%',
-            maxWidth: 320,
-            backgroundColor: '#7D8B6E',
-            color: '#fff',
-            fontWeight: 600,
-            padding: '16px 32px',
-            borderRadius: 12,
-            fontSize: 16,
-            border: 'none',
-            cursor: 'pointer',
-            transition: 'background-color 0.2s',
-            fontFamily: 'inherit',
-          }}
-          onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#5C6650')}
-          onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#7D8B6E')}
-        >
-          Unlock My BootFile
-        </button>
-        <p style={{ fontSize: 12, color: '#7A746B', marginTop: 12 }}>
-          Secure checkout via Stripe
-        </p>
+
+        {clientSecret ? (
+          /* Embedded payment form */
+          <div style={{ maxWidth: 400, margin: '0 auto' }}>
+            <BuildPayment
+              clientSecret={clientSecret}
+              onSuccess={onPaymentSuccess}
+            />
+            <p style={{ fontSize: 12, color: '#7A746B', marginTop: 12 }}>
+              Secure payment via Stripe
+            </p>
+          </div>
+        ) : (
+          /* Unlock button */
+          <>
+            <p style={{ fontSize: 28, fontWeight: 600, color: '#F7F4EF', marginBottom: 4 }}>$4.99</p>
+            <p style={{ fontSize: 13, color: '#A09B93', marginBottom: 20 }}>one-time, no subscription</p>
+            <button
+              onClick={onUnlock}
+              disabled={paymentLoading}
+              style={{
+                width: '100%',
+                maxWidth: 320,
+                backgroundColor: paymentLoading ? '#A0A89A' : '#7D8B6E',
+                color: '#fff',
+                fontWeight: 600,
+                padding: '16px 32px',
+                borderRadius: 12,
+                fontSize: 16,
+                border: 'none',
+                cursor: paymentLoading ? 'not-allowed' : 'pointer',
+                transition: 'background-color 0.2s',
+                fontFamily: 'inherit',
+              }}
+              onMouseEnter={(e) => {
+                if (!paymentLoading) e.currentTarget.style.backgroundColor = '#5C6650';
+              }}
+              onMouseLeave={(e) => {
+                if (!paymentLoading) e.currentTarget.style.backgroundColor = '#7D8B6E';
+              }}
+            >
+              {paymentLoading ? 'Setting up payment...' : 'Unlock My BootFile'}
+            </button>
+            <p style={{ fontSize: 12, color: '#7A746B', marginTop: 12 }}>
+              Secure checkout via Stripe
+            </p>
+          </>
+        )}
       </div>
 
       {/* Blurred placeholder sections */}

@@ -3,8 +3,10 @@ import { checkRateLimit } from '@/lib/rate-limit';
 
 // Rate limit configs per route pattern
 const RATE_LIMITS: Record<string, { max: number; windowMs: number }> = {
-  '/api/generate':       { max: 5,   windowMs: 3600_000 },  // 5/hour
-  '/api/checkout':       { max: 10,  windowMs: 3600_000 },  // 10/hour
+  '/api/generate':              { max: 5,   windowMs: 3600_000 },  // 5/hour
+  '/api/generate-preview':      { max: 5,   windowMs: 3600_000 },  // 5/hour
+  '/api/generate-full':         { max: 5,   windowMs: 3600_000 },  // 5/hour
+  '/api/create-payment-intent': { max: 10,  windowMs: 3600_000 },  // 10/hour
   '/api/verify-session': { max: 20,  windowMs: 60_000 },    // 20/min
   '/api/track-quiz':     { max: 10,  windowMs: 60_000 },    // 10/min
   '/api/track-purchase': { max: 10,  windowMs: 60_000 },    // 10/min

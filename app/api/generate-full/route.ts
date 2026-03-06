@@ -10,52 +10,55 @@ export const maxDuration = 60;
 const consumedSessions = new Set<string>();
 const MAX_MEMORY_SESSIONS = 10000;
 
-async function isSessionConsumed(sessionId: string): Promise<boolean> {
+async function isSessionConsumed(paymentId: string): Promise<boolean> {
   const supabase = getSupabaseAdmin();
   if (supabase) {
     const { data } = await supabase
       .from('consumed_sessions')
       .select('id')
-      .eq('stripe_session_id', sessionId)
+      .eq('stripe_session_id', paymentId)
       .single();
     return !!data;
   }
-  return consumedSessions.has(sessionId);
+  return consumedSessions.has(paymentId);
 }
 
-async function markSessionConsumed(sessionId: string): Promise<void> {
+async function markSessionConsumed(paymentId: string): Promise<void> {
   const supabase = getSupabaseAdmin();
   if (supabase) {
     await supabase
       .from('consumed_sessions')
-      .insert({ stripe_session_id: sessionId })
+      .insert({ stripe_session_id: paymentId })
       .single();
   }
   if (consumedSessions.size >= MAX_MEMORY_SESSIONS) {
     const first = consumedSessions.values().next().value;
     if (first) consumedSessions.delete(first);
   }
-  consumedSessions.add(sessionId);
+  consumedSessions.add(paymentId);
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    // --- Payment verification ---
+    // --- Determine payment type ---
+    const paymentIntentId = typeof body.paymentIntentId === 'string' ? body.paymentIntentId.trim() : '';
     const sessionId = typeof body.sessionId === 'string' ? body.sessionId.trim() : '';
-    if (!sessionId || sessionId.length > 200) {
+    const paymentId = paymentIntentId || sessionId;
+
+    if (!paymentId || paymentId.length > 200) {
       return NextResponse.json({ error: 'Payment verification required.' }, { status: 403 });
     }
 
-    if (await isSessionConsumed(sessionId)) {
+    if (await isSessionConsumed(paymentId)) {
       // If already consumed, try to return the existing bootfile from Supabase
       const supabase = getSupabaseAdmin();
       if (supabase) {
         const { data: existing } = await supabase
           .from('bootfile_versions')
           .select('bootfile_text')
-          .eq('stripe_session_id', sessionId)
+          .eq('stripe_session_id', paymentId)
           .single();
         if (existing?.bootfile_text) {
           return NextResponse.json({ bootfile: existing.bootfile_text });
@@ -64,19 +67,43 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'This payment session has already been used.' }, { status: 403 });
     }
 
-    let stripeSession;
-    try {
-      const stripe = getStripe();
-      stripeSession = await stripe.checkout.sessions.retrieve(sessionId);
-    } catch {
-      return NextResponse.json({ error: 'Invalid payment session.' }, { status: 403 });
+    // --- Verify payment ---
+    const stripe = getStripe();
+    let customerEmail: string | null = null;
+
+    if (paymentIntentId) {
+      // PaymentIntent verification (new embedded checkout flow)
+      let paymentIntent;
+      try {
+        paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      } catch {
+        return NextResponse.json({ error: 'Invalid payment.' }, { status: 403 });
+      }
+      if (paymentIntent.status !== 'succeeded') {
+        return NextResponse.json({ error: 'Payment not completed.' }, { status: 403 });
+      }
+      // Try to get email from charge
+      if (paymentIntent.latest_charge) {
+        try {
+          const charge = await stripe.charges.retrieve(paymentIntent.latest_charge as string);
+          customerEmail = charge.billing_details?.email || null;
+        } catch { /* non-critical */ }
+      }
+    } else {
+      // Checkout Session verification (backward compat)
+      let stripeSession;
+      try {
+        stripeSession = await stripe.checkout.sessions.retrieve(sessionId);
+      } catch {
+        return NextResponse.json({ error: 'Invalid payment session.' }, { status: 403 });
+      }
+      if (stripeSession.payment_status !== 'paid') {
+        return NextResponse.json({ error: 'Payment not completed.' }, { status: 403 });
+      }
+      customerEmail = stripeSession.customer_details?.email || null;
     }
 
-    if (stripeSession.payment_status !== 'paid') {
-      return NextResponse.json({ error: 'Payment not completed.' }, { status: 403 });
-    }
-
-    await markSessionConsumed(sessionId);
+    await markSessionConsumed(paymentId);
 
     // --- Input validation ---
     const inputs = validateGenerateInputs(body);
@@ -142,12 +169,11 @@ export async function POST(req: NextRequest) {
       bootfile = data.content[0].text;
     }
 
-    // Store in Supabase (all users are now premium equivalent)
+    // Store in Supabase
     const supabase = getSupabaseAdmin();
     if (supabase) {
-      const customerEmail = stripeSession.customer_details?.email || null;
       const { error: storeError } = await supabase.from('bootfile_versions').insert({
-        stripe_session_id: sessionId,
+        stripe_session_id: paymentId,
         email: customerEmail,
         archetype_id: inputs.primaryArchetype,
         bootfile_text: bootfile,

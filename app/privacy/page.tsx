@@ -2,7 +2,7 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 
 export const metadata = {
-  title: 'Privacy — BootFile',
+  title: 'Privacy | BootFile',
   description: 'How BootFile handles your data.',
 };
 
@@ -67,7 +67,7 @@ export default function PrivacyPage() {
                 to study AI communication frustrations and improve the BootFile product. This data is:
               </p>
               <ul style={{ paddingLeft: 20, margin: '8px 0' }}>
-                <li>Fully anonymous — no personal identifiers attached</li>
+                <li>Fully anonymous, no personal identifiers attached</li>
                 <li>Used only in aggregate analysis</li>
                 <li>Never shared with third parties in raw form</li>
                 <li>Categorized automatically (e.g., &ldquo;verbosity&rdquo;, &ldquo;hedging&rdquo;) for research</li>
