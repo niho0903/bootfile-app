@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Component, ReactNode } from 'react';
 import {
   Elements,
   PaymentElement,
@@ -9,6 +9,37 @@ import {
 } from '@stripe/react-stripe-js';
 import { getStripeClient } from '@/lib/stripe-client';
 import { stripeAppearance } from '@/lib/stripe-appearance';
+
+// Error boundary to catch Stripe rendering failures
+class PaymentErrorBoundary extends Component<
+  { children: ReactNode; onError: (msg: string) => void },
+  { hasError: boolean }
+> {
+  constructor(props: { children: ReactNode; onError: (msg: string) => void }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error) {
+    console.error('[STRIPE RENDER ERROR]', error);
+    this.props.onError('Payment form failed to load. Please try again.');
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <p style={{ color: '#DC2626', fontSize: 14, textAlign: 'center', padding: 16 }}>
+          Payment form could not load. Please refresh and try again.
+        </p>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 interface PaymentFormProps {
   onSuccess: (paymentIntentId: string) => void;
@@ -96,15 +127,18 @@ function PaymentForm({ onSuccess }: PaymentFormProps) {
 interface BuildPaymentProps {
   clientSecret: string;
   onSuccess: (paymentIntentId: string) => void;
+  onError: (message: string) => void;
 }
 
-export function BuildPayment({ clientSecret, onSuccess }: BuildPaymentProps) {
+export function BuildPayment({ clientSecret, onSuccess, onError }: BuildPaymentProps) {
   return (
-    <Elements
-      stripe={getStripeClient()}
-      options={{ clientSecret, appearance: stripeAppearance }}
-    >
-      <PaymentForm onSuccess={onSuccess} />
-    </Elements>
+    <PaymentErrorBoundary onError={onError}>
+      <Elements
+        stripe={getStripeClient()}
+        options={{ clientSecret, appearance: stripeAppearance }}
+      >
+        <PaymentForm onSuccess={onSuccess} />
+      </Elements>
+    </PaymentErrorBoundary>
   );
 }

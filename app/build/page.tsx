@@ -263,12 +263,20 @@ function BuildContent() {
 
   const handleUnlock = useCallback(async () => {
     const quizState = getQuizState();
-    if (!quizState) return;
+    if (!quizState) {
+      console.error('[BUILD] Quiz data missing when trying to unlock');
+      setError({
+        message: 'Quiz data not found. Please retake the quiz.',
+        retry: () => router.push('/quiz'),
+      });
+      return;
+    }
 
     setPaymentLoading(true);
     setError(null);
 
     try {
+      console.log('[BUILD] Creating payment intent...');
       const res = await fetch('/api/create-payment-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -277,17 +285,31 @@ function BuildContent() {
           scoresJson: JSON.stringify(quizState.scores),
         }),
       });
+
+      if (!res.ok) {
+        const text = await res.text();
+        console.error('[BUILD] Payment intent API error:', res.status, text);
+        setError({
+          message: 'Payment setup failed. Please try again.',
+          retry: handleUnlock,
+        });
+        return;
+      }
+
       const data = await res.json();
 
       if (data.clientSecret) {
+        console.log('[BUILD] Payment intent created, showing payment form');
         setClientSecret(data.clientSecret);
       } else {
+        console.error('[BUILD] No clientSecret in response:', data);
         setError({
           message: data.error || 'Payment setup failed. Please try again.',
           retry: handleUnlock,
         });
       }
-    } catch {
+    } catch (err) {
+      console.error('[BUILD] Payment intent fetch error:', err);
       setError({
         message: 'Something went wrong. Please try again.',
         retry: handleUnlock,
@@ -295,12 +317,22 @@ function BuildContent() {
     } finally {
       setPaymentLoading(false);
     }
-  }, [getQuizState]);
+  }, [getQuizState, router]);
 
   const handlePaymentSuccess = useCallback((paymentIntentId: string) => {
+    console.log('[BUILD] Payment succeeded:', paymentIntentId);
     setClientSecret(null);
     generateFull(paymentIntentId);
   }, [generateFull]);
+
+  const handlePaymentError = useCallback((message: string) => {
+    console.error('[BUILD] Payment error:', message);
+    setClientSecret(null);
+    setError({
+      message,
+      retry: handleUnlock,
+    });
+  }, [handleUnlock]);
 
   // --- Render ---
 
@@ -350,6 +382,7 @@ function BuildContent() {
             onUnlock={handleUnlock}
             clientSecret={clientSecret}
             onPaymentSuccess={handlePaymentSuccess}
+            onPaymentError={handlePaymentError}
             paymentLoading={paymentLoading}
           />
         </main>

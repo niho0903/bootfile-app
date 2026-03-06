@@ -11,6 +11,7 @@ interface BuildPreviewProps {
   onUnlock: () => void;
   clientSecret: string | null;
   onPaymentSuccess: (paymentIntentId: string) => void;
+  onPaymentError: (message: string) => void;
   paymentLoading?: boolean;
 }
 
@@ -20,6 +21,7 @@ export function BuildPreview({
   onUnlock,
   clientSecret,
   onPaymentSuccess,
+  onPaymentError,
   paymentLoading,
 }: BuildPreviewProps) {
   const arch = ARCHETYPES[archetypeId];
@@ -140,6 +142,7 @@ export function BuildPreview({
             <BuildPayment
               clientSecret={clientSecret}
               onSuccess={onPaymentSuccess}
+              onError={onPaymentError}
             />
             <p style={{ fontSize: 12, color: '#7A746B', marginTop: 12 }}>
               Secure payment via Stripe
