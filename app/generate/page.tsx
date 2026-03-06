@@ -121,6 +121,7 @@ function GenerateContent() {
 
       if (data.bootfile) {
         sessionStorage.setItem('bootfile_output', data.bootfile);
+        if (data.tier) sessionStorage.setItem('bootfile_tier', data.tier);
 
         // Fire-and-forget purchase tracking
         const quizId = sessionStorage.getItem('bootfile_quiz_id');
@@ -186,16 +187,23 @@ function GenerateContent() {
           padding: '0 20px',
         }}
       >
+        <style>{`
+          @keyframes dotPulse {
+            0%, 100% { transform: scale(1); opacity: 0.85; }
+            50% { transform: scale(1.15); opacity: 1; }
+          }
+        `}</style>
         <div style={{ textAlign: 'center', maxWidth: 384 }}>
+          {/* Pulsating brand dot */}
           <div
             style={{
-              width: 40,
-              height: 40,
-              border: '2px solid #7D8B6E',
-              borderTopColor: 'transparent',
+              width: 64,
+              height: 64,
               borderRadius: '50%',
-              margin: '0 auto 24px',
-              animation: 'spin 1s linear infinite',
+              background: 'linear-gradient(135deg, #7D8B6E, #5C6650)',
+              margin: '0 auto 28px',
+              animation: 'dotPulse 2s ease-in-out infinite',
+              boxShadow: '0 0 24px rgba(125, 139, 110, 0.3)',
             }}
           />
           <p
@@ -211,7 +219,7 @@ function GenerateContent() {
             {generatingText}
           </p>
           <p style={{ fontSize: 14, color: '#7A746B' }}>
-            This usually takes 10-15 seconds.
+            This can take up to a minute.
           </p>
         </div>
       </div>

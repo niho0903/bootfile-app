@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -22,6 +23,8 @@ export default function CheckoutPage() {
       return;
     }
 
+    const tier = searchParams.get('tier') || 'basic';
+
     const createCheckout = async () => {
       try {
         const res = await fetch('/api/checkout', {
@@ -30,6 +33,7 @@ export default function CheckoutPage() {
           body: JSON.stringify({
             archetypeId: quizState.primary,
             scoresJson: JSON.stringify(quizState.scores),
+            tier,
           }),
         });
         const data = await res.json();
@@ -38,13 +42,13 @@ export default function CheckoutPage() {
         } else {
           setError(data.error || 'Failed to create checkout session');
         }
-      } catch (err) {
+      } catch {
         setError('Something went wrong. Please try again.');
       }
     };
 
     createCheckout();
-  }, [router]);
+  }, [router, searchParams]);
 
   if (error) {
     return (
@@ -111,5 +115,36 @@ export default function CheckoutPage() {
         <p style={{ color: '#7A746B' }}>Setting up your BootFile...</p>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense
+      fallback={
+        <div
+          style={{
+            minHeight: '100vh',
+            backgroundColor: '#F7F4EF',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <div
+            style={{
+              width: 32,
+              height: 32,
+              border: '2px solid #7D8B6E',
+              borderTopColor: 'transparent',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+            }}
+          />
+        </div>
+      }
+    >
+      <CheckoutContent />
+    </Suspense>
   );
 }

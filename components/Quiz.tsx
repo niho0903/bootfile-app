@@ -415,8 +415,9 @@ export function Quiz() {
               })}
             </div>
 
-            {/* Keyboard hint */}
+            {/* Keyboard hint — desktop only */}
             <p
+              className="keyboard-hint"
               style={{
                 marginTop: 28,
                 textAlign: 'center',

@@ -82,13 +82,18 @@ The generated BootFile must:
 - Include concrete behavioral rules, not vague preferences ("When I ask a yes/no question, answer yes or no first, then explain" NOT "Be concise when appropriate")
 - Prescribe reasoning frameworks, not just communication preferences \u2014 tell the AI how to THINK, not just how to TALK
 - Include archetype-specific failure conditions that give the AI a self-correction mechanism
-- Be 600-900 words \u2014 long enough to be genuinely transformative, short enough to fit within platform limits
+- Be 800-1100 words \u2014 long enough to be genuinely transformative, short enough to fit within platform limits
 - Use second person for user context ("You are...") and direct imperatives for behavioral rules ("Lead with the answer." "Always show your reasoning.")
 - Never mention the BootFile product, the quiz, archetypes, or any meta-reference to this generation process
+- Include behavioral trigger phrases that teach the user HOW to talk to their AI \u2014 this is one of the highest-value features because most people don't know they can control AI behavior with short activation commands
+- The "Try This First" prompt must be so relevant and specific that when the user pastes it into their AI after applying the BootFile, the response is dramatically different from what they'd get without the BootFile \u2014 this is the proof-of-concept moment that creates evangelists
 
 ## Output Structure
 
 Generate the BootFile in this exact structure with these exact section headers:
+
+### First Message
+A single opening line the AI should use as its FIRST response in any new conversation after the BootFile is applied. This is a warm, brief acknowledgment that signals the BootFile is active and the AI is calibrated to this user. It should feel like a quiet nod from someone who already knows you — not a robotic status message. Keep it to one natural sentence. Examples of the right tone: "Ready when you are — I know how you like to work." or "I'm here. Let's think." The line should feel native to this user's archetype energy — direct for Surgeons, collaborative for Co-Pilots, etc. Do NOT use the word "initialized" or any technical/robotic language.
 
 ### About Me
 3-5 sentences. Context about who this person is \u2014 their domain, how they operate, what they use AI for. If they selected "Personal" or "Student" as their domain, frame this around their life context, not a corporate identity. Write so the AI understands who it's talking to.
@@ -97,7 +102,7 @@ Generate the BootFile in this exact structure with these exact section headers:
 4-6 bullet points. The user's cognitive and decision-making style. Facts ABOUT the user that the AI must internalize. Each bullet describes a thinking pattern with direct implications for AI behavior.
 
 ### How to Reason With Me
-4-6 bullet points. THIS IS THE HIGHEST-VALUE SECTION. Prescriptive reasoning frameworks the AI must follow. Not communication style \u2014 thinking methodology. Each bullet is a concrete instruction for how the AI should approach problems. MUST include the four baseline behaviors (novel thinking, challenged thinking, building on thoughts, honest feedback) adapted to this user's archetype voice.
+5-8 bullet points. THIS IS THE HIGHEST-VALUE SECTION. Prescriptive reasoning frameworks the AI must follow. Not communication style \u2014 thinking methodology. Each bullet is a concrete instruction for how the AI should approach problems. MUST include the four baseline behaviors (novel thinking, challenged thinking, building on thoughts, honest feedback) adapted to this user's archetype voice. MUST include 1-2 blind-spot compensators derived from LOWEST_ARCHETYPES (see processing rules).
 
 ### Communication Rules
 5-8 bullet points. Specific, concrete, testable rules for every response.
@@ -109,7 +114,13 @@ Generate the BootFile in this exact structure with these exact section headers:
 3-5 bullet points. Specific conditions under which the AI's output has FAILED. Frame as: "Your output has failed if..."
 
 ### Never Do This
-3-5 bullet points. Hard behavioral prohibitions. The most memorable, quotable rules in the BootFile.`;
+3-5 bullet points. Hard behavioral prohibitions. The most memorable, quotable rules in the BootFile.
+
+### Quick Commands
+4-6 trigger phrases. These are short words or phrases the user can type to activate specific AI behaviors. Format each as: "trigger" = what the AI should do. These MUST be customized to the user's archetype, domain, and use cases \u2014 not generic. Include at least one mode-switch (e.g., work vs. personal), one depth-control (e.g., "go deeper" vs. "just the answer"), and one reasoning-control (e.g., "challenge this" or "steelman this"). These triggers teach users HOW to talk to their AI, which is one of the most valuable things a BootFile provides.
+
+### Try This First
+A single ready-to-paste prompt (3-5 sentences) that this specific user should send as their FIRST message after applying the BootFile. It must be relevant to their DOMAIN and PRIMARY_USES, and designed to showcase the dramatic difference between an AI with and without this BootFile. This is the "holy shit, this actually works" moment. Make it specific to their world \u2014 not a generic demo. If they're in marketing, make it a marketing problem. If they're a student, make it a learning challenge. If they're personal, make it a real-life decision.`;
 
   const userMessage = `Generate a BootFile for this user.
 
@@ -222,13 +233,24 @@ Failure modes: Leading with meta-commentary, asking what format the user wants, 
 - lowest is translator \u2192 add rule against oversimplification
 - lowest is architect \u2192 add rule against over-structuring simple responses
 
+**LOWEST_ARCHETYPES \u2192 Blind Spot Compensation (add 1-2 bullets to "How to Reason With Me"):**
+The user's lowest archetypes represent cognitive blind spots. Add compensating behaviors that fill the gap WITHOUT contradicting their primary style. These should feel like safety nets, not personality changes:
+- lowest is copilot \u2192 "When I'm being rigidly structured, occasionally surface one lateral connection or creative angle I haven't mapped \u2014 but keep it brief."
+- lowest is librarian \u2192 "If I'm about to make a decision without enough information, flag the gap once. Don't over-research \u2014 just make sure I know what I'm missing."
+- lowest is sparring \u2192 "If my reasoning has an obvious weak point, mention it once without turning it into a debate. I want the flag, not the argument."
+- lowest is surgeon \u2192 "If I'm moving too fast past something important, slow me down with one sentence of context \u2014 then let me decide."
+- lowest is maker \u2192 "If I'm over-discussing without producing anything, nudge me toward output. But explain why first."
+- lowest is closer \u2192 "If I've been analyzing without converging, ask: 'Do you have enough to decide?' Don't force a recommendation."
+- lowest is translator \u2192 "If you're using vocabulary I might not share, define it inline on first use \u2014 no separate glossary."
+- lowest is architect \u2192 "If I'm solving a symptom without seeing the system, mention the bigger picture once \u2014 then let me choose whether to zoom out."
+
 **Archetype blending:**
 - Primary: 60-70% influence (structural foundation)
 - Secondary (if within 3 pts): 15-25% influence (adds 1-2 bullets to How I Think, 1 framework to How to Reason)
 - Tertiary (if within 5 pts): 5-10% influence (subtle coloring in 1-2 rules)
 - Result must feel like a single cohesive voice
 
-Now generate the BootFile. Output ONLY the BootFile text \u2014 no meta-commentary, no preamble, no explanation. Start directly with "### About Me".`;
+Now generate the BootFile. Output ONLY the BootFile text \u2014 no meta-commentary, no preamble, no explanation. Start directly with "### About Me" and end with "### Try This First".`;
 
   return { systemPrompt, userMessage };
 }

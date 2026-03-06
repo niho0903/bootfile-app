@@ -1,19 +1,63 @@
 import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { JsonLd } from '@/components/JsonLd';
+import {
+  organizationJsonLd,
+  webApplicationJsonLd,
+  faqPageJsonLd,
+  breadcrumbJsonLd,
+} from '@/lib/json-ld';
+
+const faqs = [
+  {
+    question: 'What is a BootFile?',
+    answer:
+      'A BootFile is a personalized AI instruction profile based on how you think. It tells your AI how to reason with you, how to format responses, and what to avoid \u2014 so every conversation feels like the AI already knows you.',
+  },
+  {
+    question: 'How long does the quiz take?',
+    answer:
+      'About two minutes. It\u2019s eight multiple-choice questions designed to identify your reasoning style and map it to one of eight AI interaction archetypes.',
+  },
+  {
+    question: 'Which AI platforms does BootFile work with?',
+    answer:
+      'BootFile generates custom instructions formatted for ChatGPT, Claude, Google Gemini, Grok, DeepSeek, and Microsoft Copilot. Each format is optimized for the platform\u2019s specific instruction system.',
+  },
+  {
+    question: 'How much does it cost?',
+    answer:
+      'The quiz is free. A Starter BootFile (one platform) is $0.99. The Complete BootFile (all 6 platforms plus bonus content) is $2.99.',
+  },
+  {
+    question: 'Is my data private?',
+    answer:
+      'Yes. Your quiz answers are used only to generate your BootFile. We don\u2019t sell your data or share it with third parties. See our Privacy Policy for full details.',
+  },
+];
 
 export const metadata = {
-  title: 'BootFile — Know Your AI Style',
-  description: 'Take the 2-minute quiz. Get a personalized AI instruction profile that tells your AI how to reason with you, not just how to talk.',
+  title: 'BootFile \u2014 Know Your AI Style',
+  description:
+    'Take the 2-minute quiz. Get a personalized AI instruction profile that tells your AI how to reason with you, not just how to talk.',
 };
 
 export default function LandingPage() {
   return (
     <>
+      <JsonLd
+        data={[
+          organizationJsonLd(),
+          webApplicationJsonLd(),
+          faqPageJsonLd(faqs),
+          breadcrumbJsonLd([{ name: 'Home', href: '/' }]),
+        ]}
+      />
       <Header />
       <main>
-        {/* Hero */}
-        <section style={{ padding: '120px 20px 80px', textAlign: 'center' }}>
+        {/* Hero — cream background */}
+        <section className="hero-glow" style={{ padding: '120px 20px 80px', textAlign: 'center', backgroundColor: '#F7F4EF' }}>
           <div className="hero-animate" style={{ maxWidth: 480, margin: '0 auto' }}>
             <h1
               className="font-heading hero-animate"
@@ -65,15 +109,13 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Explanation */}
-        <section style={{ padding: '0 20px 80px' }}>
+        {/* Explanation — stone background */}
+        <section style={{ padding: '80px 20px', backgroundColor: '#ECEAE4' }}>
           <div
             style={{
               maxWidth: 600,
               margin: '0 auto',
-              backgroundColor: '#ECEAE4',
-              borderRadius: 12,
-              padding: 32,
+              padding: 0,
             }}
           >
             <h2
@@ -117,8 +159,52 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Bottom CTA */}
-        <section style={{ padding: '0 20px 80px', textAlign: 'center' }}>
+        {/* FAQ — cream background */}
+        <section style={{ padding: '80px 20px', backgroundColor: '#F7F4EF' }}>
+          <div style={{ maxWidth: 600, margin: '0 auto' }}>
+            <h2
+              className="font-heading"
+              style={{
+                fontSize: '1.5rem',
+                color: '#2D2926',
+                fontWeight: 400,
+                marginBottom: 32,
+                textAlign: 'center',
+              }}
+            >
+              Frequently Asked Questions
+            </h2>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+              {faqs.map((faq, i) => (
+                <div key={i}>
+                  <h3
+                    style={{
+                      fontSize: '1.05rem',
+                      fontWeight: 600,
+                      color: '#2D2926',
+                      marginBottom: 8,
+                    }}
+                  >
+                    {faq.question}
+                  </h3>
+                  <p
+                    style={{
+                      fontSize: '0.95rem',
+                      lineHeight: 1.65,
+                      color: '#7A746B',
+                    }}
+                  >
+                    {faq.answer}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Bottom CTA — stone background */}
+        <section style={{ padding: '80px 20px', textAlign: 'center', backgroundColor: '#ECEAE4' }}>
           <h2
             className="font-heading"
             style={{

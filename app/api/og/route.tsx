@@ -61,8 +61,92 @@ const ARCHETYPE_OG: Record<string, {
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
-  const archetypeId = searchParams.get('archetype') ?? 'surgeon';
-  const arch = ARCHETYPE_OG[archetypeId] ?? ARCHETYPE_OG.surgeon;
+  const archetypeParam = searchParams.get('archetype');
+
+  // Generic brand card when no archetype is specified
+  if (!archetypeParam) {
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#2D2926',
+            fontFamily: 'system-ui, sans-serif',
+            padding: '60px',
+            position: 'relative',
+          }}
+        >
+          {/* Logo dot */}
+          <div
+            style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #7D8B6E, #5C6650)',
+              marginBottom: '32px',
+            }}
+          />
+
+          {/* Brand name */}
+          <div
+            style={{
+              color: '#F7F4EF',
+              fontSize: '80px',
+              fontWeight: 400,
+              textAlign: 'center',
+              lineHeight: 1.1,
+              marginBottom: '16px',
+              letterSpacing: '-0.02em',
+            }}
+          >
+            BootFile
+          </div>
+
+          {/* Tagline */}
+          <div
+            style={{
+              color: 'rgba(255,255,255,0.6)',
+              fontSize: '36px',
+              textAlign: 'center',
+              marginBottom: '48px',
+            }}
+          >
+            Know Your AI Style
+          </div>
+
+          {/* Sage accent bar */}
+          <div
+            style={{
+              width: '64px',
+              height: '4px',
+              backgroundColor: '#7D8B6E',
+              borderRadius: '9999px',
+              marginBottom: '32px',
+            }}
+          />
+
+          {/* Subtitle */}
+          <div
+            style={{
+              color: 'rgba(255,255,255,0.4)',
+              fontSize: '22px',
+              textAlign: 'center',
+            }}
+          >
+            2-minute quiz &middot; 8 archetypes &middot; personalized AI instructions
+          </div>
+        </div>
+      ),
+      { width: 1200, height: 630 },
+    );
+  }
+
+  const arch = ARCHETYPE_OG[archetypeParam] ?? ARCHETYPE_OG.surgeon;
 
   return new ImageResponse(
     (

@@ -1,0 +1,93 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
+import { JsonLd } from '@/components/JsonLd';
+import { breadcrumbJsonLd } from '@/lib/json-ld';
+import { getAllPosts } from '@/lib/blog';
+
+export const metadata: Metadata = {
+  title: 'Blog',
+  description:
+    'Tips, insights, and guides on getting more from AI with personalized instruction profiles.',
+  alternates: {
+    canonical: '/blog',
+  },
+};
+
+export default function BlogPage() {
+  const posts = getAllPosts();
+
+  return (
+    <>
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: 'Home', href: '/' },
+          { name: 'Blog', href: '/blog' },
+        ])}
+      />
+      <Header />
+      <main style={{ maxWidth: 640, margin: '0 auto', padding: '80px 20px' }}>
+        <h1
+          className="font-heading"
+          style={{
+            fontSize: 'clamp(2rem, 5vw, 2.5rem)',
+            color: '#2D2926',
+            fontWeight: 400,
+            marginBottom: 8,
+          }}
+        >
+          Blog
+        </h1>
+        <p style={{ fontSize: '1.05rem', color: '#7A746B', marginBottom: 48, lineHeight: 1.6 }}>
+          Ideas on making AI work the way you think.
+        </p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
+          {posts.map((post) => (
+            <article key={post.slug}>
+              <Link
+                href={`/blog/${post.slug}`}
+                style={{ textDecoration: 'none' }}
+              >
+                <h2
+                  className="font-heading"
+                  style={{
+                    fontSize: '1.35rem',
+                    color: '#2D2926',
+                    fontWeight: 400,
+                    marginBottom: 8,
+                    lineHeight: 1.3,
+                  }}
+                >
+                  {post.title}
+                </h2>
+              </Link>
+              <p
+                style={{
+                  fontSize: '0.95rem',
+                  color: '#7A746B',
+                  lineHeight: 1.6,
+                  marginBottom: 8,
+                }}
+              >
+                {post.description}
+              </p>
+              <time
+                dateTime={post.publishedAt}
+                style={{ fontSize: '0.82rem', color: '#A39E95' }}
+              >
+                {new Date(post.publishedAt).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </time>
+            </article>
+          ))}
+        </div>
+      </main>
+      <Footer />
+    </>
+  );
+}

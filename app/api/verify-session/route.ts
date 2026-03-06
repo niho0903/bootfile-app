@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
       paid: session.payment_status === 'paid',
       archetypeId: session.metadata?.archetype_id ?? null,
       scoresJson: session.metadata?.scores_json ?? null,
+      tier: session.metadata?.tier ?? 'basic',
     });
   } catch {
     return NextResponse.json({ paid: false }, { status: 400 });

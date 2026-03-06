@@ -30,7 +30,31 @@ export function Header() {
         >
           <Logo size="sm" variant="light" />
         </Link>
-        <nav>
+        <nav style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+          <Link
+            href="/guides"
+            style={{
+              fontSize: '0.88rem',
+              fontWeight: 450,
+              color: '#7A746B',
+              textDecoration: 'none',
+              transition: 'color 0.2s',
+            }}
+          >
+            Guides
+          </Link>
+          <Link
+            href="/blog"
+            style={{
+              fontSize: '0.88rem',
+              fontWeight: 450,
+              color: '#7A746B',
+              textDecoration: 'none',
+              transition: 'color 0.2s',
+            }}
+          >
+            Blog
+          </Link>
           <Link
             href="/quiz"
             style={{

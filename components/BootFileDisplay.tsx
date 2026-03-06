@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { formatForPlatforms, PlatformId, PLATFORM_INSTRUCTIONS } from '@/lib/platform-format';
+import { formatForPlatforms, PlatformId, PLATFORM_INSTRUCTIONS, extractTryThisFirst, extractFirstMessage } from '@/lib/platform-format';
 
 interface BootFileDisplayProps {
   bootfileText: string;
@@ -23,6 +23,8 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const formatted = formatForPlatforms(bootfileText);
   const instructions = PLATFORM_INSTRUCTIONS[activeTab];
+  const tryThisFirst = extractTryThisFirst(bootfileText);
+  const firstMessage = extractFirstMessage(bootfileText);
 
   const handleCopy = async (text: string, field: string) => {
     try {
@@ -210,8 +212,81 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
         </div>
       )}
 
+      {/* First Message indicator */}
+      {firstMessage && (
+        <div
+          style={{
+            marginTop: 32,
+            backgroundColor: '#F0EDE6',
+            border: '1px solid #DDD6CC',
+            borderRadius: 12,
+            padding: 24,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <span
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #7D8B6E, #5C6650)',
+                flexShrink: 0,
+              }}
+            />
+            <h3 style={{ fontSize: 15, fontWeight: 600, color: '#2D2926', margin: 0 }}>
+              Your AI will greet you
+            </h3>
+          </div>
+          <p style={{ fontSize: 13, color: '#7A746B', marginBottom: 12, lineHeight: 1.5 }}>
+            After you paste your BootFile, your AI&apos;s first response in every new conversation will be:
+          </p>
+          <p
+            className="font-heading"
+            style={{
+              fontSize: 15,
+              color: '#2D2926',
+              fontStyle: 'italic',
+              lineHeight: 1.5,
+              padding: '12px 16px',
+              backgroundColor: '#F7F4EF',
+              borderRadius: 8,
+              border: '1px solid #DDD6CC',
+            }}
+          >
+            &ldquo;{firstMessage}&rdquo;
+          </p>
+        </div>
+      )}
+
+      {/* Try This First */}
+      {tryThisFirst && (
+        <div
+          style={{
+            marginTop: 32,
+            backgroundColor: '#F0EDE6',
+            border: '1px solid #DDD6CC',
+            borderRadius: 12,
+            padding: 24,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7D8B6E" strokeWidth="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+            <h3 style={{ fontSize: 15, fontWeight: 600, color: '#2D2926', margin: 0 }}>
+              Try This First
+            </h3>
+          </div>
+          <p style={{ fontSize: 13, color: '#7A746B', marginBottom: 12, lineHeight: 1.5 }}>
+            Paste your BootFile, then send this as your first message to see the difference.
+          </p>
+          <CopyButton text={tryThisFirst} field="try-this" copiedField={copiedField} onCopy={handleCopy} />
+          <ContentBlock text={tryThisFirst} />
+        </div>
+      )}
+
       {/* Test Drive */}
-      <div style={{ marginTop: 32 }}>
+      <div style={{ marginTop: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <a
           href={instructions.testDriveUrl}
           target="_blank"

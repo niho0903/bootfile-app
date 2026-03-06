@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
             { role: 'user', content: userMessage },
           ],
           temperature: 0.7,
-          max_tokens: 2000,
+          max_tokens: 2500,
         }),
       });
       const data = await response.json();
@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
         },
         body: JSON.stringify({
           model: 'claude-sonnet-4-6',
-          max_tokens: 2000,
+          max_tokens: 2500,
           system: systemPrompt,
           messages: [{ role: 'user', content: userMessage }],
         }),
@@ -134,7 +134,29 @@ export async function POST(req: NextRequest) {
       bootfile = data.content[0].text;
     }
 
-    return NextResponse.json({ bootfile });
+    // Store BootFile for premium users
+    const tier = stripeSession.metadata?.tier || 'basic';
+    const isPremium = tier === 'premium' || tier === 'upgrade';
+
+    if (isPremium) {
+      const supabase = getSupabaseAdmin();
+      if (supabase) {
+        const customerEmail = stripeSession.customer_details?.email || null;
+        const { error: storeError } = await supabase.from('bootfile_versions').insert({
+          stripe_session_id: sessionId,
+          email: customerEmail,
+          archetype_id: inputs.primaryArchetype,
+          bootfile_text: bootfile,
+          version: 1,
+          tier,
+        });
+        if (storeError) {
+          console.error('[STORE BOOTFILE ERROR]', storeError.message);
+        }
+      }
+    }
+
+    return NextResponse.json({ bootfile, tier });
   } catch (error: unknown) {
     console.error('[GENERATE ERROR]', error);
     return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });

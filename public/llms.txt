@@ -1,0 +1,53 @@
+# BootFile
+
+> BootFile creates personalized AI instruction profiles based on how you think.
+
+## What It Is
+BootFile is a web app that helps people discover their AI reasoning style and generates a custom instruction profile they can paste into any major AI platform. It replaces the blank "custom instructions" text box with a structured, tested instruction set tailored to how the user actually thinks.
+
+## How It Works
+1. Take a free 2-minute quiz (8 questions).
+2. Discover your AI reasoning archetype.
+3. Purchase your personalized BootFile ($0.99 starter / $2.99 complete).
+4. Paste it into your AI platform of choice.
+5. Every conversation from that point forward is shaped by your thinking style.
+
+## The 8 Archetypes
+- The Surgeon — "Cut the fluff." Direct, convergent reasoning. Wants precision and confidence.
+- The Architect — "Show me the whole board." Systems thinking. Needs the full picture before acting.
+- The Sparring Partner — "Don't agree with me." Adversarial-constructive. Wants pushback and challenge.
+- The Translator — "Make it click." Clarity through analogies and simple language.
+- The Co-Pilot — "Think with me." Collaborative. Riffs on half-formed ideas.
+- The Librarian — "Give me everything." Comprehensive. Wants depth, sources, edge cases.
+- The Closer — "Just tell me what to do." Action-oriented. Wants recommendations, not options.
+- The Maker — "Less talk, more output." Production-focused. Wants drafts, code, and deliverables.
+
+## What a BootFile Contains
+- About Me — reasoning profile and thinking style summary
+- How I Think — cognitive patterns and decision-making approach
+- Communication Rules — how the AI should interact with the user
+- Format Preferences — structural preferences for responses
+- Never Do This — explicit boundaries and anti-patterns
+- Try This First — a starter prompt to test the new setup
+
+## Supported Platforms
+- ChatGPT (two-field Custom Instructions)
+- Claude (single-block Profile instructions)
+- Google Gemini (Gem or Preferences)
+- Grok (two-field Personalization)
+- DeepSeek (conversation primer format)
+- Microsoft Copilot (condensed Personalization)
+
+## Pricing
+- Starter: $0.99 — one platform format
+- Complete: $2.99 — all 6 platform formats + bonus content
+
+## Key URLs
+- Homepage: https://bootfile.ai
+- Quiz: https://bootfile.ai/quiz
+- Blog: https://bootfile.ai/blog
+- Platform Guides: https://bootfile.ai/guides
+- Privacy Policy: https://bootfile.ai/privacy
+
+## Contact
+Website: https://bootfile.ai

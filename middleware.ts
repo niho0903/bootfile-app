@@ -9,6 +9,7 @@ const RATE_LIMITS: Record<string, { max: number; windowMs: number }> = {
   '/api/track-quiz':     { max: 10,  windowMs: 60_000 },    // 10/min
   '/api/track-purchase': { max: 10,  windowMs: 60_000 },    // 10/min
   '/api/track-platform': { max: 30,  windowMs: 60_000 },    // 30/min
+  '/api/upgrade':        { max: 5,   windowMs: 3600_000 },  // 5/hour
 };
 
 function getClientIp(req: NextRequest): string {

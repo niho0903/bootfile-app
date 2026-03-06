@@ -15,19 +15,46 @@ const dmSans = DM_Sans({
   variable: '--font-sans',
 });
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://bootfile.ai';
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://bootfile.ai'),
+  metadataBase: new URL(baseUrl),
+  applicationName: 'BootFile',
+  authors: [{ name: 'BootFile', url: baseUrl }],
+  creator: 'BootFile',
+  publisher: 'BootFile',
   title: {
     default: 'BootFile \u2014 Know Your AI Style',
     template: '%s | BootFile',
   },
-  description: 'Take the free 2-minute quiz. Get a personalized AI instruction profile that tells your AI how to reason with you, not just how to talk.',
+  description:
+    'Take the free 2-minute quiz. Get a personalized AI instruction profile that tells your AI how to reason with you, not just how to talk.',
+  alternates: {
+    canonical: baseUrl,
+  },
   openGraph: {
     siteName: 'BootFile',
     type: 'website',
+    url: baseUrl,
+    locale: 'en_US',
+    title: 'BootFile \u2014 Know Your AI Style',
+    description:
+      'Take the free 2-minute quiz. Get a personalized AI instruction profile that tells your AI how to reason with you, not just how to talk.',
+    images: [
+      {
+        url: `${baseUrl}/api/og`,
+        width: 1200,
+        height: 630,
+        alt: 'BootFile \u2014 Know Your AI Style',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
+    title: 'BootFile \u2014 Know Your AI Style',
+    description:
+      'Take the free 2-minute quiz. Get a personalized AI instruction profile that tells your AI how to reason with you, not just how to talk.',
+    images: [`${baseUrl}/api/og`],
   },
 };
 

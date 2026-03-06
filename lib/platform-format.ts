@@ -95,12 +95,28 @@ function extractSection(text: string, sectionName: string): string {
   return match ? match[1].trim() : '';
 }
 
+/** Remove "Try This First" section — it's shown separately in the UI, not pasted as instructions */
+function removeTryThisFirst(text: string): string {
+  return text.replace(/###\s*Try This First\s*\n[\s\S]*?(?=###|$)/i, '').trim();
+}
+
+/** Extract "Try This First" section for separate display */
+export function extractTryThisFirst(text: string): string {
+  return extractSection(text, 'Try This First');
+}
+
+/** Extract "First Message" section for separate display */
+export function extractFirstMessage(text: string): string {
+  return extractSection(text, 'First Message');
+}
+
 function formatForChatGPT(text: string): { field1: string; field2: string } {
-  const aboutMe = extractSection(text, 'About Me');
-  const howIThink = extractSection(text, 'How I Think');
-  const commRules = extractSection(text, 'Communication Rules');
-  const formatPrefs = extractSection(text, 'Format Preferences');
-  const neverDoThis = extractSection(text, 'Never Do This');
+  const cleaned = removeTryThisFirst(text);
+  const aboutMe = extractSection(cleaned, 'About Me');
+  const howIThink = extractSection(cleaned, 'How I Think');
+  const commRules = extractSection(cleaned, 'Communication Rules');
+  const formatPrefs = extractSection(cleaned, 'Format Preferences');
+  const neverDoThis = extractSection(cleaned, 'Never Do This');
 
   const aboutMeCondensed = condenseToSentences(aboutMe, 3);
   const howIThinkCondensed = condenseBullets(howIThink, 3);
@@ -136,15 +152,17 @@ function formatForChatGPT(text: string): { field1: string; field2: string } {
 }
 
 function formatForClaude(text: string): string {
-  return `These are my standing communication preferences. Apply them to every conversation by default.\n\n${text}`;
+  const withoutTryThis = removeTryThisFirst(text);
+  return `These are my standing communication preferences. Apply them to every conversation by default.\n\n${withoutTryThis}`;
 }
 
 function formatForGemini(text: string): { gem: string; prefs: string } {
-  const gem = text;
+  const cleaned = removeTryThisFirst(text);
+  const gem = cleaned;
 
-  const aboutMe = extractSection(text, 'About Me');
-  const commRules = extractSection(text, 'Communication Rules');
-  const neverDoThis = extractSection(text, 'Never Do This');
+  const aboutMe = extractSection(cleaned, 'About Me');
+  const commRules = extractSection(cleaned, 'Communication Rules');
+  const neverDoThis = extractSection(cleaned, 'Never Do This');
 
   const aboutMeCondensed = condenseToSentences(aboutMe, 2);
   const commRulesCondensed = condenseBullets(commRules, 5);
@@ -168,13 +186,14 @@ function formatForGrok(text: string): { field1: string; field2: string } {
 }
 
 function formatForDeepSeek(text: string): string {
-  return `[System Instruction — User Communication Preferences]
+  const cleaned = removeTryThisFirst(text);
+  return `[System Instruction \u2014 User Communication Preferences]
 
 Please read and acknowledge the following preferences, then apply them to all responses in this conversation.
 
 ---
 
-${text}
+${cleaned}
 
 ---
 
@@ -182,10 +201,11 @@ Please confirm you've read these preferences and will apply them going forward.`
 }
 
 function formatForCopilot(text: string): string {
-  const aboutMe = extractSection(text, 'About Me');
-  const howIThink = extractSection(text, 'How I Think');
-  const commRules = extractSection(text, 'Communication Rules');
-  const neverDoThis = extractSection(text, 'Never Do This');
+  const cleaned = removeTryThisFirst(text);
+  const aboutMe = extractSection(cleaned, 'About Me');
+  const howIThink = extractSection(cleaned, 'How I Think');
+  const commRules = extractSection(cleaned, 'Communication Rules');
+  const neverDoThis = extractSection(cleaned, 'Never Do This');
 
   const aboutMeCondensed = condenseToSentences(aboutMe, 2);
   const howIThinkCondensed = condenseBullets(howIThink, 3);
