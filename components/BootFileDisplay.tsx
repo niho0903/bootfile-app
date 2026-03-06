@@ -5,6 +5,7 @@ import { formatForPlatforms, PlatformId, PLATFORM_INSTRUCTIONS, extractTryThisFi
 
 interface BootFileDisplayProps {
   bootfileText: string;
+  tier?: 'basic' | 'premium' | 'upgrade';
 }
 
 const PLATFORM_CONFIG: Record<PlatformId, { label: string }> = {
@@ -18,11 +19,14 @@ const PLATFORM_CONFIG: Record<PlatformId, { label: string }> = {
 
 const PLATFORM_ORDER: PlatformId[] = ['chatgpt', 'claude', 'gemini', 'grok', 'deepseek', 'copilot'];
 
-export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
+export function BootFileDisplay({ bootfileText, tier = 'premium' }: BootFileDisplayProps) {
   const [activeTab, setActiveTab] = useState<PlatformId>('chatgpt');
+  const [selectedPlatform, setSelectedPlatform] = useState<PlatformId | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const formatted = formatForPlatforms(bootfileText);
   const instructions = PLATFORM_INSTRUCTIONS[activeTab];
+  const isBasic = tier === 'basic';
+  const isLocked = isBasic && selectedPlatform !== null && activeTab !== selectedPlatform;
   const tryThisFirst = extractTryThisFirst(bootfileText);
   const firstMessage = extractFirstMessage(bootfileText);
 
@@ -37,7 +41,13 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
   };
 
   const handleTabClick = (platform: PlatformId) => {
+    if (isBasic && selectedPlatform !== null && platform !== selectedPlatform) return;
     setActiveTab(platform);
+
+    // For basic users, lock to the first platform they click
+    if (isBasic && selectedPlatform === null) {
+      setSelectedPlatform(platform);
+    }
 
     // Fire-and-forget platform tracking
     const quizId = typeof window !== 'undefined' ? sessionStorage.getItem('bootfile_quiz_id') : null;
@@ -49,6 +59,54 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
       }).catch(() => { /* non-blocking */ });
     }
   };
+
+  // Basic tier: show platform picker before revealing content
+  if (isBasic && selectedPlatform === null) {
+    return (
+      <div>
+        <p
+          className="font-heading"
+          style={{ fontSize: 16, color: '#2D2926', fontWeight: 400, marginBottom: 8, textAlign: 'center' }}
+        >
+          Choose your platform
+        </p>
+        <p style={{ fontSize: 13, color: '#7A746B', marginBottom: 20, textAlign: 'center', lineHeight: 1.5 }}>
+          Your Basic plan includes one platform. Pick the AI you use most.
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+          {PLATFORM_ORDER.map(platform => (
+            <button
+              key={platform}
+              onClick={() => handleTabClick(platform)}
+              style={{
+                padding: '16px 12px',
+                borderRadius: 10,
+                border: '1.5px solid #DDD6CC',
+                backgroundColor: '#F7F4EF',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                fontFamily: 'inherit',
+                fontSize: 14,
+                fontWeight: 500,
+                color: '#2D2926',
+                textAlign: 'center',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = '#7D8B6E';
+                e.currentTarget.style.backgroundColor = '#ECEAE4';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = '#DDD6CC';
+                e.currentTarget.style.backgroundColor = '#F7F4EF';
+              }}
+            >
+              {PLATFORM_CONFIG[platform].label}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -64,41 +122,47 @@ export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
           msOverflowStyle: 'none',
         }}
       >
-        {PLATFORM_ORDER.map(platform => (
-          <button
-            key={platform}
-            onClick={() => handleTabClick(platform)}
-            style={{
-              padding: '12px 20px',
-              fontSize: 14,
-              fontWeight: 500,
-              whiteSpace: 'nowrap',
-              borderBottom: `2px solid ${activeTab === platform ? '#7D8B6E' : 'transparent'}`,
-              color: activeTab === platform ? '#7D8B6E' : '#7A746B',
-              backgroundColor: 'transparent',
-              border: 'none',
-              borderBottomWidth: 2,
-              borderBottomStyle: 'solid',
-              borderBottomColor: activeTab === platform ? '#7D8B6E' : 'transparent',
-              marginBottom: -1,
-              cursor: 'pointer',
-              transition: 'color 0.2s',
-              flexShrink: 0,
-            }}
-            onMouseEnter={e => {
-              if (activeTab !== platform) {
-                e.currentTarget.style.color = '#2D2926';
-              }
-            }}
-            onMouseLeave={e => {
-              if (activeTab !== platform) {
-                e.currentTarget.style.color = '#7A746B';
-              }
-            }}
-          >
-            {PLATFORM_CONFIG[platform].label}
-          </button>
-        ))}
+        {PLATFORM_ORDER.map(platform => {
+          const locked = isBasic && selectedPlatform !== null && platform !== selectedPlatform;
+          return (
+            <button
+              key={platform}
+              onClick={() => handleTabClick(platform)}
+              disabled={locked}
+              style={{
+                padding: '12px 20px',
+                fontSize: 14,
+                fontWeight: 500,
+                whiteSpace: 'nowrap',
+                borderBottom: `2px solid ${activeTab === platform ? '#7D8B6E' : 'transparent'}`,
+                color: locked ? '#C8C0B5' : activeTab === platform ? '#7D8B6E' : '#7A746B',
+                backgroundColor: 'transparent',
+                border: 'none',
+                borderBottomWidth: 2,
+                borderBottomStyle: 'solid',
+                borderBottomColor: activeTab === platform ? '#7D8B6E' : 'transparent',
+                marginBottom: -1,
+                cursor: locked ? 'default' : 'pointer',
+                transition: 'color 0.2s',
+                flexShrink: 0,
+                opacity: locked ? 0.5 : 1,
+              }}
+              onMouseEnter={e => {
+                if (activeTab !== platform && !locked) {
+                  e.currentTarget.style.color = '#2D2926';
+                }
+              }}
+              onMouseLeave={e => {
+                if (activeTab !== platform && !locked) {
+                  e.currentTarget.style.color = '#7A746B';
+                }
+              }}
+            >
+              {PLATFORM_CONFIG[platform].label}
+              {locked && ' 🔒'}
+            </button>
+          );
+        })}
       </div>
 
       {/* Instructions as numbered steps */}

@@ -166,7 +166,7 @@ function BootFileContent() {
               boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
             }}
           >
-            <BootFileDisplay bootfileText={bootfileText} />
+            <BootFileDisplay bootfileText={bootfileText} tier={tier as 'basic' | 'premium' | 'upgrade'} />
           </div>
 
           {/* Upgrade CTA for basic users */}

@@ -89,7 +89,7 @@ export default function ResultPage() {
                 <p style={{ fontSize: 28, fontWeight: 600, color: '#2D2926', marginBottom: 16 }}>$0.99</p>
                 <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px', fontSize: 14, color: '#5C6650', lineHeight: 2 }}>
                   <li>&#10003; Personalized BootFile</li>
-                  <li>&#10003; All 6 AI platforms</li>
+                  <li>&#10003; 1 AI platform of your choice</li>
                   <li>&#10003; Quick Commands</li>
                   <li>&#10003; Starter prompt</li>
                 </ul>
@@ -145,10 +145,10 @@ export default function ResultPage() {
                 <p style={{ fontSize: 13, fontWeight: 600, color: '#A09B93', textTransform: 'uppercase' as const, letterSpacing: '0.05em', marginBottom: 4 }}>Premium</p>
                 <p style={{ fontSize: 28, fontWeight: 600, color: '#F7F4EF', marginBottom: 16 }}>$2.99</p>
                 <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px', fontSize: 14, color: '#C4BFB6', lineHeight: 2 }}>
-                  <li>&#10003; Everything in Basic</li>
+                  <li>&#10003; Personalized BootFile</li>
+                  <li>&#10003; All 6 AI platforms</li>
+                  <li>&#10003; Quick Commands &amp; Starter prompt</li>
                   <li>&#10003; Saved forever &mdash; any device</li>
-                  <li>&#10003; Updates for new AI models</li>
-                  <li>&#10003; Version history &amp; rollback</li>
                 </ul>
                 <button
                   onClick={() => router.push('/checkout?tier=premium')}
@@ -174,7 +174,7 @@ export default function ResultPage() {
             </div>
 
             <p style={{ marginTop: 16, fontSize: '0.8rem', color: '#7A746B' }}>
-              One-time purchase. Works on any AI platform. Basic users can upgrade later for $2.50.
+              One-time purchase. No subscription. Basic users can upgrade to all platforms for $2.50.
             </p>
           </div>
 
