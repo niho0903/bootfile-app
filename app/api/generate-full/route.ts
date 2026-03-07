@@ -197,15 +197,19 @@ export async function POST(req: NextRequest) {
     if (!firstValidation.valid) {
       console.warn('[BOOTFILE VALIDATION] Missing sections on first attempt:', firstValidation.missing);
 
-      const retryResult = await callLLM(systemPrompt, userMessage, provider);
-      if (retryResult.bootfile) {
-        const retryValidation = validateBootfile(retryResult.bootfile);
-        if (retryValidation.missing.length < firstValidation.missing.length) {
-          bootfile = retryResult.bootfile;
-          if (retryValidation.missing.length > 0) {
-            console.warn('[BOOTFILE VALIDATION] Still missing after retry:', retryValidation.missing);
+      try {
+        const retryResult = await callLLM(systemPrompt, userMessage, provider);
+        if (retryResult.bootfile) {
+          const retryValidation = validateBootfile(retryResult.bootfile);
+          if (retryValidation.missing.length < firstValidation.missing.length) {
+            bootfile = retryResult.bootfile;
+            if (retryValidation.missing.length > 0) {
+              console.warn('[BOOTFILE VALIDATION] Still missing after retry:', retryValidation.missing);
+            }
           }
         }
+      } catch (retryError) {
+        console.warn('[BOOTFILE VALIDATION] Retry failed, using first result:', retryError);
       }
     }
 
