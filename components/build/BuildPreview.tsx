@@ -115,7 +115,7 @@ export function BuildPreview({
         >
           {[
             'All 6 AI platforms',
-            'Quick Commands + Starter Prompt',
+            'Your AI thinking profile',
             'Failure Detection Rules',
             'Personalized reasoning frameworks',
           ].map((item) => (

@@ -159,6 +159,138 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Before/After Comparison — dark background */}
+        <section style={{ padding: '80px 20px', backgroundColor: '#2D2926' }}>
+          <div style={{ maxWidth: 800, margin: '0 auto' }}>
+            <h2
+              className="font-heading"
+              style={{
+                fontSize: '1.5rem',
+                lineHeight: 1.3,
+                color: '#F7F4EF',
+                fontWeight: 400,
+                marginBottom: 12,
+                textAlign: 'center',
+              }}
+            >
+              Same AI. Different results.
+            </h2>
+            <p
+              style={{
+                fontSize: '0.95rem',
+                color: '#A09B93',
+                textAlign: 'center',
+                marginBottom: 32,
+              }}
+            >
+              &ldquo;Help me decide whether to hire a contractor or do this renovation myself&rdquo;
+            </p>
+
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 16,
+              }}
+            >
+              <style>{`@media (min-width: 700px) { .bf-compare-row { flex-direction: row !important; } }`}</style>
+              <div className="bf-compare-row" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {/* Without BootFile */}
+                <div
+                  style={{
+                    flex: 1,
+                    backgroundColor: '#3A3633',
+                    borderRadius: 12,
+                    padding: 24,
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: '#A09B93',
+                      textTransform: 'uppercase' as const,
+                      letterSpacing: '0.05em',
+                      marginBottom: 16,
+                    }}
+                  >
+                    Without BootFile
+                  </p>
+                  <p
+                    style={{
+                      fontSize: 14,
+                      lineHeight: 1.7,
+                      color: '#C4BFB6',
+                    }}
+                  >
+                    &ldquo;There are several factors to consider when deciding between hiring a contractor and doing a renovation yourself. Let&apos;s break this down:
+                    <br /><br />
+                    Cost considerations:
+                    <br />
+                    - Contractors typically charge...
+                    <br />
+                    - DIY can save money but...
+                    <br /><br />
+                    Time factors:
+                    <br />
+                    - A contractor can usually...
+                    <br /><br />
+                    It depends on your specific situation...&rdquo;
+                  </p>
+                </div>
+
+                {/* With BootFile */}
+                <div
+                  style={{
+                    flex: 1,
+                    backgroundColor: '#3A3633',
+                    borderRadius: 12,
+                    padding: 24,
+                    borderLeft: '3px solid #7D8B6E',
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: '#7D8B6E',
+                      textTransform: 'uppercase' as const,
+                      letterSpacing: '0.05em',
+                      marginBottom: 16,
+                    }}
+                  >
+                    With BootFile
+                  </p>
+                  <p
+                    style={{
+                      fontSize: 14,
+                      lineHeight: 1.7,
+                      color: '#F7F4EF',
+                    }}
+                  >
+                    &ldquo;Hire the contractor. Here&apos;s why:
+                    <br /><br />
+                    You said you value your time at $75/hour. The 120 hours of DIY labor alone costs you $9,000 in opportunity cost. The contractor bid is $14,000 vs ~$8,000 in materials — so you&apos;re paying $6,000 for professional quality and 3 weeks of your life back.
+                    <br /><br />
+                    The only scenario where DIY wins: you actually want the experience of doing it yourself. Do you?&rdquo;
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <p
+              style={{
+                fontSize: 14,
+                color: '#7D8B6E',
+                textAlign: 'center',
+                marginTop: 24,
+              }}
+            >
+              Same question. Same AI. The only difference is a BootFile.
+            </p>
+          </div>
+        </section>
+
         {/* FAQ — cream background */}
         <section style={{ padding: '80px 20px', backgroundColor: '#F7F4EF' }}>
           <div style={{ maxWidth: 600, margin: '0 auto' }}>

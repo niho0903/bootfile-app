@@ -6,6 +6,77 @@ import { validateGenerateInputs } from '@/lib/validation';
 
 export const maxDuration = 60;
 
+const REQUIRED_SECTIONS = [
+  '### First Message',
+  '### About Me',
+  '### How I Think',
+  '### How to Reason With Me',
+  '### Communication Rules',
+  '### Format Preferences',
+  '### Failure Detection',
+  '### Never Do This',
+  '### Quick Commands',
+];
+
+function validateBootfile(text: string): { valid: boolean; missing: string[] } {
+  const missing = REQUIRED_SECTIONS.filter(h => !text.includes(h));
+  return { valid: missing.length === 0, missing };
+}
+
+async function callLLM(systemPrompt: string, userMessage: string, provider: string): Promise<{ bootfile: string | null; error: string | null; status?: number }> {
+  if (provider === 'openai') {
+    if (!process.env.OPENAI_API_KEY) {
+      return { bootfile: null, error: 'Generation service unavailable.', status: 503 };
+    }
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage },
+        ],
+        temperature: 0.7,
+        max_tokens: 2500,
+      }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      console.error('[OPENAI API ERROR]', JSON.stringify(data));
+      return { bootfile: null, error: 'Generation failed. Please try again.', status: 502 };
+    }
+    return { bootfile: data.choices[0].message.content, error: null };
+  } else {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return { bootfile: null, error: 'Generation service unavailable.', status: 503 };
+    }
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 2500,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userMessage }],
+      }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      console.error('[ANTHROPIC API ERROR]', JSON.stringify(data));
+      return { bootfile: null, error: 'Generation failed. Please try again.', status: 502 };
+    }
+    return { bootfile: data.content[0].text, error: null };
+  }
+}
+
 // In-memory consumed sessions fallback (when Supabase is not configured)
 const consumedSessions = new Set<string>();
 const MAX_MEMORY_SESSIONS = 10000;
@@ -115,58 +186,27 @@ export async function POST(req: NextRequest) {
     const { systemPrompt, userMessage } = buildMetaPrompt(inputs);
     const provider = process.env.BOOTFILE_LLM_PROVIDER || 'anthropic';
 
-    let bootfile: string;
+    const firstResult = await callLLM(systemPrompt, userMessage, provider);
+    if (firstResult.error) {
+      return NextResponse.json({ error: firstResult.error }, { status: firstResult.status || 502 });
+    }
 
-    if (provider === 'openai') {
-      if (!process.env.OPENAI_API_KEY) {
-        return NextResponse.json({ error: 'Generation service unavailable.' }, { status: 503 });
+    let bootfile = firstResult.bootfile!;
+    const firstValidation = validateBootfile(bootfile);
+
+    if (!firstValidation.valid) {
+      console.warn('[BOOTFILE VALIDATION] Missing sections on first attempt:', firstValidation.missing);
+
+      const retryResult = await callLLM(systemPrompt, userMessage, provider);
+      if (retryResult.bootfile) {
+        const retryValidation = validateBootfile(retryResult.bootfile);
+        if (retryValidation.missing.length < firstValidation.missing.length) {
+          bootfile = retryResult.bootfile;
+          if (retryValidation.missing.length > 0) {
+            console.warn('[BOOTFILE VALIDATION] Still missing after retry:', retryValidation.missing);
+          }
+        }
       }
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o',
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userMessage },
-          ],
-          temperature: 0.7,
-          max_tokens: 2500,
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        console.error('[OPENAI API ERROR]', JSON.stringify(data));
-        return NextResponse.json({ error: 'Generation failed. Please try again.' }, { status: 502 });
-      }
-      bootfile = data.choices[0].message.content;
-    } else {
-      if (!process.env.ANTHROPIC_API_KEY) {
-        return NextResponse.json({ error: 'Generation service unavailable.' }, { status: 503 });
-      }
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'x-api-key': process.env.ANTHROPIC_API_KEY,
-          'anthropic-version': '2023-06-01',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 2500,
-          system: systemPrompt,
-          messages: [{ role: 'user', content: userMessage }],
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        console.error('[ANTHROPIC API ERROR]', JSON.stringify(data));
-        return NextResponse.json({ error: 'Generation failed. Please try again.' }, { status: 502 });
-      }
-      bootfile = data.content[0].text;
     }
 
     // Store in Supabase

@@ -48,12 +48,12 @@ export const QUESTIONS: Question[] = [
   },
   {
     id: 'Q4',
-    text: "Your ideal Saturday morning involves…",
+    text: "You're starting a new project. What's your first move?",
     answers: {
-      A: { text: "A plan. Coffee at 8, gym at 9, errands by 11", scores: { architect: 3 } },
-      B: { text: "No plan. See what happens", scores: { copilot: 3, maker: 1 } },
-      C: { text: "One anchor activity, everything else flexible", scores: { closer: 3, maker: 1 } },
-      D: { text: "Whatever I didn't get to do during the week", scores: { maker: 3, librarian: 1 } },
+      A: { text: "Map out the full plan before touching anything", scores: { architect: 3 } },
+      B: { text: "Jump in and figure it out as I go", scores: { copilot: 3, maker: 1 } },
+      C: { text: "Identify the one thing that matters most and start there", scores: { closer: 3, maker: 1 } },
+      D: { text: "Look at how similar projects were done before", scores: { maker: 3, librarian: 1 } },
     },
   },
   {
@@ -68,12 +68,12 @@ export const QUESTIONS: Question[] = [
   },
   {
     id: 'Q6',
-    text: "How do you feel about bullet points?",
+    text: "What makes you trust an explanation?",
     answers: {
-      A: { text: "Love them. Organize my life", scores: { architect: 3 } },
-      B: { text: "Fine for some things, but I prefer paragraphs for real thinking", scores: { librarian: 3, architect: 1 } },
-      C: { text: "They oversimplify everything", scores: { sparring: 3 } },
-      D: { text: "I've never thought about this before", scores: { maker: 3, copilot: 1 } },
+      A: { text: "It's well-organized and follows a clear structure", scores: { architect: 3 } },
+      B: { text: "It shows the full picture, including what's uncertain", scores: { librarian: 3, architect: 1 } },
+      C: { text: "It addresses the strongest counterargument", scores: { sparring: 3 } },
+      D: { text: "It gets to the point without overexplaining", scores: { maker: 3, copilot: 1 } },
     },
   },
   {
@@ -88,12 +88,12 @@ export const QUESTIONS: Question[] = [
   },
   {
     id: 'Q8',
-    text: "Pick the response style that would annoy you LEAST from an AI assistant:",
+    text: "What's the most valuable thing an AI assistant can do for you?",
     answers: {
-      A: { text: "A three-paragraph answer when you asked a yes/no question", scores: { librarian: 3, architect: 1 } },
-      B: { text: "A one-word answer when you needed context", scores: { maker: 3, surgeon: 1 } },
-      C: { text: 'An answer that starts with "Great question!"', scores: { translator: 3, copilot: 1 } },
-      D: { text: "An answer that lists five options when you wanted one recommendation", scores: { architect: 3, sparring: 1 } },
+      A: { text: "Give me all the context, even when there's a lot", scores: { librarian: 3, architect: 1 } },
+      B: { text: "Just give me the answer, no extras", scores: { maker: 3, surgeon: 1 } },
+      C: { text: "Explain things in a way that actually makes sense to me", scores: { translator: 3, copilot: 1 } },
+      D: { text: "Help me see the full system before I decide", scores: { architect: 3, sparring: 1 } },
     },
   },
 ];
