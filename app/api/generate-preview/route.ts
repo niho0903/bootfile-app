@@ -3,7 +3,7 @@ import { buildPreviewPrompt } from '@/lib/preview-prompt';
 import { validateGenerateInputs } from '@/lib/validation';
 import { checkRateLimit } from '@/lib/rate-limit';
 
-export const maxDuration = 120;
+export const runtime = 'edge';
 
 export async function POST(req: NextRequest) {
   try {
