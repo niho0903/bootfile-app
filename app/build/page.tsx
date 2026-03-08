@@ -96,6 +96,14 @@ function BuildContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
+
+      if (!res.ok) {
+        let errMsg = `Server error ${res.status}`;
+        try { const d = await res.json(); errMsg = d.error || errMsg; } catch { /* non-JSON response */ }
+        setError({ message: errMsg, retry: generatePreview });
+        return;
+      }
+
       const data = await res.json();
 
       if (data.preview) {
@@ -108,9 +116,10 @@ function BuildContent() {
           retry: generatePreview,
         });
       }
-    } catch {
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : String(err);
       setError({
-        message: 'Something went wrong. Please try again.',
+        message: `Connection error: ${detail}`,
         retry: generatePreview,
       });
     }
@@ -148,6 +157,14 @@ function BuildContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...body, paymentIntentId }),
       });
+
+      if (!res.ok) {
+        let errMsg = `Server error ${res.status}`;
+        try { const d = await res.json(); errMsg = d.error || errMsg; } catch { /* non-JSON response */ }
+        setError({ message: errMsg, retry: () => generateFull(paymentIntentId) });
+        return;
+      }
+
       const data = await res.json();
 
       if (data.bootfile) {
@@ -182,9 +199,10 @@ function BuildContent() {
           retry: () => generateFull(paymentIntentId),
         });
       }
-    } catch {
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : String(err);
       setError({
-        message: 'Something went wrong. Please try again.',
+        message: `Connection error: ${detail}`,
         retry: () => generateFull(paymentIntentId),
       });
     }
