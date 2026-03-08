@@ -104,17 +104,40 @@ function BuildContent() {
         return;
       }
 
-      const data = await res.json();
+      const contentType = res.headers.get('content-type') || '';
 
-      if (data.preview) {
-        try { localStorage.setItem('bootfile_preview', data.preview); } catch { /* */ }
-        setPreviewText(data.preview);
-        setState('preview');
+      if (contentType.includes('text/plain') && res.body) {
+        // Streaming response — show text as it arrives
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let text = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          text += decoder.decode(value, { stream: true });
+          setPreviewText(text);
+          if (text.length > 0) setState('preview');
+        }
+
+        if (text.length > 0) {
+          try { localStorage.setItem('bootfile_preview', text); } catch { /* */ }
+        } else {
+          setError({ message: 'Preview generation returned empty.', retry: generatePreview });
+        }
       } else {
-        setError({
-          message: data.error || 'Preview generation failed. Please try again.',
-          retry: generatePreview,
-        });
+        // JSON response (fallback)
+        const data = await res.json();
+        if (data.preview) {
+          try { localStorage.setItem('bootfile_preview', data.preview); } catch { /* */ }
+          setPreviewText(data.preview);
+          setState('preview');
+        } else {
+          setError({
+            message: data.error || 'Preview generation failed. Please try again.',
+            retry: generatePreview,
+          });
+        }
       }
     } catch (err) {
       const detail = err instanceof Error ? err.message : String(err);
