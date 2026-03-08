@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import * as Sentry from '@sentry/nextjs';
 import { buildMetaPrompt } from '@/lib/generation-prompt';
 import { getStripe } from '@/lib/stripe';
 import { getSupabaseAdmin } from '@/lib/supabase';
@@ -248,6 +249,7 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     const errMsg = error instanceof Error ? error.message : String(error);
     console.error('[GENERATE-FULL ERROR]', errMsg, error);
+    Sentry.captureException(error, { tags: { route: 'generate-full', stage: 'post-payment' } });
     return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
   }
 }

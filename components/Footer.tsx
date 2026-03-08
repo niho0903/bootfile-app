@@ -27,6 +27,10 @@ export function Footer() {
         <Link href="/privacy" style={{ color: '#7A746B', textDecoration: 'none' }}>
           Privacy
         </Link>
+        <span style={{ margin: '0 8px', color: '#DDD6CC' }}>&middot;</span>
+        <a href="mailto:support@bootfile.ai" style={{ color: '#7A746B', textDecoration: 'none' }}>
+          Support
+        </a>
       </p>
     </footer>
   );

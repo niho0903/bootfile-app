@@ -55,6 +55,12 @@ export function BuildError({ message, onRetry }: BuildErrorProps) {
             Start Over
           </Link>
         </div>
+        <p style={{ marginTop: 24, fontSize: 13, color: '#A09B93' }}>
+          Need help?{' '}
+          <a href="mailto:support@bootfile.ai" style={{ color: '#7D8B6E', textDecoration: 'none' }}>
+            support@bootfile.ai
+          </a>
+        </p>
       </div>
     </div>
   );
