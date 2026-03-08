@@ -188,31 +188,23 @@ function BuildContent() {
         return;
       }
 
-      const contentType = res.headers.get('content-type') || '';
-
+      const text = await res.text();
       let bootfile: string;
 
-      if (contentType.includes('text/plain') && res.body) {
-        // Streaming response — collect full text
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        bootfile = '';
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          bootfile += decoder.decode(value, { stream: true });
-        }
-      } else {
-        // JSON response (fallback / existing bootfile retrieval)
-        const data = await res.json();
-        if (!data.bootfile) {
+      try {
+        const data = JSON.parse(text);
+        if (data.bootfile) {
+          bootfile = data.bootfile;
+        } else {
           setError({
             message: data.error || 'Generation failed. Please try again.',
             retry: () => generateFull(paymentIntentId),
           });
           return;
         }
-        bootfile = data.bootfile;
+      } catch {
+        // Raw text from streaming response
+        bootfile = text;
       }
 
       if (bootfile.length > 0) {
