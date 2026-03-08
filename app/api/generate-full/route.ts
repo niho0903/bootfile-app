@@ -231,7 +231,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ bootfile });
   } catch (error: unknown) {
-    console.error('[GENERATE-FULL ERROR]', error);
-    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.error('[GENERATE-FULL ERROR]', errMsg, error);
+    return NextResponse.json({ error: `Generation error: ${errMsg}` }, { status: 500 });
   }
 }

@@ -84,7 +84,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ preview });
   } catch (error: unknown) {
-    console.error('[PREVIEW ERROR]', error);
-    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.error('[PREVIEW ERROR]', errMsg, error);
+    return NextResponse.json({ error: `Preview error: ${errMsg}` }, { status: 500 });
   }
 }
