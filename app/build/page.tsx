@@ -142,7 +142,7 @@ function BuildContent() {
     } catch (err) {
       const detail = err instanceof Error ? err.message : String(err);
       setError({
-        message: `Connection error: ${detail}`,
+        message: 'Something went wrong. Please try again.',
         retry: generatePreview,
       });
     }
@@ -239,7 +239,7 @@ function BuildContent() {
     } catch (err) {
       const detail = err instanceof Error ? err.message : String(err);
       setError({
-        message: `Connection error: ${detail}`,
+        message: 'Something went wrong. Please try again.',
         retry: () => generateFull(paymentIntentId),
       });
     }
