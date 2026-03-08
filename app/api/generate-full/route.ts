@@ -4,7 +4,7 @@ import { getStripe } from '@/lib/stripe';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { validateGenerateInputs } from '@/lib/validation';
 
-export const maxDuration = 60;
+export const runtime = 'edge';
 
 const REQUIRED_SECTIONS = [
   '### First Message',
@@ -17,65 +17,6 @@ const REQUIRED_SECTIONS = [
   '### Never Do This',
   '### Quick Commands',
 ];
-
-function validateBootfile(text: string): { valid: boolean; missing: string[] } {
-  const missing = REQUIRED_SECTIONS.filter(h => !text.includes(h));
-  return { valid: missing.length === 0, missing };
-}
-
-async function callLLM(systemPrompt: string, userMessage: string, provider: string): Promise<{ bootfile: string | null; error: string | null; status?: number }> {
-  if (provider === 'openai') {
-    if (!process.env.OPENAI_API_KEY) {
-      return { bootfile: null, error: 'Generation service unavailable.', status: 503 };
-    }
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userMessage },
-        ],
-        temperature: 0.7,
-        max_tokens: 2500,
-      }),
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      console.error('[OPENAI API ERROR]', JSON.stringify(data));
-      return { bootfile: null, error: 'Generation failed. Please try again.', status: 502 };
-    }
-    return { bootfile: data.choices[0].message.content, error: null };
-  } else {
-    if (!process.env.ANTHROPIC_API_KEY) {
-      return { bootfile: null, error: 'Generation service unavailable.', status: 503 };
-    }
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 2500,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userMessage }],
-      }),
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      console.error('[ANTHROPIC API ERROR]', JSON.stringify(data));
-      return { bootfile: null, error: 'Generation failed. Please try again.', status: 502 };
-    }
-    return { bootfile: data.content[0].text, error: null };
-  }
-}
 
 // In-memory consumed sessions fallback (when Supabase is not configured)
 const consumedSessions = new Set<string>();
@@ -123,7 +64,6 @@ export async function POST(req: NextRequest) {
     }
 
     if (await isSessionConsumed(paymentId)) {
-      // If already consumed, try to return the existing bootfile from Supabase
       const supabase = getSupabaseAdmin();
       if (supabase) {
         const { data: existing } = await supabase
@@ -143,7 +83,6 @@ export async function POST(req: NextRequest) {
     let customerEmail: string | null = null;
 
     if (paymentIntentId) {
-      // PaymentIntent verification (new embedded checkout flow)
       let paymentIntent;
       try {
         paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
@@ -153,7 +92,6 @@ export async function POST(req: NextRequest) {
       if (paymentIntent.status !== 'succeeded') {
         return NextResponse.json({ error: 'Payment not completed.' }, { status: 403 });
       }
-      // Try to get email from charge
       if (paymentIntent.latest_charge) {
         try {
           const charge = await stripe.charges.retrieve(paymentIntent.latest_charge as string);
@@ -161,7 +99,6 @@ export async function POST(req: NextRequest) {
         } catch { /* non-critical */ }
       }
     } else {
-      // Checkout Session verification (backward compat)
       let stripeSession;
       try {
         stripeSession = await stripe.checkout.sessions.retrieve(sessionId);
@@ -182,54 +119,132 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid input.' }, { status: 400 });
     }
 
-    // --- Generate ---
+    // --- Generate (streaming) ---
     const { systemPrompt, userMessage } = buildMetaPrompt(inputs);
     const provider = process.env.BOOTFILE_LLM_PROVIDER || 'anthropic';
 
-    const firstResult = await callLLM(systemPrompt, userMessage, provider);
-    if (firstResult.error) {
-      return NextResponse.json({ error: firstResult.error }, { status: firstResult.status || 502 });
+    let apiResponse: Response;
+
+    if (provider === 'openai') {
+      if (!process.env.OPENAI_API_KEY) {
+        return NextResponse.json({ error: 'Generation service unavailable.' }, { status: 503 });
+      }
+      apiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userMessage },
+          ],
+          temperature: 0.7,
+          max_tokens: 2500,
+          stream: true,
+        }),
+      });
+    } else {
+      if (!process.env.ANTHROPIC_API_KEY) {
+        return NextResponse.json({ error: 'Generation service unavailable.' }, { status: 503 });
+      }
+      apiResponse = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': process.env.ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 2500,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: userMessage }],
+          stream: true,
+        }),
+      });
     }
 
-    let bootfile = firstResult.bootfile!;
-    const firstValidation = validateBootfile(bootfile);
+    if (!apiResponse.ok) {
+      const errText = await apiResponse.text().catch(() => 'Unknown error');
+      console.error(`[${provider.toUpperCase()} API ERROR]`, errText);
+      return NextResponse.json({ error: 'Generation failed. Please try again.' }, { status: 502 });
+    }
 
-    if (!firstValidation.valid) {
-      console.warn('[BOOTFILE VALIDATION] Missing sections on first attempt:', firstValidation.missing);
+    // Stream LLM response to client, collect full text for storage
+    const encoder = new TextEncoder();
+    const isOpenAI = provider === 'openai';
+    const stream = new ReadableStream({
+      async start(controller) {
+        const reader = apiResponse.body!.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let fullText = '';
 
-      try {
-        const retryResult = await callLLM(systemPrompt, userMessage, provider);
-        if (retryResult.bootfile) {
-          const retryValidation = validateBootfile(retryResult.bootfile);
-          if (retryValidation.missing.length < firstValidation.missing.length) {
-            bootfile = retryResult.bootfile;
-            if (retryValidation.missing.length > 0) {
-              console.warn('[BOOTFILE VALIDATION] Still missing after retry:', retryValidation.missing);
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || '';
+
+            for (const line of lines) {
+              if (!line.startsWith('data: ') || line === 'data: [DONE]') continue;
+              try {
+                const parsed = JSON.parse(line.slice(6));
+                const text = isOpenAI
+                  ? parsed.choices?.[0]?.delta?.content
+                  : (parsed.type === 'content_block_delta' ? parsed.delta?.text : null);
+                if (text) {
+                  fullText += text;
+                  controller.enqueue(encoder.encode(text));
+                }
+              } catch { /* skip non-JSON lines */ }
             }
           }
+        } catch (err) {
+          console.error('[STREAM ERROR]', err);
         }
-      } catch (retryError) {
-        console.warn('[BOOTFILE VALIDATION] Retry failed, using first result:', retryError);
-      }
-    }
 
-    // Store in Supabase
-    const supabase = getSupabaseAdmin();
-    if (supabase) {
-      const { error: storeError } = await supabase.from('bootfile_versions').insert({
-        stripe_session_id: paymentId,
-        email: customerEmail,
-        archetype_id: inputs.primaryArchetype,
-        bootfile_text: bootfile,
-        version: 1,
-        tier: 'standard',
-      });
-      if (storeError) {
-        console.error('[STORE BOOTFILE ERROR]', storeError.message);
-      }
-    }
+        // Validate and log missing sections
+        const missing = REQUIRED_SECTIONS.filter(h => !fullText.includes(h));
+        if (missing.length > 0) {
+          console.warn('[BOOTFILE VALIDATION] Missing sections:', missing);
+        }
 
-    return NextResponse.json({ bootfile });
+        // Store in Supabase (fire-and-forget)
+        try {
+          const supabase = getSupabaseAdmin();
+          if (supabase && fullText.length > 0) {
+            supabase.from('bootfile_versions').insert({
+              stripe_session_id: paymentId,
+              email: customerEmail,
+              archetype_id: inputs.primaryArchetype,
+              bootfile_text: fullText,
+              version: 1,
+              tier: 'standard',
+            }).then(({ error: storeError }) => {
+              if (storeError) console.error('[STORE BOOTFILE ERROR]', storeError.message);
+            });
+          }
+        } catch (storeErr) {
+          console.error('[STORE BOOTFILE ERROR]', storeErr);
+        }
+
+        controller.close();
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-cache',
+      },
+    });
   } catch (error: unknown) {
     const errMsg = error instanceof Error ? error.message : String(error);
     console.error('[GENERATE-FULL ERROR]', errMsg, error);

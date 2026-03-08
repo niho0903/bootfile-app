@@ -188,13 +188,36 @@ function BuildContent() {
         return;
       }
 
-      const data = await res.json();
+      const contentType = res.headers.get('content-type') || '';
 
-      if (data.bootfile) {
-        try {
-          localStorage.setItem('bootfile_output', data.bootfile);
-        } catch { /* */ }
-        setBootfileText(data.bootfile);
+      let bootfile: string;
+
+      if (contentType.includes('text/plain') && res.body) {
+        // Streaming response — collect full text
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        bootfile = '';
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          bootfile += decoder.decode(value, { stream: true });
+        }
+      } else {
+        // JSON response (fallback / existing bootfile retrieval)
+        const data = await res.json();
+        if (!data.bootfile) {
+          setError({
+            message: data.error || 'Generation failed. Please try again.',
+            retry: () => generateFull(paymentIntentId),
+          });
+          return;
+        }
+        bootfile = data.bootfile;
+      }
+
+      if (bootfile.length > 0) {
+        try { localStorage.setItem('bootfile_output', bootfile); } catch { /* */ }
+        setBootfileText(bootfile);
         setState('unlocked');
 
         // Fire-and-forget purchase tracking
@@ -212,13 +235,12 @@ function BuildContent() {
           }),
         }).catch(() => { /* non-blocking */ });
 
-        // Clean URL if needed
         if (window.location.search) {
           window.history.replaceState({}, '', '/build');
         }
       } else {
         setError({
-          message: data.error || 'Generation failed. Please try again.',
+          message: 'Generation returned empty. Please try again.',
           retry: () => generateFull(paymentIntentId),
         });
       }
