@@ -36,13 +36,13 @@ export async function generateMetadata({
       publishedTime: post.publishedAt,
       ...(post.updatedAt && { modifiedTime: post.updatedAt }),
       url: `${baseUrl}/blog/${post.slug}`,
-      images: [{ url: `${baseUrl}/api/og`, width: 1200, height: 630 }],
+      images: [{ url: `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&subtitle=${encodeURIComponent(post.description)}`, width: 1200, height: 630 }],
     },
     twitter: {
       card: 'summary_large_image',
       title: post.title,
       description: post.description,
-      images: [`${baseUrl}/api/og`],
+      images: [`${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&subtitle=${encodeURIComponent(post.description)}`],
     },
   };
 }
@@ -97,21 +97,17 @@ export default async function BlogPostPage({
             {post.title}
           </h1>
 
-          <time
-            dateTime={post.publishedAt}
-            style={{
-              fontSize: '0.85rem',
-              color: '#A39E95',
-              display: 'block',
-              marginBottom: 40,
-            }}
-          >
-            {new Date(post.publishedAt).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </time>
+          <div style={{ fontSize: '0.85rem', color: '#A39E95', marginBottom: 40 }}>
+            <time dateTime={post.publishedAt}>
+              {new Date(post.publishedAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </time>
+            <span style={{ margin: '0 8px' }}>&middot;</span>
+            <span>{Math.max(1, Math.round(post.body.split(/\s+/).length / 230))} min read</span>
+          </div>
 
           <div
             className="blog-content"

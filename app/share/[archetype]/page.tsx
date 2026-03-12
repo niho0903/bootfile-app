@@ -19,6 +19,9 @@ export async function generateMetadata({ params }: { params: Promise<{ archetype
   return {
     title: `I'm ${arch.name} | What's your AI style?`,
     description: arch.description,
+    alternates: {
+      canonical: `/share/${archetype}`,
+    },
     openGraph: {
       title: `I'm ${arch.name} | What's your AI style? | BootFile`,
       description: arch.description,

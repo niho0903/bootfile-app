@@ -62,6 +62,100 @@ const ARCHETYPE_OG: Record<string, {
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const archetypeParam = searchParams.get('archetype');
+  const titleParam = searchParams.get('title');
+  const subtitleParam = searchParams.get('subtitle');
+
+  // Blog/Guide card when title is specified
+  if (titleParam) {
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            backgroundColor: '#2D2926',
+            fontFamily: 'system-ui, sans-serif',
+            padding: '60px 80px',
+            position: 'relative',
+          }}
+        >
+          {/* Brand */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '40px',
+              left: '80px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+            }}
+          >
+            <div
+              style={{
+                width: '16px',
+                height: '16px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #7D8B6E, #5C6650)',
+              }}
+            />
+            <span
+              style={{
+                color: 'rgba(247, 244, 239, 0.5)',
+                fontSize: '24px',
+                fontWeight: 400,
+                letterSpacing: '-0.01em',
+              }}
+            >
+              bootfile.ai
+            </span>
+          </div>
+
+          {/* Sage accent bar */}
+          <div
+            style={{
+              width: '64px',
+              height: '4px',
+              backgroundColor: '#7D8B6E',
+              borderRadius: '9999px',
+              marginBottom: '24px',
+            }}
+          />
+
+          {/* Title */}
+          <div
+            style={{
+              color: '#F7F4EF',
+              fontSize: titleParam.length > 60 ? '48px' : '56px',
+              fontWeight: 400,
+              lineHeight: 1.15,
+              marginBottom: '20px',
+              maxWidth: '900px',
+            }}
+          >
+            {titleParam}
+          </div>
+
+          {/* Subtitle */}
+          {subtitleParam && (
+            <div
+              style={{
+                color: 'rgba(255,255,255,0.55)',
+                fontSize: '26px',
+                lineHeight: 1.4,
+                maxWidth: '800px',
+              }}
+            >
+              {subtitleParam}
+            </div>
+          )}
+        </div>
+      ),
+      { width: 1200, height: 630 },
+    );
+  }
 
   // Generic brand card when no archetype is specified
   if (!archetypeParam) {

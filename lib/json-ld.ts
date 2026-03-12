@@ -7,7 +7,7 @@ export function organizationJsonLd() {
     name: 'BootFile',
     url: BASE_URL,
     logo: `${BASE_URL}/api/og`,
-    sameAs: [],
+    sameAs: ['https://www.instagram.com/bootfile.ai/'],
     description:
       'BootFile creates personalized AI instruction profiles based on how you think, not generic templates.',
   };
@@ -67,6 +67,10 @@ export function articleJsonLd(post: {
     headline: post.title,
     description: post.description,
     url: `${BASE_URL}/blog/${post.slug}`,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${BASE_URL}/blog/${post.slug}`,
+    },
     datePublished: post.publishedAt,
     ...(post.updatedAt && { dateModified: post.updatedAt }),
     author: {
@@ -78,8 +82,12 @@ export function articleJsonLd(post: {
       '@type': 'Organization',
       name: 'BootFile',
       url: BASE_URL,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${BASE_URL}/api/og`,
+      },
     },
-    image: `${BASE_URL}/api/og`,
+    image: `${BASE_URL}/api/og?title=${encodeURIComponent(post.title)}`,
   };
 }
 
@@ -101,6 +109,25 @@ export function howToJsonLd(guide: {
       name: step.title,
       text: step.text,
     })),
+  };
+}
+
+export function collectionPageJsonLd(posts: { slug: string; title: string; description: string; publishedAt: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'BootFile Blog',
+    description: 'Tips, insights, and guides on getting more from AI with personalized instruction profiles.',
+    url: `${BASE_URL}/blog`,
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: posts.map((post, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: `${BASE_URL}/blog/${post.slug}`,
+        name: post.title,
+      })),
+    },
   };
 }
 

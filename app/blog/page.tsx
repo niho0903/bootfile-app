@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { JsonLd } from '@/components/JsonLd';
-import { breadcrumbJsonLd } from '@/lib/json-ld';
+import { breadcrumbJsonLd, collectionPageJsonLd } from '@/lib/json-ld';
 import { getAllPosts } from '@/lib/blog';
 
 export const metadata: Metadata = {
@@ -21,10 +21,13 @@ export default function BlogPage() {
   return (
     <>
       <JsonLd
-        data={breadcrumbJsonLd([
-          { name: 'Home', href: '/' },
-          { name: 'Blog', href: '/blog' },
-        ])}
+        data={[
+          collectionPageJsonLd(posts),
+          breadcrumbJsonLd([
+            { name: 'Home', href: '/' },
+            { name: 'Blog', href: '/blog' },
+          ]),
+        ]}
       />
       <Header />
       <main style={{ maxWidth: 640, margin: '0 auto', padding: '80px 20px' }}>
@@ -73,16 +76,17 @@ export default function BlogPage() {
               >
                 {post.description}
               </p>
-              <time
-                dateTime={post.publishedAt}
-                style={{ fontSize: '0.82rem', color: '#A39E95' }}
-              >
-                {new Date(post.publishedAt).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </time>
+              <div style={{ fontSize: '0.82rem', color: '#A39E95' }}>
+                <time dateTime={post.publishedAt}>
+                  {new Date(post.publishedAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </time>
+                <span style={{ margin: '0 6px' }}>&middot;</span>
+                <span>{Math.max(1, Math.round(post.body.split(/\s+/).length / 230))} min read</span>
+              </div>
             </article>
           ))}
         </div>
