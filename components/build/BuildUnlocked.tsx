@@ -41,6 +41,31 @@ export function BuildUnlocked({ bootfileText, archetypeId }: BuildUnlockedProps)
         </span>
       </div>
 
+      {/* Save Warning Callout */}
+      <div
+        style={{
+          backgroundColor: '#FEF9E7',
+          border: '1px solid #F0D878',
+          borderRadius: 12,
+          padding: '16px 20px',
+          marginBottom: 24,
+          display: 'flex',
+          gap: 12,
+          alignItems: 'flex-start',
+        }}
+      >
+        <span style={{ fontSize: 20, lineHeight: 1, flexShrink: 0, marginTop: 2 }}>&#9888;&#65039;</span>
+        <div>
+          <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: '#5D4E37' }}>
+            Save your BootFile before leaving this page
+          </p>
+          <p style={{ margin: '4px 0 0', fontSize: 14, color: '#7A6F5F', lineHeight: 1.5 }}>
+            Copy the text below and paste it into a document, note, or Google Drive.
+            Your BootFile cannot be accessed again once you navigate away.
+          </p>
+        </div>
+      </div>
+
       {/* BootFile Display */}
       <div
         style={{

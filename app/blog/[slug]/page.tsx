@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { JsonLd } from '@/components/JsonLd';
+import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { articleJsonLd, breadcrumbJsonLd } from '@/lib/json-ld';
 import { getAllPosts, getPostBySlug } from '@/lib/blog';
 
@@ -54,8 +55,6 @@ export default async function BlogPostPage({
   const { slug } = await params;
   const post = getPostBySlug(slug);
   if (!post) notFound();
-
-  const paragraphs = post.body.split('\n\n');
 
   return (
     <>
@@ -115,19 +114,7 @@ export default async function BlogPostPage({
           </time>
 
           <div>
-            {paragraphs.map((p, i) => (
-              <p
-                key={i}
-                style={{
-                  fontSize: '1.05rem',
-                  lineHeight: 1.75,
-                  color: '#4A453E',
-                  marginBottom: 24,
-                }}
-              >
-                {p}
-              </p>
-            ))}
+            <MarkdownRenderer content={post.body} />
           </div>
         </article>
 

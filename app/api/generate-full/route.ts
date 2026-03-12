@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as Sentry from '@sentry/nextjs';
 import { buildMetaPrompt } from '@/lib/generation-prompt';
+import { buildExtractionPrompt } from '@/lib/bootfile-schema';
 import { getStripe } from '@/lib/stripe';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { validateGenerateInputs } from '@/lib/validation';
@@ -22,6 +23,53 @@ const REQUIRED_SECTIONS = [
 // In-memory consumed sessions fallback (when Supabase is not configured)
 const consumedSessions = new Set<string>();
 const MAX_MEMORY_SESSIONS = 10000;
+
+/**
+ * Post-generation extraction: converts human-readable BootFile text into
+ * structured JSON (v1.0 schema). Uses a cheap, fast API call.
+ * Returns null on any failure — never blocks the user experience.
+ */
+async function extractStructuredBootfile(
+  fullText: string,
+  inputs: Parameters<typeof buildExtractionPrompt>[1],
+): Promise<Record<string, unknown> | null> {
+  try {
+    const { systemPrompt, userMessage } = buildExtractionPrompt(fullText, inputs);
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) return null;
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 2000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userMessage }],
+      }),
+    });
+
+    if (!res.ok) {
+      console.error('[EXTRACTION ERROR] API response:', res.status);
+      return null;
+    }
+
+    const data = await res.json();
+    const text = data.content?.[0]?.text;
+    if (!text) return null;
+
+    // Strip markdown fencing if present
+    const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+    return JSON.parse(cleaned);
+  } catch (err) {
+    console.error('[EXTRACTION ERROR]', err);
+    return null;
+  }
+}
 
 async function isSessionConsumed(paymentId: string): Promise<boolean> {
   const supabase = getSupabaseAdmin();
@@ -112,13 +160,13 @@ export async function POST(req: NextRequest) {
       customerEmail = stripeSession.customer_details?.email || null;
     }
 
-    await markSessionConsumed(paymentId);
-
-    // --- Input validation ---
+    // --- Input validation (before marking consumed, so failed validation doesn't burn the session) ---
     const inputs = validateGenerateInputs(body);
     if (!inputs) {
       return NextResponse.json({ error: 'Invalid input.' }, { status: 400 });
     }
+
+    await markSessionConsumed(paymentId);
 
     // --- Generate (streaming) ---
     const { systemPrompt, userMessage } = buildMetaPrompt(inputs);
@@ -217,10 +265,11 @@ export async function POST(req: NextRequest) {
           console.warn('[BOOTFILE VALIDATION] Missing sections:', missing);
         }
 
-        // Store in Supabase (fire-and-forget)
+        // Store in Supabase (fire-and-forget) + extract structured data
         try {
           const supabase = getSupabaseAdmin();
           if (supabase && fullText.length > 0) {
+            // Insert the bootfile text immediately
             supabase.from('bootfile_versions').insert({
               stripe_session_id: paymentId,
               email: customerEmail,
@@ -230,6 +279,34 @@ export async function POST(req: NextRequest) {
               tier: 'standard',
             }).then(({ error: storeError }) => {
               if (storeError) console.error('[STORE BOOTFILE ERROR]', storeError.message);
+            });
+
+            // Extract structured JSON in the background (cheap Haiku call)
+            extractStructuredBootfile(fullText, {
+              primaryArchetype: inputs.primaryArchetype,
+              secondaryArchetype: inputs.secondaryArchetype ?? null,
+              tertiaryArchetype: inputs.tertiaryArchetype ?? null,
+              lowestArchetypes: inputs.lowestArchetypes,
+              allScores: inputs.allScores,
+              domain: inputs.domain,
+              domainOther: inputs.domainOther,
+              technicalLevel: inputs.technicalLevel,
+              primaryUses: inputs.primaryUses,
+              decisionStyle: inputs.decisionStyle,
+              responseLength: inputs.responseLength,
+              petPeeves: inputs.petPeeves,
+              customAvoidances: inputs.customAvoidances,
+            }).then((structured) => {
+              if (structured && supabase) {
+                supabase.from('bootfile_versions').update({
+                  bootfile_structured: structured,
+                }).eq('stripe_session_id', paymentId).then(({ error: updateError }) => {
+                  if (updateError) console.error('[STORE STRUCTURED ERROR]', updateError.message);
+                  else console.log('[STRUCTURED BOOTFILE] Stored successfully for', paymentId);
+                });
+              }
+            }).catch((err) => {
+              console.error('[STRUCTURED EXTRACTION ERROR]', err);
             });
           }
         } catch (storeErr) {

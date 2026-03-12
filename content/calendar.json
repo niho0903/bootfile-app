@@ -1,0 +1,51 @@
+{
+  "schedule": [
+    {
+      "day": "monday",
+      "channel": "blog",
+      "pillar": "comparison",
+      "topic": null,
+      "notes": "Pick the highest-value comparison not yet written. Check search trends."
+    },
+    {
+      "day": "tuesday",
+      "channel": "instagram",
+      "type": "frustration",
+      "notes": "Name a specific AI annoyance. Cream background. Italic serif."
+    },
+    {
+      "day": "thursday",
+      "channel": "blog",
+      "pillar": "guide",
+      "topic": null,
+      "notes": "Practical how-to. Target a specific search query."
+    },
+    {
+      "day": "friday",
+      "channel": "instagram",
+      "type": "archetype_card",
+      "archetype": null,
+      "notes": "Rotate through archetypes. Dark background."
+    },
+    {
+      "day": "saturday",
+      "channel": "instagram",
+      "type": "concept",
+      "notes": "Broader idea about thinking styles or AI personalization."
+    }
+  ],
+  "upcoming_topics": {
+    "blog": [
+      "DeepSeek vs ChatGPT comparison",
+      "How to use Gemini Gems effectively",
+      "What custom instructions actually change about AI behavior",
+      "Claude 4 review"
+    ],
+    "instagram": [
+      "When AI says 'it depends' instead of giving you an answer",
+      "The Architect archetype deep dive",
+      "Surgeon vs Co-Pilot contrast post",
+      "What your decision style says about you"
+    ]
+  }
+}

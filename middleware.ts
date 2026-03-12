@@ -12,6 +12,9 @@ const RATE_LIMITS: Record<string, { max: number; windowMs: number }> = {
   '/api/track-purchase': { max: 10,  windowMs: 60_000 },    // 10/min
   '/api/track-platform': { max: 30,  windowMs: 60_000 },    // 30/min
   '/api/upgrade':        { max: 5,   windowMs: 3600_000 },  // 5/hour
+  '/api/admin/generate-content': { max: 20, windowMs: 3600_000 }, // 20/hour
+  '/api/admin/drafts':           { max: 60, windowMs: 60_000 },   // 60/min
+  '/api/admin/publish':          { max: 20, windowMs: 3600_000 }, // 20/hour
 };
 
 function getClientIp(req: NextRequest): string {
@@ -59,9 +62,10 @@ export function middleware(req: NextRequest) {
       }
     }
 
-    // Origin/Referer check for POST endpoints (CSRF protection)
-    // Skip for webhook (Stripe needs to call it from their servers)
-    if (req.method === 'POST' && !pathname.startsWith('/api/webhooks/')) {
+    // Origin/Referer check for mutating endpoints (CSRF protection)
+    // Skip for webhooks (Stripe calls from their servers)
+    if (['POST', 'PATCH', 'PUT', 'DELETE'].includes(req.method) &&
+        !pathname.startsWith('/api/webhooks/')) {
       const origin = req.headers.get('origin');
       const referer = req.headers.get('referer');
       const allowedHost = req.nextUrl.host;
