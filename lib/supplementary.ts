@@ -1,6 +1,7 @@
 import { ArchetypeId } from './questions';
 
 export interface SupplementaryAnswers {
+  email: string;
   domain: string;
   domainOther: string;
   technicalLevel: number;

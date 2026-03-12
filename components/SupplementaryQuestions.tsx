@@ -19,6 +19,7 @@ interface SupplementaryQuestionsProps {
 
 export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: SupplementaryQuestionsProps) {
   const [formData, setFormData] = useState<SupplementaryAnswers>({
+    email: '',
     domain: '',
     domainOther: '',
     technicalLevel: 5,
@@ -32,7 +33,10 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
 
   const petPeeveOptions = PET_PEEVE_OPTIONS[archetypeId];
 
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim());
+
   const isValid =
+    isValidEmail &&
     formData.domain !== '' &&
     (formData.domain !== 'Other' || formData.domainOther.trim().length > 0) &&
     formData.primaryUses.length >= 1 &&
@@ -105,6 +109,41 @@ export function SupplementaryQuestions({ archetypeId, onSubmit, isGenerating }: 
       <div style={{ textAlign: 'center', marginBottom: 32 }}>
         <p style={{ fontSize: 14, color: '#7A746B' }}>A few quick questions to personalize your BootFile</p>
       </div>
+
+      {/* Email */}
+      <fieldset style={{ border: 'none', padding: 0, marginBottom: 40 }}>
+        <legend style={legendStyle}>
+          Your email
+        </legend>
+        <p style={{ fontSize: 13, color: '#7A746B', marginBottom: 8, lineHeight: 1.5 }}>
+          We&apos;ll send your BootFile here so you don&apos;t lose it. Also used for your receipt.
+        </p>
+        <input
+          type="email"
+          placeholder="you@example.com"
+          value={formData.email}
+          onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
+          style={{
+            width: '100%',
+            maxWidth: 384,
+            padding: '10px 16px',
+            borderRadius: 8,
+            border: `1px solid ${formData.email.length > 0 && !isValidEmail ? '#DC2626' : '#DDD6CC'}`,
+            backgroundColor: '#fff',
+            color: '#2D2926',
+            fontSize: 14,
+            outline: 'none',
+          }}
+          onFocus={e => {
+            e.currentTarget.style.boxShadow = '0 0 0 2px #7D8B6E';
+            e.currentTarget.style.borderColor = 'transparent';
+          }}
+          onBlur={e => {
+            e.currentTarget.style.boxShadow = 'none';
+            e.currentTarget.style.borderColor = formData.email.length > 0 && !isValidEmail ? '#DC2626' : '#DDD6CC';
+          }}
+        />
+      </fieldset>
 
       {/* Q1: What's your world? */}
       <fieldset style={{ border: 'none', padding: 0, marginBottom: 40 }}>

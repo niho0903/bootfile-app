@@ -5,7 +5,7 @@ import { sanitizeString, sanitizeNumber, isValidDecisionStyle, isValidResponseLe
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { quizId, domain, technicalLevel, primaryUse, decisionStyle, responseLength } = body;
+    const { quizId, email, domain, technicalLevel, primaryUse, decisionStyle, responseLength } = body;
 
     const supabase = getSupabaseAdmin();
     if (!supabase) {
@@ -14,11 +14,13 @@ export async function POST(request: Request) {
 
     // Validate quizId format (UUID)
     const sanitizedQuizId = typeof quizId === 'string' && /^[0-9a-f-]{36}$/i.test(quizId) ? quizId : null;
+    const sanitizedEmail = typeof email === 'string' ? email.trim().toLowerCase().slice(0, 254) : null;
 
     const { error: purchaseError } = await supabase
       .from('purchases')
       .insert({
         quiz_completion_id: sanitizedQuizId,
+        email: sanitizedEmail,
         domain: sanitizeString(domain, 50) || null,
         technical_level: sanitizeNumber(technicalLevel, 1, 10, 5),
         primary_use: sanitizeString(primaryUse, 200) || null,

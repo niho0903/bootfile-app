@@ -15,6 +15,7 @@ const RATE_LIMITS: Record<string, { max: number; windowMs: number }> = {
   '/api/admin/generate-content': { max: 20, windowMs: 3600_000 }, // 20/hour
   '/api/admin/drafts':           { max: 60, windowMs: 60_000 },   // 60/min
   '/api/admin/publish':          { max: 20, windowMs: 3600_000 }, // 20/hour
+  '/api/send-bootfile':          { max: 5,  windowMs: 3600_000 }, // 5/hour
 };
 
 function getClientIp(req: NextRequest): string {

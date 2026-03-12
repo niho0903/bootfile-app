@@ -219,6 +219,7 @@ function BuildContent() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             quizId,
+            email: supplementary.email,
             domain: supplementary.domain,
             technicalLevel: supplementary.technicalLevel,
             primaryUse: supplementary.primaryUses.join(', '),
@@ -226,6 +227,19 @@ function BuildContent() {
             responseLength: supplementary.responseLength,
           }),
         }).catch(() => { /* non-blocking */ });
+
+        // Fire-and-forget: email the bootfile to the user
+        if (supplementary.email) {
+          fetch('/api/send-bootfile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: supplementary.email,
+              bootfileText: bootfile,
+              archetypeId: body?.primaryArchetype,
+            }),
+          }).catch(() => { /* non-blocking */ });
+        }
 
         if (window.location.search) {
           window.history.replaceState({}, '', '/build');
@@ -332,12 +346,14 @@ function BuildContent() {
 
     try {
       console.log('[BUILD] Creating payment intent...');
+      const supplementary = getSupplementaryData();
       const res = await fetch('/api/create-payment-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           archetypeId: quizState.primary,
           scoresJson: JSON.stringify(quizState.scores),
+          email: supplementary?.email,
         }),
       });
 
