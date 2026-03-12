@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { marked } from 'marked';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { JsonLd } from '@/components/JsonLd';
-import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { articleJsonLd, breadcrumbJsonLd } from '@/lib/json-ld';
 import { getAllPosts, getPostBySlug } from '@/lib/blog';
 
@@ -113,9 +113,10 @@ export default async function BlogPostPage({
             })}
           </time>
 
-          <div>
-            <MarkdownRenderer content={post.body} />
-          </div>
+          <div
+            className="blog-content"
+            dangerouslySetInnerHTML={{ __html: marked.parse(post.body) as string }}
+          />
         </article>
 
         {/* CTA */}
