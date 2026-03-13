@@ -20,6 +20,40 @@ interface GenerateForm {
   notes: string;
 }
 
+interface CustomerBootfile {
+  id: string;
+  stripe_session_id: string;
+  email: string;
+  archetype_id: string;
+  bootfile_text: string;
+  tier: string;
+  created_at: string;
+}
+
+interface CustomerPurchase {
+  id: string;
+  email: string;
+  domain: string;
+  technical_level: number;
+  decision_style: string;
+  response_length: string;
+  primary_platform: string;
+  created_at: string;
+}
+
+interface CustomerData {
+  email: string;
+  bootfiles: CustomerBootfile[];
+  purchases: CustomerPurchase[];
+  quizCompletions: Array<{
+    id: string;
+    primary_archetype: string;
+    secondary_archetype: string;
+    tertiary_archetype: string;
+    created_at: string;
+  }>;
+}
+
 export default function AdminPage() {
   const [password, setPassword] = useState('');
   const [authed, setAuthed] = useState(false);
@@ -38,6 +72,11 @@ export default function AdminPage() {
     archetype: '',
     notes: '',
   });
+  const [tab, setTab] = useState<'content' | 'customers'>('content');
+  const [lookupEmail, setLookupEmail] = useState('');
+  const [customerData, setCustomerData] = useState<CustomerData | null>(null);
+  const [lookupLoading, setLookupLoading] = useState(false);
+  const [selectedBootfile, setSelectedBootfile] = useState<CustomerBootfile | null>(null);
 
   const authHeader = useCallback(() => ({
     'Authorization': `Bearer ${password}`,
@@ -156,6 +195,51 @@ export default function AdminPage() {
     }
   };
 
+  const handleLookup = async () => {
+    if (!lookupEmail.trim()) return;
+    setLookupLoading(true);
+    setCustomerData(null);
+    setSelectedBootfile(null);
+    setMessage('');
+    try {
+      const res = await fetch(`/api/admin/customer-lookup?email=${encodeURIComponent(lookupEmail.trim())}`, {
+        headers: authHeader(),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCustomerData(data);
+        if (data.bootfiles.length === 0 && data.purchases.length === 0) {
+          setMessage('No records found for this email.');
+        }
+      } else {
+        setMessage('Lookup failed.');
+      }
+    } catch {
+      setMessage('Network error.');
+    } finally {
+      setLookupLoading(false);
+    }
+  };
+
+  const handleResendBootfile = async (bootfileId: string, toEmail: string) => {
+    setMessage('');
+    try {
+      const res = await fetch('/api/admin/resend-bootfile', {
+        method: 'POST',
+        headers: authHeader(),
+        body: JSON.stringify({ email: toEmail, bootfileId }),
+      });
+      if (res.ok) {
+        setMessage(`Bootfile resent to ${toEmail}`);
+      } else {
+        const data = await res.json();
+        setMessage(data.error || 'Resend failed');
+      }
+    } catch {
+      setMessage('Network error');
+    }
+  };
+
   // --- Styles ---
   const s = {
     page: { minHeight: '100vh', backgroundColor: '#1a1a1a', color: '#e0e0e0', fontFamily: 'system-ui, sans-serif' } as const,
@@ -271,7 +355,23 @@ export default function AdminPage() {
   return (
     <div style={s.page}>
       <div style={s.container}>
-        <h1 style={s.heading}>BootFile Content Admin</h1>
+        <h1 style={s.heading}>BootFile Admin</h1>
+
+        {/* Tab switcher */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+          <button
+            onClick={() => setTab('content')}
+            style={{ ...s.button(tab === 'content' ? 'primary' : 'ghost') }}
+          >
+            Content
+          </button>
+          <button
+            onClick={() => setTab('customers')}
+            style={{ ...s.button(tab === 'customers' ? 'primary' : 'ghost') }}
+          >
+            Customer Lookup
+          </button>
+        </div>
 
         {message && (
           <div style={{ ...s.card, borderColor: '#7D8B6E', marginBottom: 24 }}>
@@ -279,8 +379,151 @@ export default function AdminPage() {
           </div>
         )}
 
+        {/* Customer Lookup Tab */}
+        {tab === 'customers' && (
+          <div>
+            <div style={{ ...s.card, marginBottom: 24 }}>
+              <label style={s.label}>Customer Email</label>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  value={lookupEmail}
+                  onChange={(e) => setLookupEmail(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleLookup()}
+                  style={{ ...s.input, flex: 1 }}
+                  placeholder="customer@example.com"
+                />
+                <button
+                  onClick={handleLookup}
+                  disabled={lookupLoading}
+                  style={{ ...s.button('primary'), opacity: lookupLoading ? 0.6 : 1 }}
+                >
+                  {lookupLoading ? 'Searching...' : 'Look Up'}
+                </button>
+              </div>
+            </div>
+
+            {selectedBootfile && (
+              <div style={s.card}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                  <button onClick={() => setSelectedBootfile(null)} style={s.button('ghost')}>
+                    &larr; Back to Results
+                  </button>
+                  <button
+                    onClick={() => handleResendBootfile(selectedBootfile.id, selectedBootfile.email)}
+                    style={s.button('primary')}
+                  >
+                    Resend to {selectedBootfile.email}
+                  </button>
+                </div>
+                <label style={s.label}>Bootfile Text</label>
+                <pre style={{
+                  ...s.textarea,
+                  minHeight: 400,
+                  whiteSpace: 'pre-wrap',
+                  overflowY: 'auto',
+                  maxHeight: 600,
+                }}>
+                  {selectedBootfile.bootfile_text}
+                </pre>
+              </div>
+            )}
+
+            {customerData && !selectedBootfile && (
+              <div>
+                {/* Quiz info */}
+                {customerData.quizCompletions.length > 0 && (
+                  <div style={{ ...s.card, marginBottom: 16 }}>
+                    <label style={s.label}>Quiz Results</label>
+                    {customerData.quizCompletions.map((q) => (
+                      <div key={q.id} style={{ fontSize: '0.9rem', color: '#ccc', marginTop: 8 }}>
+                        <strong style={{ color: '#fff' }}>{q.primary_archetype}</strong>
+                        {q.secondary_archetype && <> &middot; {q.secondary_archetype}</>}
+                        {q.tertiary_archetype && <> &middot; {q.tertiary_archetype}</>}
+                        <span style={{ color: '#666', marginLeft: 12 }}>
+                          {new Date(q.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Purchase info */}
+                {customerData.purchases.length > 0 && (
+                  <div style={{ ...s.card, marginBottom: 16 }}>
+                    <label style={s.label}>Purchases</label>
+                    {customerData.purchases.map((p) => (
+                      <div key={p.id} style={{ fontSize: '0.85rem', color: '#ccc', marginTop: 8, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                        <span>Domain: <strong style={{ color: '#fff' }}>{p.domain || '—'}</strong></span>
+                        <span>Platform: <strong style={{ color: '#fff' }}>{p.primary_platform || '—'}</strong></span>
+                        <span>Decision: <strong style={{ color: '#fff' }}>{p.decision_style || '—'}</strong></span>
+                        <span>Length: <strong style={{ color: '#fff' }}>{p.response_length || '—'}</strong></span>
+                        <span style={{ color: '#666' }}>{new Date(p.created_at).toLocaleDateString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Bootfiles */}
+                {customerData.bootfiles.length > 0 && (
+                  <div>
+                    <label style={{ ...s.label, marginBottom: 12 }}>Bootfiles ({customerData.bootfiles.length})</label>
+                    {customerData.bootfiles.map((bf) => (
+                      <div
+                        key={bf.id}
+                        onClick={() => setSelectedBootfile(bf)}
+                        style={{ ...s.card, cursor: 'pointer' }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <span style={{
+                              fontSize: '0.75rem',
+                              padding: '2px 8px',
+                              borderRadius: 4,
+                              backgroundColor: '#1D3520',
+                              color: '#6DB86E',
+                            }}>
+                              {bf.archetype_id}
+                            </span>
+                            <span style={{
+                              fontSize: '0.75rem',
+                              padding: '2px 8px',
+                              borderRadius: 4,
+                              backgroundColor: '#1D2535',
+                              color: '#6E8BB8',
+                            }}>
+                              {bf.tier}
+                            </span>
+                          </div>
+                          <span style={{ fontSize: '0.8rem', color: '#555' }}>
+                            {new Date(bf.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p style={{ fontSize: '0.85rem', color: '#999', marginTop: 8 }}>
+                          {bf.bootfile_text?.slice(0, 150)}...
+                        </p>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleResendBootfile(bf.id, bf.email); }}
+                          style={{ ...s.button('ghost'), marginTop: 8, fontSize: '0.8rem' }}
+                        >
+                          Resend Email
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {customerData.bootfiles.length === 0 && customerData.purchases.length === 0 && (
+                  <div style={{ ...s.card, textAlign: 'center', color: '#666' }}>
+                    No records found for {customerData.email}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Generate Content */}
-        <div style={{ ...s.card, marginBottom: 32 }}>
+        {tab === 'content' && <><div style={{ ...s.card, marginBottom: 32 }}>
           <h2 style={{ fontSize: '1.1rem', fontWeight: 400, color: '#fff', marginBottom: 20 }}>
             Generate New Content
           </h2>
@@ -418,6 +661,7 @@ export default function AdminPage() {
             </div>
           ))
         )}
+        </>}
       </div>
     </div>
   );
