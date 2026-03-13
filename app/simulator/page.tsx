@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 
-const SAMPLE_PROMPTS = [
+const PROMPTS = [
   'Should I quit my job to start a company?',
   'How should I negotiate a raise?',
   'Critique my strategy for launching a new product.',
@@ -22,27 +22,24 @@ const ARCHETYPES = [
 ] as const;
 
 export default function SimulatorPage() {
-  const [prompt, setPrompt] = useState('');
   const [results, setResults] = useState<Record<string, string> | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [submittedPrompt, setSubmittedPrompt] = useState('');
+  const [selectedPrompt, setSelectedPrompt] = useState('');
 
-  const handleSubmit = async (text?: string) => {
-    const input = (text ?? prompt).trim();
-    if (!input || loading) return;
+  const handleSelect = async (prompt: string) => {
+    if (loading) return;
 
     setLoading(true);
     setError(null);
     setResults(null);
-    setSubmittedPrompt(input);
-    if (text) setPrompt(text);
+    setSelectedPrompt(prompt);
 
     try {
       const res = await fetch('/api/simulator', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: input }),
+        body: JSON.stringify({ prompt }),
       });
 
       if (res.status === 429) {
@@ -79,13 +76,10 @@ export default function SimulatorPage() {
         @keyframes simFadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         .sim-skeleton { background: linear-gradient(90deg, #ECEAE4 25%, #E2DED6 50%, #ECEAE4 75%); background-size: 200% 100%; animation: simShimmer 1.5s infinite; border-radius: 12px; }
         @keyframes simShimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-        .sim-chip { cursor: pointer; border: 1px solid #DDD6CC; background: #fff; border-radius: 20px; padding: 8px 16px; font-size: 0.85rem; color: #7A746B; transition: all 0.15s ease; }
-        .sim-chip:hover { border-color: #7D8B6E; color: #2D2926; background: #F7F4EF; }
-        .sim-cta-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 8px; border: 2px solid; font-size: 0.9rem; font-weight: 500; text-decoration: none; transition: all 0.15s ease; cursor: pointer; }
-        .sim-cta-btn:hover { transform: translateY(-2px); }
-        .sim-textarea { width: 100%; padding: 16px; border-radius: 10px; border: 1px solid #DDD6CC; background: #fff; color: #2D2926; font-size: 1rem; font-family: inherit; line-height: 1.6; resize: vertical; min-height: 80px; outline: none; transition: border-color 0.15s; }
-        .sim-textarea:focus { border-color: #7D8B6E; }
-        .sim-textarea::placeholder { color: #A39E95; }
+        .sim-prompt-btn { cursor: pointer; border: 1px solid #DDD6CC; background: #fff; border-radius: 10px; padding: 14px 20px; font-size: 0.95rem; color: #2D2926; text-align: left; width: 100%; transition: all 0.15s ease; font-family: inherit; line-height: 1.4; }
+        .sim-prompt-btn:hover { border-color: #7D8B6E; background: #F7F4EF; }
+        .sim-prompt-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .sim-prompt-btn.selected { border-color: #7D8B6E; background: #F7F4EF; font-weight: 500; }
       `}</style>
 
       <Header />
@@ -106,69 +100,28 @@ export default function SimulatorPage() {
               Same prompt. Four thinking styles.
             </h1>
             <p style={{ fontSize: '1.05rem', lineHeight: 1.6, color: '#7A746B', marginBottom: 0 }}>
-              See how your AI could respond differently based on how you think.
+              Pick a prompt and see how four archetypes respond differently.
             </p>
           </div>
         </section>
 
-        {/* Input */}
+        {/* Prompt selection */}
         <section style={{ padding: '40px 20px 60px', backgroundColor: '#ECEAE4' }}>
-          <div style={{ maxWidth: 600, margin: '0 auto' }}>
-            <textarea
-              className="sim-textarea"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Type a prompt, or click one below..."
-              maxLength={800}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSubmit();
-                }
-              }}
-            />
-
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12 }}>
-              <span style={{ fontSize: '0.8rem', color: '#A39E95' }}>
-                {prompt.length}/800
-              </span>
-              <button
-                onClick={() => handleSubmit()}
-                disabled={loading || !prompt.trim()}
-                style={{
-                  backgroundColor: '#7D8B6E',
-                  color: '#fff',
-                  fontWeight: 500,
-                  padding: '12px 24px',
-                  borderRadius: 8,
-                  fontSize: '0.95rem',
-                  border: 'none',
-                  cursor: loading || !prompt.trim() ? 'not-allowed' : 'pointer',
-                  opacity: loading || !prompt.trim() ? 0.5 : 1,
-                  transition: 'opacity 0.15s',
-                }}
-              >
-                {loading ? 'Comparing...' : 'Compare Styles'}
-              </button>
-            </div>
-
-            {/* Sample prompts */}
-            <div style={{ marginTop: 20 }}>
-              <p style={{ fontSize: '0.8rem', color: '#A39E95', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>
-                Try a prompt that matters
-              </p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {SAMPLE_PROMPTS.map((sp) => (
-                  <button
-                    key={sp}
-                    className="sim-chip"
-                    onClick={() => handleSubmit(sp)}
-                    disabled={loading}
-                  >
-                    {sp}
-                  </button>
-                ))}
-              </div>
+          <div style={{ maxWidth: 520, margin: '0 auto' }}>
+            <p style={{ fontSize: '0.8rem', color: '#A39E95', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 14 }}>
+              Choose a prompt
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {PROMPTS.map((p) => (
+                <button
+                  key={p}
+                  className={`sim-prompt-btn${selectedPrompt === p ? ' selected' : ''}`}
+                  onClick={() => handleSelect(p)}
+                  disabled={loading}
+                >
+                  {p}
+                </button>
+              ))}
             </div>
           </div>
         </section>
@@ -230,14 +183,15 @@ export default function SimulatorPage() {
           <>
             <section style={{ padding: '40px 20px 20px', backgroundColor: '#F7F4EF' }}>
               <div style={{ maxWidth: 800, margin: '0 auto' }}>
-                {submittedPrompt && (
+                {selectedPrompt && (
                   <p style={{
-                    fontSize: '0.85rem',
-                    color: '#A39E95',
-                    marginBottom: 20,
+                    fontSize: '0.95rem',
+                    color: '#7A746B',
+                    marginBottom: 24,
                     textAlign: 'center',
+                    fontStyle: 'italic',
                   }}>
-                    &ldquo;{submittedPrompt.length > 120 ? submittedPrompt.slice(0, 120) + '...' : submittedPrompt}&rdquo;
+                    &ldquo;{selectedPrompt}&rdquo;
                   </p>
                 )}
                 <div className="sim-grid">
@@ -289,55 +243,48 @@ export default function SimulatorPage() {
               backgroundColor: '#2D2926',
               textAlign: 'center',
             }}>
-              <h2
+              <p
                 className="font-heading"
                 style={{
-                  fontSize: '1.4rem',
+                  fontSize: '1.3rem',
                   color: '#F7F4EF',
                   fontWeight: 400,
-                  marginBottom: 24,
+                  marginBottom: 8,
                 }}
               >
-                Which one felt most like you?
-              </h2>
-              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12 }}>
-                {ARCHETYPES.map((a) => (
-                  <Link
-                    key={a.id}
-                    href={`/quiz?source=simulator&preferred=${a.id}`}
-                    className="sim-cta-btn"
-                    style={{
-                      borderColor: a.color,
-                      color: '#F7F4EF',
-                      backgroundColor: 'transparent',
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.backgroundColor = a.color;
-                      (e.currentTarget as HTMLElement).style.color = '#fff';
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
-                      (e.currentTarget as HTMLElement).style.color = '#F7F4EF';
-                    }}
-                  >
-                    <span>{a.icon}</span>
-                    <span>{a.name}</span>
-                  </Link>
-                ))}
-              </div>
-              <p style={{ fontSize: '0.85rem', color: '#7A746B', marginTop: 24 }}>
-                Generate your full BootFile in 5 minutes &rarr;
+                Discover how you think.
               </p>
+              <p style={{ fontSize: '0.95rem', color: '#A09B93', marginBottom: 24 }}>
+                Take the quiz and get an AI instruction profile built for your thinking style.
+              </p>
+              <Link
+                href="/quiz?source=simulator"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#7D8B6E',
+                  color: '#fff',
+                  fontWeight: 500,
+                  padding: '14px 28px',
+                  borderRadius: 8,
+                  fontSize: '0.95rem',
+                  textDecoration: 'none',
+                  transition: 'background-color 0.2s ease',
+                }}
+              >
+                Take the Quiz
+              </Link>
             </section>
           </>
         )}
 
-        {/* Empty state — no results yet, not loading */}
+        {/* Empty state */}
         {!results && !loading && !error && (
           <section style={{ padding: '60px 20px', backgroundColor: '#F7F4EF', textAlign: 'center' }}>
             <div style={{ maxWidth: 400, margin: '0 auto' }}>
               <p style={{ fontSize: '1rem', color: '#A39E95', lineHeight: 1.6 }}>
-                Enter a prompt above to see four AI thinking styles in action.
+                Select a prompt above to see four AI thinking styles in action.
               </p>
             </div>
           </section>

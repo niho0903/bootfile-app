@@ -284,10 +284,31 @@ export default function LandingPage() {
                 color: '#7D8B6E',
                 textAlign: 'center',
                 marginTop: 24,
+                marginBottom: 24,
               }}
             >
               Same question. Same AI. The only difference is a BootFile.
             </p>
+            <div style={{ textAlign: 'center' }}>
+              <Link
+                href="/simulator"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#7D8B6E',
+                  color: '#fff',
+                  fontWeight: 500,
+                  padding: '12px 24px',
+                  borderRadius: 8,
+                  fontSize: '0.95rem',
+                  textDecoration: 'none',
+                  transition: 'background-color 0.2s ease',
+                }}
+              >
+                Try It
+              </Link>
+            </div>
           </div>
         </section>
 
