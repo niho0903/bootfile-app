@@ -12,6 +12,7 @@ const RATE_LIMITS: Record<string, { max: number; windowMs: number }> = {
   '/api/track-purchase': { max: 10,  windowMs: 60_000 },    // 10/min
   '/api/track-platform': { max: 30,  windowMs: 60_000 },    // 30/min
   '/api/upgrade':        { max: 5,   windowMs: 3600_000 },  // 5/hour
+  '/api/simulator':              { max: 3,   windowMs: 3600_000 },  // 3/hour
   '/api/admin/generate-content': { max: 20, windowMs: 3600_000 }, // 20/hour
   '/api/admin/drafts':           { max: 60, windowMs: 60_000 },   // 60/min
   '/api/admin/publish':          { max: 20, windowMs: 3600_000 }, // 20/hour
