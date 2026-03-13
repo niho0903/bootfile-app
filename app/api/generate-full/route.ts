@@ -265,49 +265,46 @@ export async function POST(req: NextRequest) {
           console.warn('[BOOTFILE VALIDATION] Missing sections:', missing);
         }
 
-        // Store in Supabase (fire-and-forget) + extract structured data
+        // Store in Supabase — must await before closing or edge runtime kills the function
         try {
           const supabase = getSupabaseAdmin();
           if (supabase && fullText.length > 0) {
-            // Insert the bootfile text immediately
-            supabase.from('bootfile_versions').insert({
+            const { error: storeError } = await supabase.from('bootfile_versions').insert({
               stripe_session_id: paymentId,
               email: customerEmail,
               archetype_id: inputs.primaryArchetype,
               bootfile_text: fullText,
               version: 1,
               tier: 'standard',
-            }).then(({ error: storeError }) => {
-              if (storeError) console.error('[STORE BOOTFILE ERROR]', storeError.message);
             });
+            if (storeError) console.error('[STORE BOOTFILE ERROR]', storeError.message);
 
-            // Extract structured JSON in the background (cheap Haiku call)
-            extractStructuredBootfile(fullText, {
-              primaryArchetype: inputs.primaryArchetype,
-              secondaryArchetype: inputs.secondaryArchetype ?? null,
-              tertiaryArchetype: inputs.tertiaryArchetype ?? null,
-              lowestArchetypes: inputs.lowestArchetypes,
-              allScores: inputs.allScores,
-              domain: inputs.domain,
-              domainOther: inputs.domainOther,
-              technicalLevel: inputs.technicalLevel,
-              primaryUses: inputs.primaryUses,
-              decisionStyle: inputs.decisionStyle,
-              responseLength: inputs.responseLength,
-              petPeeves: inputs.petPeeves,
-              customAvoidances: inputs.customAvoidances,
-            }).then((structured) => {
-              if (structured && supabase) {
-                supabase.from('bootfile_versions').update({
+            // Extract structured JSON (cheap Haiku call) — also awaited
+            try {
+              const structured = await extractStructuredBootfile(fullText, {
+                primaryArchetype: inputs.primaryArchetype,
+                secondaryArchetype: inputs.secondaryArchetype ?? null,
+                tertiaryArchetype: inputs.tertiaryArchetype ?? null,
+                lowestArchetypes: inputs.lowestArchetypes,
+                allScores: inputs.allScores,
+                domain: inputs.domain,
+                domainOther: inputs.domainOther,
+                technicalLevel: inputs.technicalLevel,
+                primaryUses: inputs.primaryUses,
+                decisionStyle: inputs.decisionStyle,
+                responseLength: inputs.responseLength,
+                petPeeves: inputs.petPeeves,
+                customAvoidances: inputs.customAvoidances,
+              });
+              if (structured) {
+                const { error: updateError } = await supabase.from('bootfile_versions').update({
                   bootfile_structured: structured,
-                }).eq('stripe_session_id', paymentId).then(({ error: updateError }) => {
-                  if (updateError) console.error('[STORE STRUCTURED ERROR]', updateError.message);
-                  else console.log('[STRUCTURED BOOTFILE] Stored successfully for', paymentId);
-                });
+                }).eq('stripe_session_id', paymentId);
+                if (updateError) console.error('[STORE STRUCTURED ERROR]', updateError.message);
               }
-            }).catch((err) => {
-              console.error('[STRUCTURED EXTRACTION ERROR]', err);
-            });
+            } catch (extractErr) {
+              console.error('[STRUCTURED EXTRACTION ERROR]', extractErr);
+            }
           }
         } catch (storeErr) {
           console.error('[STORE BOOTFILE ERROR]', storeErr);
