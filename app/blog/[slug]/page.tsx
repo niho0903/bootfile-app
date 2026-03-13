@@ -7,6 +7,8 @@ import { Footer } from '@/components/Footer';
 import { JsonLd } from '@/components/JsonLd';
 import { articleJsonLd, breadcrumbJsonLd } from '@/lib/json-ld';
 import { getAllPosts, getPostBySlug } from '@/lib/blog';
+import { ARCHETYPES } from '@/lib/archetypes';
+import { ArchetypeId } from '@/lib/questions';
 
 export function generateStaticParams() {
   return getAllPosts().map((post) => ({ slug: post.slug }));
@@ -97,7 +99,7 @@ export default async function BlogPostPage({
             {post.title}
           </h1>
 
-          <div style={{ fontSize: '0.85rem', color: '#A39E95', marginBottom: 40 }}>
+          <div style={{ fontSize: '0.85rem', color: '#A39E95', marginBottom: 24 }}>
             <time dateTime={post.publishedAt}>
               {new Date(post.publishedAt).toLocaleDateString('en-US', {
                 year: 'numeric',
@@ -108,6 +110,35 @@ export default async function BlogPostPage({
             <span style={{ margin: '0 8px' }}>&middot;</span>
             <span>{Math.max(1, Math.round(post.body.split(/\s+/).length / 230))} min read</span>
           </div>
+
+          {/* Archetype byline */}
+          {post.author && ARCHETYPES[post.author as ArchetypeId] && (() => {
+            const arch = ARCHETYPES[post.author as ArchetypeId];
+            return (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  marginBottom: 40,
+                  padding: '12px 16px',
+                  backgroundColor: '#ECEAE4',
+                  borderRadius: 10,
+                  borderLeft: `3px solid ${arch.color}`,
+                }}
+              >
+                <span style={{ fontSize: 22, lineHeight: 1 }}>{arch.icon}</span>
+                <div>
+                  <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: '#2D2926' }}>
+                    Written by {arch.name}
+                  </p>
+                  <p style={{ margin: 0, fontSize: 12, color: '#7A746B' }}>
+                    &ldquo;{arch.tagline}&rdquo; &middot; Built with <Link href="/quiz" style={{ color: '#7D8B6E', textDecoration: 'none' }}>BootFile</Link>
+                  </p>
+                </div>
+              </div>
+            );
+          })()}
 
           <div
             className="blog-content"

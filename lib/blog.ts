@@ -13,6 +13,7 @@ export interface Post {
   meta_description?: string;
   target_query?: string;
   pillar?: string;
+  author?: string; // archetype ID (e.g., 'surgeon', 'architect')
 }
 
 const BLOG_DIR = path.join(process.cwd(), 'content', 'blog');
@@ -35,6 +36,7 @@ function readPostFromFile(filePath: string): Post | null {
       meta_description: data.meta_description,
       target_query: data.target_query,
       pillar: data.pillar,
+      author: data.author,
     };
   } catch {
     return null;

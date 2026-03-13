@@ -5,6 +5,8 @@ import { Footer } from '@/components/Footer';
 import { JsonLd } from '@/components/JsonLd';
 import { breadcrumbJsonLd, collectionPageJsonLd } from '@/lib/json-ld';
 import { getAllPosts } from '@/lib/blog';
+import { ARCHETYPES } from '@/lib/archetypes';
+import { ArchetypeId } from '@/lib/questions';
 
 export const metadata: Metadata = {
   title: 'Blog',
@@ -76,7 +78,16 @@ export default function BlogPage() {
               >
                 {post.description}
               </p>
-              <div style={{ fontSize: '0.82rem', color: '#A39E95' }}>
+              <div style={{ fontSize: '0.82rem', color: '#A39E95', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                {post.author && ARCHETYPES[post.author as ArchetypeId] && (
+                  <>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                      <span>{ARCHETYPES[post.author as ArchetypeId].icon}</span>
+                      <span style={{ color: '#7A746B' }}>{ARCHETYPES[post.author as ArchetypeId].name}</span>
+                    </span>
+                    <span>&middot;</span>
+                  </>
+                )}
                 <time dateTime={post.publishedAt}>
                   {new Date(post.publishedAt).toLocaleDateString('en-US', {
                     year: 'numeric',
@@ -84,7 +95,7 @@ export default function BlogPage() {
                     day: 'numeric',
                   })}
                 </time>
-                <span style={{ margin: '0 6px' }}>&middot;</span>
+                <span>&middot;</span>
                 <span>{Math.max(1, Math.round(post.body.split(/\s+/).length / 230))} min read</span>
               </div>
             </article>
