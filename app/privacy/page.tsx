@@ -31,19 +31,42 @@ export default function PrivacyPage() {
                 and aggregate scores. We do <strong>not</strong> store your individual question answers.
               </p>
               <p>
+                During checkout, we collect your <strong>email address</strong> so we can deliver your BootFile
+                and send a Stripe payment receipt. We also collect your supplementary question answers
+                (work domain, technical level, AI use cases, decision style, response length preferences)
+                to personalize your BootFile.
+              </p>
+              <p>
                 If you choose to answer the optional open-text question (Q9) and check the consent box,
-                we store your anonymous response for aggregate research purposes. We never tie this to
-                your name, email, or any personally identifiable information.
+                we store your anonymous response for aggregate research purposes.
               </p>
             </Section>
 
-            <Section title="What we don't collect">
+            <Section title="Your BootFile">
+              <p>
+                Your generated BootFile is stored securely in our database so we can provide customer
+                support, resend your BootFile if needed, and improve the product. Your BootFile is also
+                emailed to the address you provide during checkout.
+              </p>
+              <p>
+                We do <strong>not</strong> share your BootFile content with third parties or use it for
+                purposes other than delivering the product and providing support.
+              </p>
+            </Section>
+
+            <Section title="Email">
+              <p>
+                We use your email address to:
+              </p>
               <ul style={{ paddingLeft: 20, margin: '8px 0' }}>
-                <li>No email addresses</li>
-                <li>No names or account info</li>
-                <li>No cookies for tracking across sites</li>
-                <li>No selling of data to third parties</li>
+                <li>Deliver your BootFile after purchase</li>
+                <li>Send your Stripe payment receipt</li>
+                <li>Respond to support requests</li>
               </ul>
+              <p>
+                We do <strong>not</strong> send marketing emails, newsletters, or share your email
+                with third parties. Email delivery is handled by <strong>Resend</strong>.
+              </p>
             </Section>
 
             <Section title="Payment">
@@ -53,11 +76,27 @@ export default function PrivacyPage() {
               </p>
             </Section>
 
-            <Section title="Your BootFile">
+            <Section title="Data storage">
               <p>
-                Your generated BootFile is stored only in your browser&apos;s session storage. We do not
-                keep a copy on our servers after generation. If you close your browser, your BootFile
-                is gone unless you&apos;ve copied it elsewhere.
+                Your data (quiz results, purchase details, BootFile text, email) is stored securely
+                in <strong>Supabase</strong> with row-level security enabled. We retain this data to
+                provide customer support and product improvements.
+              </p>
+              <p>We do <strong>not</strong>:</p>
+              <ul style={{ paddingLeft: 20, margin: '8px 0' }}>
+                <li>Sell your data to third parties</li>
+                <li>Use your data for advertising</li>
+                <li>Track you across other websites</li>
+                <li>Create user accounts or profiles beyond what is needed for purchase fulfillment</li>
+              </ul>
+            </Section>
+
+            <Section title="Analytics">
+              <p>
+                We use <strong>Vercel Web Analytics</strong> to track anonymous, aggregate page views and
+                site performance. We also track aggregate metrics (quiz completions, purchase counts) in
+                our database. This data contains no personally identifiable information beyond the email
+                you provide during checkout.
               </p>
             </Section>
 
@@ -74,16 +113,9 @@ export default function PrivacyPage() {
               </ul>
             </Section>
 
-            <Section title="Analytics">
-              <p>
-                We track basic aggregate metrics (quiz completions, purchase counts, platform tab clicks)
-                to understand how people use BootFile. This data is anonymous and contains no personal information.
-              </p>
-            </Section>
-
             <Section title="Contact">
               <p>
-                Questions about your data? Reach out at <strong>hello@bootfile.ai</strong>.
+                Questions about your data? Reach out at <strong>support@bootfile.ai</strong>.
               </p>
             </Section>
           </div>

@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   const resend = new Resend(apiKey);
 
   const { error: sendError } = await resend.emails.send({
-    from: 'BootFile <hello@bootfile.ai>',
+    from: 'BootFile <support@bootfile.ai>',
     to: email.trim().toLowerCase(),
     subject: 'Your BootFile — Resent by Support',
     html: buildResendHtml(bootfile.bootfile_text),

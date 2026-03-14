@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     const archetype = typeof archetypeId === 'string' ? archetypeId : 'your';
 
     const { error } = await resend.emails.send({
-      from: 'BootFile <hello@bootfile.ai>',
+      from: 'BootFile <support@bootfile.ai>',
       to: sanitizedEmail,
       subject: 'Your BootFile is ready',
       html: buildEmailHtml(bootfileText, archetype),

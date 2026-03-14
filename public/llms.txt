@@ -45,9 +45,11 @@ BootFile is a web app that helps people discover their AI reasoning style and ge
 ## Key URLs
 - Homepage: https://bootfile.ai
 - Quiz: https://bootfile.ai/quiz
+- Simulator: https://bootfile.ai/simulator
 - Blog: https://bootfile.ai/blog
 - Platform Guides: https://bootfile.ai/guides
 - Privacy Policy: https://bootfile.ai/privacy
 
 ## Contact
-Website: https://bootfile.ai
+- Website: https://bootfile.ai
+- Support: support@bootfile.ai

@@ -24,7 +24,7 @@ export default function TermsPage() {
             Terms of Service
           </h1>
           <p style={{ fontSize: '0.85rem', color: '#7A746B', marginBottom: 32 }}>
-            Effective date: June 1, 2025 &middot; Last updated: June 1, 2025
+            Effective date: June 1, 2025 &middot; Last updated: March 14, 2026
           </p>
 
           <div style={{ fontSize: '0.95rem', color: '#2D2926', lineHeight: 1.8 }}>
@@ -197,16 +197,18 @@ export default function TermsPage() {
               </p>
               <ul style={{ paddingLeft: 20, margin: '8px 0' }}>
                 <li>
-                  Your BootFile is stored only in your browser&apos;s session storage. We do not
-                  retain a copy after generation.
+                  Your BootFile is stored securely in our database so we can provide customer
+                  support and resend your BootFile if needed. It is also emailed to the address
+                  you provide during checkout.
                 </li>
                 <li>
-                  If you lose your BootFile (by closing your browser, clearing storage, etc.), it
-                  cannot be recovered. We are not responsible for lost content.
+                  We collect your email address during checkout for purchase fulfillment and
+                  support purposes. We do not send marketing emails or share your email with
+                  third parties.
                 </li>
                 <li>
-                  We collect anonymous, aggregate data about quiz completions and product usage. We
-                  do not collect personal information.
+                  We collect anonymous, aggregate data about quiz completions and product usage
+                  to improve the Service.
                 </li>
               </ul>
             </Section>
@@ -318,7 +320,7 @@ export default function TermsPage() {
 
             <Section title="19. Contact">
               <p>
-                Questions about these Terms? Contact us at <strong>hello@bootfile.ai</strong>.
+                Questions about these Terms? Contact us at <strong>support@bootfile.ai</strong>.
               </p>
             </Section>
           </div>
