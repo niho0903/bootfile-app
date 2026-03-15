@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase';
+import { sendRedditEvent } from '@/lib/reddit';
 import { categorizeOpenResponse, detectTone } from '@/lib/text-categorizer';
 import { isValidArchetype, sanitizeString, sanitizeStringArray } from '@/lib/validation';
 
@@ -44,6 +45,12 @@ export async function POST(request: Request) {
       console.error('track-quiz insert error:', error.message);
       return NextResponse.json({ ok: true, quizId: null });
     }
+
+    // Reddit CAPI: server-side Lead event (deduplicates with client-side pixel via conversionId)
+    sendRedditEvent({
+      eventType: 'Lead',
+      conversionId: data.id,
+    }).catch(() => { /* non-blocking */ });
 
     return NextResponse.json({ ok: true, quizId: data.id });
   } catch (e) {

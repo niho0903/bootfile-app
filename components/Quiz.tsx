@@ -46,6 +46,11 @@ export function Quiz() {
       .then(data => {
         if (data.quizId) {
           localStorage.setItem('bootfile_quiz_id', data.quizId);
+          // Reddit Pixel: Lead event (deduplicates with server-side CAPI via quizId)
+          try {
+            const rdt = (window as unknown as { rdt?: (...args: unknown[]) => void }).rdt;
+            if (rdt) rdt('track', 'Lead', { conversionId: data.quizId });
+          } catch { /* non-blocking */ }
         }
       })
       .catch(() => { /* non-blocking */ });

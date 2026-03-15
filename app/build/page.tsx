@@ -212,6 +212,19 @@ function BuildContent() {
         setBootfileText(bootfile);
         setState('unlocked');
 
+        // Reddit Pixel: Purchase event
+        try {
+          const rdt = (window as unknown as { rdt?: (...args: unknown[]) => void }).rdt;
+          if (rdt) {
+            rdt('track', 'Purchase', {
+              value: 4.99,
+              currency: 'USD',
+              itemCount: 1,
+              conversionId: paymentIntentId,
+            });
+          }
+        } catch { /* non-blocking */ }
+
         // Fire-and-forget purchase tracking
         const quizId = localStorage.getItem('bootfile_quiz_id') || null;
         fetch('/api/track-purchase', {
@@ -219,6 +232,7 @@ function BuildContent() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             quizId,
+            paymentIntentId,
             email: supplementary.email,
             domain: supplementary.domain,
             technicalLevel: supplementary.technicalLevel,

@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase';
+import { sendRedditEvent } from '@/lib/reddit';
 import { sanitizeString, sanitizeNumber, isValidDecisionStyle, isValidResponseLength } from '@/lib/validation';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { quizId, email, domain, technicalLevel, primaryUse, decisionStyle, responseLength } = body;
+    const { quizId, email, domain, technicalLevel, primaryUse, decisionStyle, responseLength, paymentIntentId } = body;
 
     const supabase = getSupabaseAdmin();
     if (!supabase) {
@@ -41,6 +42,18 @@ export async function POST(request: Request) {
       if (updateError) {
         console.error('track-purchase update error:', updateError.message);
       }
+    }
+
+    // Reddit CAPI: server-side Purchase event (deduplicates with client-side pixel via conversionId)
+    if (paymentIntentId) {
+      sendRedditEvent({
+        eventType: 'Purchase',
+        conversionId: paymentIntentId,
+        email: sanitizedEmail || undefined,
+        value: 4.99,
+        currency: 'USD',
+        itemCount: 1,
+      }).catch(() => { /* non-blocking */ });
     }
 
     return NextResponse.json({ ok: true });
