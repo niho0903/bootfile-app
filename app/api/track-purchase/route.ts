@@ -50,6 +50,8 @@ export async function POST(request: Request) {
         eventType: 'Purchase',
         conversionId: paymentIntentId,
         email: sanitizedEmail || undefined,
+        ipAddress: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || undefined,
+        userAgent: request.headers.get('user-agent') || undefined,
         value: 4.99,
         currency: 'USD',
         itemCount: 1,

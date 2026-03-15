@@ -50,6 +50,8 @@ export async function POST(request: Request) {
     sendRedditEvent({
       eventType: 'Lead',
       conversionId: data.id,
+      ipAddress: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || undefined,
+      userAgent: request.headers.get('user-agent') || undefined,
     }).catch(() => { /* non-blocking */ });
 
     return NextResponse.json({ ok: true, quizId: data.id });
