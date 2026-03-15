@@ -29,7 +29,7 @@ export async function sendRedditEvent(event: RedditEvent): Promise<void> {
   try {
     const eventPayload: Record<string, unknown> = {
       event_at: Date.now(),
-      action_source: 'web',
+      action_source: 'WEBSITE',
       type: {
         tracking_type: event.eventType,
       },
