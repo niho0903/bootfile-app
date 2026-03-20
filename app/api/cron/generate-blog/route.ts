@@ -19,9 +19,12 @@ export async function GET(request: Request) {
   // Check if today is a blog day (UTC)
   const now = new Date();
   const dayOfWeek = now.getUTCDay().toString();
-  const pillar = BLOG_DAYS[dayOfWeek];
+  const pillar = BLOG_DAYS[dayOfWeek] || 'guide';
 
-  if (!pillar) {
+  // Allow manual override via ?force=true
+  const url = new URL(request.url);
+  const force = url.searchParams.get('force') === 'true';
+  if (!pillar && !force) {
     return NextResponse.json({ skipped: true, reason: `Not a blog day (day ${dayOfWeek})` });
   }
 
