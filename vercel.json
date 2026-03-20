@@ -1,20 +1,8 @@
 {
   "crons": [
     {
-      "path": "/api/cron/generate-blog",
-      "schedule": "0 14 * * 1,4"
-    },
-    {
-      "path": "/api/cron/refresh-content",
-      "schedule": "0 14 * * 3"
-    },
-    {
-      "path": "/api/cron/generate-reddit",
-      "schedule": "0 13 * * 2,5"
-    },
-    {
-      "path": "/api/cron/email-drip",
-      "schedule": "0 15 * * *"
+      "path": "/api/cron/daily",
+      "schedule": "0 14 * * *"
     },
     {
       "path": "/api/cron/weekly-report",
