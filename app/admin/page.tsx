@@ -11,6 +11,18 @@ interface Draft {
   metadata: Record<string, unknown>;
 }
 
+interface RedditDraft {
+  id: string;
+  subreddit: string;
+  post_type: string;
+  title: string | null;
+  body: string;
+  context: string | null;
+  notes: string | null;
+  status: string;
+  created_at: string;
+}
+
 interface GenerateForm {
   channel: 'blog' | 'instagram';
   pillar: string;
@@ -72,11 +84,18 @@ export default function AdminPage() {
     archetype: '',
     notes: '',
   });
-  const [tab, setTab] = useState<'content' | 'customers'>('content');
+  const [tab, setTab] = useState<'content' | 'customers' | 'reddit'>('content');
   const [lookupEmail, setLookupEmail] = useState('');
   const [customerData, setCustomerData] = useState<CustomerData | null>(null);
   const [lookupLoading, setLookupLoading] = useState(false);
   const [selectedBootfile, setSelectedBootfile] = useState<CustomerBootfile | null>(null);
+  const [redditDrafts, setRedditDrafts] = useState<RedditDraft[]>([]);
+  const [redditLoading, setRedditLoading] = useState(false);
+  const [redditFilter, setRedditFilter] = useState<'pending' | 'approved' | 'rejected' | 'all'>('pending');
+  const [selectedReddit, setSelectedReddit] = useState<RedditDraft | null>(null);
+  const [redditEditBody, setRedditEditBody] = useState('');
+  const [redditEditTitle, setRedditEditTitle] = useState('');
+  const [copied, setCopied] = useState(false);
 
   const authHeader = useCallback(() => ({
     'Authorization': `Bearer ${password}`,
@@ -219,6 +238,64 @@ export default function AdminPage() {
     } finally {
       setLookupLoading(false);
     }
+  };
+
+  const fetchRedditDrafts = useCallback(async () => {
+    setRedditLoading(true);
+    try {
+      const res = await fetch(`/api/admin/reddit-drafts?status=${redditFilter}`, {
+        headers: authHeader(),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setRedditDrafts(data.drafts);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setRedditLoading(false);
+    }
+  }, [redditFilter, authHeader]);
+
+  useEffect(() => {
+    if (authed && tab === 'reddit') fetchRedditDrafts();
+  }, [authed, tab, redditFilter, fetchRedditDrafts]);
+
+  const handleRedditAction = async (id: string, status: 'approved' | 'rejected') => {
+    try {
+      await fetch('/api/admin/reddit-drafts', {
+        method: 'PATCH',
+        headers: authHeader(),
+        body: JSON.stringify({ id, status }),
+      });
+      setMessage(status === 'approved' ? 'Marked as posted' : 'Draft rejected');
+      fetchRedditDrafts();
+      if (selectedReddit?.id === id) setSelectedReddit(null);
+    } catch {
+      setMessage('Failed to update');
+    }
+  };
+
+  const handleRedditSave = async () => {
+    if (!selectedReddit) return;
+    try {
+      await fetch('/api/admin/reddit-drafts', {
+        method: 'PATCH',
+        headers: authHeader(),
+        body: JSON.stringify({ id: selectedReddit.id, title: redditEditTitle, body: redditEditBody }),
+      });
+      setMessage('Draft updated');
+      fetchRedditDrafts();
+      setSelectedReddit({ ...selectedReddit, title: redditEditTitle, body: redditEditBody });
+    } catch {
+      setMessage('Failed to save');
+    }
+  };
+
+  const handleCopyReddit = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleResendBootfile = async (bootfileId: string, toEmail: string) => {
@@ -371,6 +448,12 @@ export default function AdminPage() {
           >
             Customer Lookup
           </button>
+          <button
+            onClick={() => setTab('reddit')}
+            style={{ ...s.button(tab === 'reddit' ? 'primary' : 'ghost') }}
+          >
+            Reddit Drafts
+          </button>
         </div>
 
         {message && (
@@ -516,6 +599,186 @@ export default function AdminPage() {
                   <div style={{ ...s.card, textAlign: 'center', color: '#666' }}>
                     No records found for {customerData.email}
                   </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Reddit Drafts Tab */}
+        {tab === 'reddit' && (
+          <div>
+            {selectedReddit ? (
+              <div>
+                <button onClick={() => setSelectedReddit(null)} style={{ ...s.button('ghost'), marginBottom: 24 }}>
+                  &larr; Back to Drafts
+                </button>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                  <span style={{
+                    fontSize: '0.75rem',
+                    padding: '2px 8px',
+                    borderRadius: 4,
+                    backgroundColor: '#1D2535',
+                    color: '#6E8BB8',
+                  }}>
+                    r/{selectedReddit.subreddit}
+                  </span>
+                  <span style={{
+                    fontSize: '0.75rem',
+                    padding: '2px 8px',
+                    borderRadius: 4,
+                    backgroundColor: '#2D1D35',
+                    color: '#B86EB8',
+                  }}>
+                    {selectedReddit.post_type}
+                  </span>
+                  <span style={s.badge(selectedReddit.status)}>{selectedReddit.status}</span>
+                </div>
+
+                {selectedReddit.context && (
+                  <div style={{ ...s.card, marginBottom: 16, borderColor: '#444' }}>
+                    <label style={s.label}>Reply Context</label>
+                    <p style={{ fontSize: '0.85rem', color: '#999', margin: 0 }}>
+                      Post this as a comment on: {selectedReddit.context}
+                    </p>
+                  </div>
+                )}
+
+                {selectedReddit.notes && (
+                  <div style={{ ...s.card, marginBottom: 16, borderColor: '#444' }}>
+                    <label style={s.label}>Strategy Notes</label>
+                    <p style={{ fontSize: '0.85rem', color: '#999', margin: 0 }}>{selectedReddit.notes}</p>
+                  </div>
+                )}
+
+                <div style={s.card}>
+                  {selectedReddit.post_type !== 'comment' && (
+                    <div style={{ marginBottom: 16 }}>
+                      <label style={s.label}>Title</label>
+                      <input
+                        value={redditEditTitle}
+                        onChange={(e) => setRedditEditTitle(e.target.value)}
+                        style={s.input}
+                      />
+                    </div>
+                  )}
+
+                  <label style={s.label}>Body</label>
+                  <textarea
+                    value={redditEditBody}
+                    onChange={(e) => setRedditEditBody(e.target.value)}
+                    style={{ ...s.textarea, minHeight: 300 }}
+                  />
+
+                  <div style={{ display: 'flex', gap: 8, marginTop: 16, flexWrap: 'wrap' }}>
+                    <button onClick={handleRedditSave} style={s.button('ghost')}>
+                      Save Changes
+                    </button>
+                    <button
+                      onClick={() => {
+                        const text = redditEditTitle ? `${redditEditTitle}\n\n${redditEditBody}` : redditEditBody;
+                        handleCopyReddit(text);
+                      }}
+                      style={{ ...s.button('primary'), minWidth: 120 }}
+                    >
+                      {copied ? 'Copied!' : 'Copy to Clipboard'}
+                    </button>
+                    {selectedReddit.status === 'pending' && (
+                      <>
+                        <button
+                          onClick={() => handleRedditAction(selectedReddit.id, 'approved')}
+                          style={s.button('primary')}
+                        >
+                          Mark as Posted
+                        </button>
+                        <button
+                          onClick={() => handleRedditAction(selectedReddit.id, 'rejected')}
+                          style={s.button('danger')}
+                        >
+                          Reject
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                  <h2 style={{ fontSize: '1.1rem', fontWeight: 400, color: '#fff' }}>Reddit Drafts</h2>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    {(['pending', 'approved', 'rejected', 'all'] as const).map((f) => (
+                      <button
+                        key={f}
+                        onClick={() => setRedditFilter(f)}
+                        style={{
+                          ...s.button('ghost'),
+                          ...(redditFilter === f ? { borderColor: '#7D8B6E', color: '#7D8B6E' } : {}),
+                        }}
+                      >
+                        {f}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {redditLoading ? (
+                  <p style={{ color: '#666' }}>Loading...</p>
+                ) : redditDrafts.length === 0 ? (
+                  <div style={{ ...s.card, textAlign: 'center', color: '#666' }}>
+                    No {redditFilter === 'all' ? '' : redditFilter} Reddit drafts.
+                    They generate automatically on Tuesdays and Fridays.
+                  </div>
+                ) : (
+                  redditDrafts.map((draft) => (
+                    <div
+                      key={draft.id}
+                      onClick={() => {
+                        setSelectedReddit(draft);
+                        setRedditEditBody(draft.body);
+                        setRedditEditTitle(draft.title || '');
+                        setMessage('');
+                        setCopied(false);
+                      }}
+                      style={{ ...s.card, cursor: 'pointer' }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{
+                            fontSize: '0.75rem',
+                            padding: '2px 8px',
+                            borderRadius: 4,
+                            backgroundColor: '#1D2535',
+                            color: '#6E8BB8',
+                          }}>
+                            r/{draft.subreddit}
+                          </span>
+                          <span style={{
+                            fontSize: '0.75rem',
+                            padding: '2px 8px',
+                            borderRadius: 4,
+                            backgroundColor: '#2D1D35',
+                            color: '#B86EB8',
+                          }}>
+                            {draft.post_type}
+                          </span>
+                          <span style={s.badge(draft.status)}>{draft.status}</span>
+                        </div>
+                        <span style={{ fontSize: '0.8rem', color: '#555' }}>
+                          {new Date(draft.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      {draft.title && (
+                        <p style={{ fontSize: '0.95rem', color: '#ddd', marginTop: 10, fontWeight: 500 }}>
+                          {draft.title}
+                        </p>
+                      )}
+                      <p style={{ fontSize: '0.85rem', color: '#999', marginTop: 8, lineHeight: 1.5 }}>
+                        {draft.body.slice(0, 200)}...
+                      </p>
+                    </div>
+                  ))
                 )}
               </div>
             )}
