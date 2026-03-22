@@ -183,7 +183,7 @@ export default function LandingPage() {
                 marginBottom: 32,
               }}
             >
-              &ldquo;Help me decide whether to hire a contractor or do this renovation myself&rdquo;
+              &ldquo;Should I ask for a raise now or wait until my next review?&rdquo;
             </p>
 
             <div
@@ -223,17 +223,17 @@ export default function LandingPage() {
                       color: '#C4BFB6',
                     }}
                   >
-                    &ldquo;There are several factors to consider when deciding between hiring a contractor and doing a renovation yourself. Let&apos;s break this down:
+                    &ldquo;There are several factors to consider when deciding whether to ask for a raise. Let&apos;s break this down:
                     <br /><br />
-                    Cost considerations:
+                    Timing considerations:
                     <br />
-                    - Contractors typically charge...
+                    - Performance reviews are typically...
                     <br />
-                    - DIY can save money but...
+                    - Market conditions may affect...
                     <br /><br />
-                    Time factors:
+                    Preparation steps:
                     <br />
-                    - A contractor can usually...
+                    - Document your accomplishments...
                     <br /><br />
                     It depends on your specific situation...&rdquo;
                   </p>
@@ -268,11 +268,11 @@ export default function LandingPage() {
                       color: '#F7F4EF',
                     }}
                   >
-                    &ldquo;Hire the contractor. Here&apos;s why:
+                    &ldquo;Ask now. Here&apos;s why:
                     <br /><br />
-                    You said you value your time at $75/hour. The 120 hours of DIY labor alone costs you $9,000 in opportunity cost. The contractor bid is $14,000 vs ~$8,000 in materials — so you&apos;re paying $6,000 for professional quality and 3 weeks of your life back.
+                    You closed $340K in new business last quarter — 40% above target. Your review isn&apos;t for 5 months, and waiting signals you don&apos;t know your leverage. Market rate for your role in your city is $115-130K. You&apos;re at $98K.
                     <br /><br />
-                    The only scenario where DIY wins: you actually want the experience of doing it yourself. Do you?&rdquo;
+                    One risk: if layoffs are actively being discussed, wait. Are they?&rdquo;
                   </p>
                 </div>
               </div>
@@ -332,9 +332,10 @@ export default function LandingPage() {
               {faqs.map((faq, i) => (
                 <div key={i}>
                   <h3
+                    className="font-heading"
                     style={{
-                      fontSize: '1.05rem',
-                      fontWeight: 600,
+                      fontSize: '1.1rem',
+                      fontWeight: 400,
                       color: '#2D2926',
                       marginBottom: 8,
                     }}
@@ -367,7 +368,7 @@ export default function LandingPage() {
               marginBottom: 24,
             }}
           >
-            Five minutes. One profile that changes everything.
+            Five minutes. One profile. Better conversations from the first message.
           </h2>
 
           <Link
