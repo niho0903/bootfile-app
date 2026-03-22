@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { ARCHETYPES } from '@/lib/archetypes';
 import { ArchetypeId } from '@/lib/questions';
+import { ShareButtons } from '@/components/ShareButtons';
 
 interface ArchetypeRevealProps {
   primary: ArchetypeId;
@@ -9,6 +11,7 @@ interface ArchetypeRevealProps {
 }
 
 export function ArchetypeReveal({ primary, secondary }: ArchetypeRevealProps) {
+  const [secondaryExpanded, setSecondaryExpanded] = useState(false);
   const arch = ARCHETYPES[primary];
   const secondaryArch = secondary ? ARCHETYPES[secondary] : null;
 
@@ -17,7 +20,7 @@ export function ArchetypeReveal({ primary, secondary }: ArchetypeRevealProps) {
       style={{
         backgroundColor: '#2D2926',
         borderRadius: 16,
-        padding: '48px 32px',
+        padding: '48px 32px 32px',
         textAlign: 'center',
         maxWidth: 640,
         margin: '0 auto',
@@ -86,10 +89,11 @@ export function ArchetypeReveal({ primary, secondary }: ArchetypeRevealProps) {
         {arch.description}
       </p>
 
-      {/* Secondary badge */}
+      {/* Secondary archetype — expandable */}
       {secondaryArch && (
         <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid rgba(247, 244, 239, 0.1)' }}>
-          <span
+          <button
+            onClick={() => setSecondaryExpanded(!secondaryExpanded)}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -99,13 +103,71 @@ export function ArchetypeReveal({ primary, secondary }: ArchetypeRevealProps) {
               backgroundColor: 'rgba(247, 244, 239, 0.08)',
               fontSize: 14,
               color: 'rgba(247, 244, 239, 0.7)',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              transition: 'background-color 0.2s',
             }}
           >
             <span>{secondaryArch.icon}</span>
-            You also have strong <span style={{ fontWeight: 600, color: '#F7F4EF' }}>{secondaryArch.name}</span> tendencies.
-          </span>
+            You also have strong <span style={{ fontWeight: 600, color: '#F7F4EF' }}>{secondaryArch.name}</span> tendencies
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              style={{
+                transition: 'transform 0.3s ease',
+                transform: secondaryExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                marginLeft: 2,
+              }}
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+
+          {/* Expandable content */}
+          <div
+            style={{
+              maxHeight: secondaryExpanded ? 300 : 0,
+              overflow: 'hidden',
+              transition: 'max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease',
+              opacity: secondaryExpanded ? 1 : 0,
+            }}
+          >
+            <div style={{ paddingTop: 16 }}>
+              <p
+                className="font-heading"
+                style={{
+                  fontSize: '0.95rem',
+                  color: '#7A746B',
+                  fontStyle: 'italic',
+                  marginBottom: 12,
+                }}
+              >
+                &ldquo;{secondaryArch.tagline}&rdquo;
+              </p>
+              <p
+                style={{
+                  fontSize: '0.85rem',
+                  color: 'rgba(247, 244, 239, 0.6)',
+                  lineHeight: 1.7,
+                  textAlign: 'left',
+                  maxWidth: 500,
+                  margin: '0 auto',
+                }}
+              >
+                {secondaryArch.description}
+              </p>
+            </div>
+          </div>
         </div>
       )}
+
+      {/* Inline share buttons */}
+      <ShareButtons archetypeId={primary} variant="inline" />
     </div>
   );
 }

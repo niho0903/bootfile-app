@@ -42,6 +42,11 @@
   100% { opacity: 1; transform: scale(1); }
 }
 
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -256,6 +261,13 @@ body::after {
   padding: 10px 12px;
   border-bottom: 1px solid #E5E0D8;
   color: #4A453E;
+}
+
+/* Sticky CTA — mobile only */
+@media (min-width: 768px) {
+  .sticky-cta-bar {
+    display: none !important;
+  }
 }
 
 .sr-only {

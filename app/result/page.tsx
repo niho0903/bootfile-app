@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArchetypeReveal } from '@/components/ArchetypeReveal';
-import { ShareButtons } from '@/components/ShareButtons';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { StickyBottomCTA } from '@/components/StickyBottomCTA';
+import { ARCHETYPES } from '@/lib/archetypes';
 import { ArchetypeId } from '@/lib/questions';
 
 interface QuizState {
@@ -31,6 +32,18 @@ export default function ResultPage() {
     }
   }, [router]);
 
+  // Reddit pixel ViewContent event
+  useEffect(() => {
+    if (!quizState) return;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const w = window as any;
+      if (w.rdt) {
+        w.rdt('track', 'ViewContent');
+      }
+    } catch { /* pixel not loaded */ }
+  }, [quizState]);
+
   if (!quizState) {
     return (
       <div style={{ minHeight: '100vh', backgroundColor: '#F7F4EF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -39,17 +52,23 @@ export default function ResultPage() {
     );
   }
 
+  const arch = ARCHETYPES[quizState.primary];
+  const article = /^[aeiou]/i.test(arch.name) ? 'an' : 'a';
+
   return (
     <>
       <Header />
-      <main style={{ paddingTop: 80, paddingBottom: 64, padding: '80px 20px 64px' }}>
+      <main
+        className="result-page-content"
+        style={{ paddingTop: 80, paddingBottom: 120, padding: '80px 20px 120px' }}
+      >
         <div style={{ maxWidth: 640, margin: '0 auto' }}>
           <ArchetypeReveal
             primary={quizState.primary}
             secondary={quizState.secondary}
           />
 
-          {/* Conversion CTA */}
+          {/* Conversion CTA — shortened copy */}
           <div
             style={{
               marginTop: 40,
@@ -63,12 +82,11 @@ export default function ResultPage() {
               className="font-heading"
               style={{ fontSize: '1.3rem', color: '#2D2926', fontWeight: 400, marginBottom: 12 }}
             >
-              This is how you think.
+              You&apos;re {article} {arch.name}. Your AI doesn&apos;t know that yet.
             </h3>
             <p style={{ fontSize: '0.95rem', color: '#7A746B', lineHeight: 1.7, marginBottom: 28 }}>
-              Your AI doesn&apos;t know any of it. A BootFile changes that with a personalized
-              instruction profile built from your quiz results that tells your AI how to
-              reason with you, not just talk at you.
+              A BootFile is a personalized instruction profile that tells your AI how to
+              work with you — built from your quiz results. Takes 3 minutes.
             </p>
 
             <button
@@ -90,22 +108,13 @@ export default function ResultPage() {
               onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#5C6650')}
               onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#7D8B6E')}
             >
-              Build My BootFile
+              Build My BootFile — $4.99
             </button>
-
-            <p style={{ marginTop: 12, fontSize: '0.8rem', color: '#7A746B' }}>
-              Takes about 3 more minutes.
-            </p>
-          </div>
-
-          {/* Share */}
-          <div style={{ marginTop: 40, paddingTop: 32, borderTop: '1px solid #DDD6CC' }}>
-            <p style={{ fontSize: '0.85rem', color: '#7A746B', textAlign: 'center', marginBottom: 16 }}>Share your result</p>
-            <ShareButtons archetypeId={quizState.primary} />
           </div>
         </div>
       </main>
       <Footer />
+      <StickyBottomCTA />
     </>
   );
 }
