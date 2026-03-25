@@ -54,7 +54,25 @@ export function ShareButtons({ archetypeId, variant = 'full' }: ShareButtonsProp
   const handleDownloadImage = async () => {
     try {
       const response = await fetch(`/api/og?archetype=${archetypeId}`);
-      const blob = await response.blob();
+      if (!response.ok) {
+        console.error('OG image fetch failed:', response.status);
+        return;
+      }
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.startsWith('image/')) {
+        console.error('OG response is not an image:', contentType);
+        return;
+      }
+      // iOS Safari doesn't support a.download — open in new tab instead
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      if (isIOS) {
+        window.open(`/api/og?archetype=${archetypeId}`, '_blank');
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+        return;
+      }
+      const arrayBuffer = await response.arrayBuffer();
+      const blob = new Blob([arrayBuffer], { type: 'image/png' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
