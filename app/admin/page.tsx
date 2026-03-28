@@ -23,6 +23,16 @@ interface RedditDraft {
   created_at: string;
 }
 
+interface InstagramDraft {
+  id: string;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: string;
+  hook: string;
+  caption: string;
+  hashtags: string[];
+  postType: string;
+}
+
 interface GenerateForm {
   channel: 'blog' | 'instagram';
   pillar: string;
@@ -84,7 +94,7 @@ export default function AdminPage() {
     archetype: '',
     notes: '',
   });
-  const [tab, setTab] = useState<'content' | 'customers' | 'reddit'>('content');
+  const [tab, setTab] = useState<'content' | 'customers' | 'instagram' | 'reddit'>('content');
   const [lookupEmail, setLookupEmail] = useState('');
   const [customerData, setCustomerData] = useState<CustomerData | null>(null);
   const [lookupLoading, setLookupLoading] = useState(false);
@@ -96,6 +106,13 @@ export default function AdminPage() {
   const [redditEditBody, setRedditEditBody] = useState('');
   const [redditEditTitle, setRedditEditTitle] = useState('');
   const [copied, setCopied] = useState(false);
+  const [instaDrafts, setInstaDrafts] = useState<InstagramDraft[]>([]);
+  const [instaLoading, setInstaLoading] = useState(false);
+  const [instaFilter, setInstaFilter] = useState<'pending' | 'approved' | 'rejected' | 'all'>('pending');
+  const [selectedInsta, setSelectedInsta] = useState<InstagramDraft | null>(null);
+  const [instaEditCaption, setInstaEditCaption] = useState('');
+  const [copiedCaption, setCopiedCaption] = useState(false);
+  const [downloadingImage, setDownloadingImage] = useState(false);
 
   const authHeader = useCallback(() => ({
     'Authorization': `Bearer ${password}`,
@@ -260,6 +277,95 @@ export default function AdminPage() {
   useEffect(() => {
     if (authed && tab === 'reddit') fetchRedditDrafts();
   }, [authed, tab, redditFilter, fetchRedditDrafts]);
+
+  const fetchInstaDrafts = useCallback(async () => {
+    setInstaLoading(true);
+    try {
+      const res = await fetch(`/api/admin/instagram-drafts?status=${instaFilter}`, {
+        headers: authHeader(),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setInstaDrafts(data.drafts);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setInstaLoading(false);
+    }
+  }, [instaFilter, authHeader]);
+
+  useEffect(() => {
+    if (authed && tab === 'instagram') fetchInstaDrafts();
+  }, [authed, tab, instaFilter, fetchInstaDrafts]);
+
+  const handleInstaAction = async (id: string, status: 'approved' | 'rejected') => {
+    try {
+      await fetch('/api/admin/instagram-drafts', {
+        method: 'PATCH',
+        headers: authHeader(),
+        body: JSON.stringify({ id, status }),
+      });
+      setMessage(status === 'approved' ? 'Marked as posted' : 'Draft rejected');
+      fetchInstaDrafts();
+      if (selectedInsta?.id === id) setSelectedInsta(null);
+    } catch {
+      setMessage('Failed to update');
+    }
+  };
+
+  const handleInstaSaveCaption = async () => {
+    if (!selectedInsta) return;
+    try {
+      await fetch('/api/admin/instagram-drafts', {
+        method: 'PATCH',
+        headers: authHeader(),
+        body: JSON.stringify({ id: selectedInsta.id, caption: instaEditCaption }),
+      });
+      setMessage('Caption updated');
+      fetchInstaDrafts();
+      setSelectedInsta({ ...selectedInsta, caption: instaEditCaption });
+    } catch {
+      setMessage('Failed to save');
+    }
+  };
+
+  const buildInstaImageUrl = (draft: InstagramDraft) => {
+    const params = new URLSearchParams();
+    params.set('hook', draft.hook);
+    params.set('type', draft.postType);
+    return `/api/og/instagram?${params.toString()}`;
+  };
+
+  const handleCopyCaption = (draft: InstagramDraft) => {
+    const text = draft.hashtags.length > 0
+      ? `${draft.caption}\n\n${draft.hashtags.map(h => `#${h}`).join(' ')}`
+      : draft.caption;
+    navigator.clipboard.writeText(text);
+    setCopiedCaption(true);
+    setTimeout(() => setCopiedCaption(false), 2000);
+  };
+
+  const handleDownloadInstaImage = async (draft: InstagramDraft) => {
+    setDownloadingImage(true);
+    try {
+      const res = await fetch(buildInstaImageUrl(draft));
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(new Blob([await blob.arrayBuffer()], { type: 'image/png' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `instagram-${draft.id}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      setMessage('Download failed');
+    } finally {
+      setDownloadingImage(false);
+    }
+  };
 
   const handleRedditAction = async (id: string, status: 'approved' | 'rejected') => {
     try {
@@ -449,6 +555,12 @@ export default function AdminPage() {
             Customer Lookup
           </button>
           <button
+            onClick={() => setTab('instagram')}
+            style={{ ...s.button(tab === 'instagram' ? 'primary' : 'ghost') }}
+          >
+            Instagram
+          </button>
+          <button
             onClick={() => setTab('reddit')}
             style={{ ...s.button(tab === 'reddit' ? 'primary' : 'ghost') }}
           >
@@ -599,6 +711,173 @@ export default function AdminPage() {
                   <div style={{ ...s.card, textAlign: 'center', color: '#666' }}>
                     No records found for {customerData.email}
                   </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Instagram Tab */}
+        {tab === 'instagram' && (
+          <div>
+            {selectedInsta ? (
+              <div>
+                <button onClick={() => setSelectedInsta(null)} style={{ ...s.button('ghost'), marginBottom: 24 }}>
+                  &larr; Back to Drafts
+                </button>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                  <span style={{
+                    fontSize: '0.75rem',
+                    padding: '2px 8px',
+                    borderRadius: 4,
+                    backgroundColor: '#2D1D35',
+                    color: '#B86EB8',
+                  }}>
+                    {selectedInsta.postType}
+                  </span>
+                  <span style={s.badge(selectedInsta.status)}>{selectedInsta.status}</span>
+                </div>
+
+                {/* Image preview */}
+                <div style={{ ...s.card, textAlign: 'center', marginBottom: 16 }}>
+                  <img
+                    src={buildInstaImageUrl(selectedInsta)}
+                    alt="Instagram preview"
+                    style={{
+                      width: '100%',
+                      maxWidth: 480,
+                      height: 'auto',
+                      borderRadius: 8,
+                      border: '1px solid #444',
+                    }}
+                  />
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 16 }}>
+                    <button
+                      onClick={() => handleDownloadInstaImage(selectedInsta)}
+                      disabled={downloadingImage}
+                      style={{ ...s.button('primary'), opacity: downloadingImage ? 0.6 : 1 }}
+                    >
+                      {downloadingImage ? 'Downloading...' : 'Download Image'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Caption */}
+                <div style={s.card}>
+                  <label style={s.label}>Caption</label>
+                  <textarea
+                    value={instaEditCaption}
+                    onChange={(e) => setInstaEditCaption(e.target.value)}
+                    style={{ ...s.textarea, minHeight: 200 }}
+                  />
+
+                  {selectedInsta.hashtags.length > 0 && (
+                    <div style={{ marginTop: 12 }}>
+                      <label style={s.label}>Hashtags</label>
+                      <p style={{ fontSize: '0.85rem', color: '#999', margin: 0 }}>
+                        {selectedInsta.hashtags.map(h => `#${h}`).join(' ')}
+                      </p>
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', gap: 8, marginTop: 16, flexWrap: 'wrap' }}>
+                    <button onClick={handleInstaSaveCaption} style={s.button('ghost')}>
+                      Save Changes
+                    </button>
+                    <button
+                      onClick={() => handleCopyCaption(selectedInsta)}
+                      style={{ ...s.button('primary'), minWidth: 140 }}
+                    >
+                      {copiedCaption ? 'Copied!' : 'Copy Caption + Tags'}
+                    </button>
+                    {selectedInsta.status === 'pending' && (
+                      <>
+                        <button
+                          onClick={() => handleInstaAction(selectedInsta.id, 'approved')}
+                          style={s.button('primary')}
+                        >
+                          Mark as Posted
+                        </button>
+                        <button
+                          onClick={() => handleInstaAction(selectedInsta.id, 'rejected')}
+                          style={s.button('danger')}
+                        >
+                          Reject
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                  <h2 style={{ fontSize: '1.1rem', fontWeight: 400, color: '#fff' }}>Instagram Drafts</h2>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    {(['pending', 'approved', 'rejected', 'all'] as const).map((f) => (
+                      <button
+                        key={f}
+                        onClick={() => setInstaFilter(f)}
+                        style={{
+                          ...s.button('ghost'),
+                          ...(instaFilter === f ? { borderColor: '#7D8B6E', color: '#7D8B6E' } : {}),
+                        }}
+                      >
+                        {f}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {instaLoading ? (
+                  <p style={{ color: '#666' }}>Loading...</p>
+                ) : instaDrafts.length === 0 ? (
+                  <div style={{ ...s.card, textAlign: 'center', color: '#666' }}>
+                    No {instaFilter === 'all' ? '' : instaFilter} Instagram drafts.
+                  </div>
+                ) : (
+                  instaDrafts.map((draft) => (
+                    <div
+                      key={draft.id}
+                      onClick={() => {
+                        setSelectedInsta(draft);
+                        setInstaEditCaption(draft.caption);
+                        setMessage('');
+                        setCopiedCaption(false);
+                      }}
+                      style={{ ...s.card, cursor: 'pointer', display: 'flex', gap: 16 }}
+                    >
+                      {/* Thumbnail */}
+                      <img
+                        src={buildInstaImageUrl(draft)}
+                        alt=""
+                        style={{ width: 80, height: 80, borderRadius: 6, objectFit: 'cover', flexShrink: 0 }}
+                      />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{
+                              fontSize: '0.75rem',
+                              padding: '2px 8px',
+                              borderRadius: 4,
+                              backgroundColor: '#2D1D35',
+                              color: '#B86EB8',
+                            }}>
+                              {draft.postType}
+                            </span>
+                            <span style={s.badge(draft.status)}>{draft.status}</span>
+                          </div>
+                          <span style={{ fontSize: '0.8rem', color: '#555' }}>
+                            {new Date(draft.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p style={{ fontSize: '0.9rem', color: '#ddd', marginTop: 8, fontStyle: 'italic' }}>
+                          {draft.hook.length > 100 ? draft.hook.slice(0, 100) + '...' : draft.hook}
+                        </p>
+                      </div>
+                    </div>
+                  ))
                 )}
               </div>
             )}
