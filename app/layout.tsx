@@ -67,6 +67,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${dmSerifDisplay.variable} ${dmSans.variable}`}>
       <head>
+        {/* Google Ads gtag */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18052246616" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','AW-18052246616');`,
+          }}
+        />
         {/* Reddit Pixel */}
         <script
           dangerouslySetInnerHTML={{

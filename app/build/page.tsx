@@ -7,7 +7,6 @@ import { Footer } from '@/components/Footer';
 import { BuildQuestions } from '@/components/build/BuildQuestions';
 import { BuildLoading } from '@/components/build/BuildLoading';
 import { BuildPreview } from '@/components/build/BuildPreview';
-import { BuildUnlocked } from '@/components/build/BuildUnlocked';
 import { BuildError } from '@/components/build/BuildError';
 import { ArchetypeId } from '@/lib/questions';
 import { SupplementaryAnswers } from '@/lib/supplementary';
@@ -208,22 +207,10 @@ function BuildContent() {
       }
 
       if (bootfile.length > 0) {
-        try { localStorage.setItem('bootfile_output', bootfile); } catch { /* */ }
-        setBootfileText(bootfile);
-        setState('unlocked');
-
-        // Reddit Pixel: Purchase event
         try {
-          const rdt = (window as unknown as { rdt?: (...args: unknown[]) => void }).rdt;
-          if (rdt) {
-            rdt('track', 'Purchase', {
-              value: 4.99,
-              currency: 'USD',
-              itemCount: 1,
-              conversionId: paymentIntentId,
-            });
-          }
-        } catch { /* non-blocking */ }
+          localStorage.setItem('bootfile_output', bootfile);
+          localStorage.setItem('bootfile_payment_intent', paymentIntentId);
+        } catch { /* */ }
 
         // Fire-and-forget purchase tracking
         const quizId = localStorage.getItem('bootfile_quiz_id') || null;
@@ -255,9 +242,8 @@ function BuildContent() {
           }).catch(() => { /* non-blocking */ });
         }
 
-        if (window.location.search) {
-          window.history.replaceState({}, '', '/build');
-        }
+        // Redirect to success page (conversion pixels fire there)
+        router.push('/build/success');
       } else {
         setError({
           message: 'Generation returned empty. Please try again.',
@@ -279,13 +265,10 @@ function BuildContent() {
     if (initRef.current) return;
     initRef.current = true;
 
-    // 1. Already have a full bootfile? → show it
+    // 1. Already have a full bootfile? → redirect to success page
     const existingOutput = localStorage.getItem('bootfile_output');
     if (existingOutput) {
-      const quizState = getQuizState();
-      if (quizState) setArchetypeId(quizState.primary as ArchetypeId);
-      setBootfileText(existingOutput);
-      setState('unlocked');
+      router.push('/build/success');
       return;
     }
 
@@ -470,18 +453,6 @@ function BuildContent() {
             onPaymentError={handlePaymentError}
             paymentLoading={paymentLoading}
           />
-        </main>
-        <Footer />
-      </>
-    );
-  }
-
-  if (state === 'unlocked' && bootfileText) {
-    return (
-      <>
-        <Header />
-        <main style={{ paddingTop: 80, paddingBottom: 64, padding: '80px 20px 64px' }}>
-          <BuildUnlocked bootfileText={bootfileText} archetypeId={archetypeId} />
         </main>
         <Footer />
       </>
