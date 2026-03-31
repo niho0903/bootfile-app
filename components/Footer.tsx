@@ -32,6 +32,15 @@ export function Footer() {
           Support
         </a>
       </p>
+      <p style={{ fontSize: '0.8rem', marginTop: 8 }}>
+        <a href="https://www.instagram.com/bootfile.ai/" target="_blank" rel="noopener noreferrer" style={{ color: '#7A746B', textDecoration: 'none' }}>
+          Instagram
+        </a>
+        <span style={{ margin: '0 8px', color: '#DDD6CC' }}>&middot;</span>
+        <a href="https://www.tiktok.com/@bootfileai" target="_blank" rel="noopener noreferrer" style={{ color: '#7A746B', textDecoration: 'none' }}>
+          TikTok
+        </a>
+      </p>
     </footer>
   );
 }

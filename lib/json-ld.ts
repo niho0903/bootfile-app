@@ -7,7 +7,7 @@ export function organizationJsonLd() {
     name: 'BootFile',
     url: BASE_URL,
     logo: `${BASE_URL}/api/og`,
-    sameAs: ['https://www.instagram.com/bootfile.ai/'],
+    sameAs: ['https://www.instagram.com/bootfile.ai/', 'https://www.tiktok.com/@bootfileai'],
     description:
       'BootFile creates personalized AI instruction profiles based on how you think, not generic templates.',
   };
