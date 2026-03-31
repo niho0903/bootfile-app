@@ -1,0 +1,15 @@
+{
+  "hook": "The AI gave you a 7-step framework. You needed a 2-line answer. Again.",
+  "caption": "The AI gave you a 7-step framework. You needed a 2-line answer. Again.\n\nThis isn't a you problem. It's a calibration problem.\n\nChatGPT doesn't know that you:\n— already understand the context\n— hate bullet points\n— process ideas through conversation, not listicles\n— want the conclusion first, not buried in paragraph 4\n\nSo it defaults to \"helpful for everyone\" — which ends up being perfect for no one.\n\nThe fix isn't reprompting the same question 4 times until it sounds like you. The fix is teaching it how you think *before* you ask anything.\n\nThat's what a BootFile does. It's a personal AI instruction profile — built around your thinking style, your communication preferences, your tolerance for nuance.\n\nOne person's BootFile says: give me frameworks, I think in systems.\nAnother says: skip the preamble, I make fast decisions.\nAnother says: challenge my assumptions, I need friction to think clearly.\n\nSame AI. Completely different experience.\n\nYou shouldn't have to edit every response to sound like something you'd actually use. It should just... already get you.\n\nLink in bio to find your thinking style.",
+  "hashtags": [
+    "AItools",
+    "productivityhacks",
+    "chatgpt",
+    "worksmarter",
+    "AIprompts",
+    "personalization",
+    "bootfileai",
+    "techfounders"
+  ],
+  "contentType": "myth-bust"
+}
