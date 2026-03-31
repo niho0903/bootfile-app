@@ -52,10 +52,10 @@ export default function BuildSuccessPage() {
       const w = window as any;
       if (w.gtag) {
         (w.gtag as (...args: unknown[]) => void)('event', 'conversion', {
-          send_to: 'AW-18052246616',
-          value: 4.99,
+          send_to: 'AW-18052246616/idTcCMD71ZIcENjY_Z9D',
+          value: 1.0,
           currency: 'USD',
-          transaction_id: localStorage.getItem('bootfile_payment_intent') || undefined,
+          transaction_id: localStorage.getItem('bootfile_payment_intent') || '',
         });
       }
     } catch { /* gtag not loaded */ }
