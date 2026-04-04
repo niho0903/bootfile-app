@@ -1,0 +1,15 @@
+{
+  "hook": "AI gave you a 5-step framework when you needed a one-line answer. Again.",
+  "caption": "AI gave you a 5-step framework when you needed a one-line answer. Again.\n\nHere's what's actually happening:\n\nAI defaults to \"thorough\" because it has no idea if you're a beginner who needs hand-holding or an expert who finds bullet points insulting.\n\nSo it hedges. It over-explains. It gives you the Wikipedia version of your own question.\n\nThe fix isn't prompting harder. It's not typing \"be concise\" at the end (we've all tried that — it trims one sentence and calls it a day).\n\nThe fix is context that lives *before* the conversation starts.\n\nWhen AI knows:\n→ You think in systems, not steps\n→ You want the conclusion first, reasoning second\n→ You'd rather be challenged than validated\n\n...it stops performing helpfulness and starts actually being helpful.\n\nThat's the whole premise behind BootFile. One profile. Every conversation. No more training the AI from scratch every time you open a new chat.\n\nYour thinking style shouldn't be a secret you have to reveal in every prompt.",
+  "hashtags": [
+    "AIproductivity",
+    "promptengineering",
+    "worksmarter",
+    "AItools",
+    "bootfileai",
+    "techlife",
+    "personalization",
+    "artificialintelligence"
+  ],
+  "contentType": "myth-bust"
+}
