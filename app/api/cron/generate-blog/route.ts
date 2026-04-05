@@ -43,13 +43,16 @@ export async function GET(request: Request) {
     // 2. Load upcoming topics from calendar.json in the repo
     const upcomingTopics = await fetchUpcomingTopics(githubToken);
 
-    // 3. Research: keyword/trend data from Perplexity
+    // 3. Fetch recent author archetypes to enforce rotation
+    const recentAuthors = await fetchRecentAuthors(githubToken);
+
+    // 4. Research: keyword/trend data from Perplexity
     const trendResearch = await researchTopics(pillar, upcomingTopics);
 
-    // 4. Search Console insights (what's already ranking, gaps)
+    // 5. Search Console insights (what's already ranking, gaps)
     const gscInsights = await getSearchInsights();
 
-    // 5. Build the content brief
+    // 6. Build the content brief
     const today = now.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
@@ -63,6 +66,7 @@ export async function GET(request: Request) {
       trendResearch,
       gscInsights,
       today,
+      recentAuthors,
     });
 
     // 6. Generate the blog post via Claude
@@ -203,6 +207,7 @@ interface BriefInput {
   trendResearch: string;
   gscInsights: string;
   today: string;
+  recentAuthors: string[];
 }
 
 function buildContentBrief(input: BriefInput): string {
@@ -229,8 +234,13 @@ ${input.gscInsights}`);
   sections.push(`Existing articles (do NOT duplicate these, but link to relevant ones):
 ${input.existingPosts.map(t => `- ${t}`).join('\n') || 'None yet'}`);
 
+  const allArchetypes = ['surgeon', 'architect', 'sparring', 'translator', 'copilot', 'librarian', 'closer', 'maker'];
+  const avoid = input.recentAuthors.slice(0, 3);
+  const preferred = allArchetypes.filter(a => !avoid.includes(a));
+
   sections.push(`Important:
-- Include an "author" field in the frontmatter. Pick one of these archetype IDs that best matches the article's tone: surgeon, architect, sparring, translator, copilot, librarian, closer, maker
+- Include an "author" field in the frontmatter. You MUST pick from these archetype IDs: ${preferred.join(', ')}
+- Do NOT use these archetypes (used in recent posts): ${avoid.join(', ')}
 - Target a specific, real search query that people actually type
 - The target_query in frontmatter should be the exact phrase you're optimizing for
 - If the research suggests a high-opportunity query, prioritize that`);
@@ -332,6 +342,30 @@ async function fetchExistingPostTitles(token: string): Promise<string[]> {
     return files
       .filter(f => f.name.endsWith('.md'))
       .map(f => f.name.replace('.md', '').replace(/-/g, ' '));
+  } catch {
+    return [];
+  }
+}
+
+async function fetchRecentAuthors(token: string): Promise<string[]> {
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${GITHUB_REPO}/contents/content/blog`,
+      { headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' } }
+    );
+    if (!res.ok) return [];
+    const files: Array<{ name: string; download_url: string }> = await res.json();
+    const mdFiles = files.filter(f => f.name.endsWith('.md')).slice(-5); // last 5 posts
+
+    const authors: string[] = [];
+    for (const file of mdFiles) {
+      try {
+        const content = await fetch(file.download_url).then(r => r.text());
+        const authorMatch = content.match(/^author:\s*["']?(\w+)["']?\s*$/m);
+        if (authorMatch) authors.push(authorMatch[1]);
+      } catch { /* skip */ }
+    }
+    return authors;
   } catch {
     return [];
   }
