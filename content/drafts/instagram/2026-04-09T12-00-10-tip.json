@@ -1,0 +1,15 @@
+{
+  "hook": "AI gave you a 47-step plan when you asked for help with one email.",
+  "caption": "AI gave you a 47-step plan when you asked for help with one email.\n\nYou didn't ask for a framework. You didn't ask for \"key considerations.\" You asked it to help you sound less passive-aggressive to your coworker named Derek.\n\nHere's the thing nobody talks about: AI isn't bad at writing. It's bad at knowing YOU.\n\nIt doesn't know that you think in bullet points, not paragraphs. It doesn't know you want the answer first and the reasoning second. It doesn't know you'd rather have one sharp option than five mediocre ones.\n\nSo it defaults to thoroughness. And thoroughness, when you just needed a quick answer, feels like being handed an instruction manual when you asked for directions.\n\nThe fix isn't prompting harder. It's not writing longer prompts or learning some secret syntax.\n\nIt's giving AI a profile of how your brain actually works — so it stops responding to the average person and starts responding to you.\n\nThat's what we built bootfile.ai to do.\n\nYour BootFile tells AI: this person thinks fast, wants options ranked not listed, hates corporate language, and will make their own decision — just give them the raw material.\n\nDerek email? Handled in one response. No framework required.",
+  "hashtags": [
+    "AItools",
+    "productivitytips",
+    "worksmarter",
+    "AIprompts",
+    "personalization",
+    "techforthought",
+    "bootfileai",
+    "buildinpublic"
+  ],
+  "contentType": "tip"
+}
