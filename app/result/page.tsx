@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { track } from '@vercel/analytics';
 import { ArchetypeReveal } from '@/components/ArchetypeReveal';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { StickyBottomCTA } from '@/components/StickyBottomCTA';
 import { ARCHETYPES } from '@/lib/archetypes';
 import { ArchetypeId } from '@/lib/questions';
+import { BRIDGE_LINES } from '@/lib/archetype-copy';
 
 interface QuizState {
   primary: ArchetypeId;
@@ -44,6 +46,14 @@ export default function ResultPage() {
     } catch { /* pixel not loaded */ }
   }, [quizState]);
 
+  // result_page_bridge_seen event
+  useEffect(() => {
+    if (!quizState) return;
+    try {
+      track('result_page_bridge_seen', { archetype: quizState.primary });
+    } catch { /* analytics not loaded */ }
+  }, [quizState]);
+
   if (!quizState) {
     return (
       <div style={{ minHeight: '100vh', backgroundColor: '#F7F4EF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -54,6 +64,7 @@ export default function ResultPage() {
 
   const arch = ARCHETYPES[quizState.primary];
   const article = /^[aeiou]/i.test(arch.name) ? 'an' : 'a';
+  const bridgeLine = BRIDGE_LINES[quizState.primary];
 
   return (
     <>
@@ -84,10 +95,47 @@ export default function ResultPage() {
             >
               You&apos;re {article} {arch.name}. Your AI doesn&apos;t know that yet.
             </h3>
-            <p style={{ fontSize: '0.95rem', color: '#7A746B', lineHeight: 1.7, marginBottom: 28 }}>
+            <p style={{ fontSize: '0.95rem', color: '#7A746B', lineHeight: 1.7, marginBottom: 20 }}>
               A BootFile is a personalized instruction profile that tells your AI how to
               work with you — built from your quiz results. Takes 3 minutes.
             </p>
+
+            {/* Section 6 — archetype-specific bridge tease */}
+            <div
+              style={{
+                textAlign: 'left',
+                maxWidth: 480,
+                margin: '0 auto 28px',
+                padding: '16px 18px',
+                backgroundColor: '#F7F4EF',
+                borderRadius: 10,
+                borderLeft: '3px solid #7D8B6E',
+              }}
+            >
+              <p
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: '#5C6650',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  margin: '0 0 6px',
+                }}
+              >
+                One thing your BootFile will tell your AI:
+              </p>
+              <p
+                style={{
+                  fontSize: 14.5,
+                  color: '#2D2926',
+                  lineHeight: 1.6,
+                  fontStyle: 'italic',
+                  margin: 0,
+                }}
+              >
+                &ldquo;{bridgeLine}&rdquo;
+              </p>
+            </div>
 
             <button
               onClick={() => router.push('/build')}
@@ -108,7 +156,7 @@ export default function ResultPage() {
               onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#5C6650')}
               onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#7D8B6E')}
             >
-              Build My BootFile — $4.99
+              Build my BootFile &rarr;
             </button>
           </div>
         </div>
