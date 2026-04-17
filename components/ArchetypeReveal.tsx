@@ -69,9 +69,6 @@ export function ArchetypeReveal({ primary, secondary }: ArchetypeRevealProps) {
         YOUR AI STYLE
       </p>
 
-      {/* Icon */}
-      <div style={{ fontSize: 56, marginBottom: 16 }}>{arch.icon}</div>
-
       {/* Name */}
       <h1
         className="font-heading"
@@ -107,52 +104,117 @@ export function ArchetypeReveal({ primary, secondary }: ArchetypeRevealProps) {
         {arch.description}
       </p>
 
+      {/* Secondary archetype — sits above the divider as additional context */}
+      {secondaryArch && (
+        <div style={{ marginTop: 24 }}>
+          <button
+            onClick={() => setSecondaryExpanded(!secondaryExpanded)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '8px 18px',
+              borderRadius: 9999,
+              backgroundColor: 'rgba(247, 244, 239, 0.08)',
+              fontSize: 14,
+              color: 'rgba(247, 244, 239, 0.7)',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              transition: 'background-color 0.2s',
+            }}
+          >
+            <span>You also have strong <span style={{ fontWeight: 600, color: '#F7F4EF' }}>{secondaryArch.name}</span> tendencies</span>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              style={{
+                transition: 'transform 0.3s ease',
+                transform: secondaryExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                marginLeft: 2,
+              }}
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+
+          <div
+            style={{
+              maxHeight: secondaryExpanded ? 300 : 0,
+              overflow: 'hidden',
+              transition: 'max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease',
+              opacity: secondaryExpanded ? 1 : 0,
+            }}
+          >
+            <div style={{ paddingTop: 16 }}>
+              <p
+                className="font-heading"
+                style={{
+                  fontSize: '0.95rem',
+                  color: '#7A746B',
+                  fontStyle: 'italic',
+                  marginBottom: 12,
+                }}
+              >
+                &ldquo;{secondaryArch.tagline}&rdquo;
+              </p>
+              <p
+                style={{
+                  fontSize: '0.85rem',
+                  color: 'rgba(247, 244, 239, 0.6)',
+                  lineHeight: 1.7,
+                  textAlign: 'left',
+                  maxWidth: 500,
+                  margin: '0 auto',
+                }}
+              >
+                {secondaryArch.description}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Thin divider */}
       <div
         style={{
           height: 1,
           backgroundColor: 'rgba(247, 244, 239, 0.1)',
-          margin: '32px auto 28px',
+          margin: '32px auto 24px',
           maxWidth: 500,
         }}
       />
 
-      {/* Bridge teaser — "one thing your BootFile will tell your AI" */}
-      <div
+      {/* Bridge teaser — copy, not a component. No box, no border, no green. */}
+      <p
         style={{
-          textAlign: 'left',
-          maxWidth: 500,
-          margin: '0 auto 28px',
-          padding: '16px 18px',
-          backgroundColor: 'rgba(125, 139, 110, 0.08)',
-          borderRadius: 10,
-          borderLeft: '3px solid #7D8B6E',
+          fontSize: '0.72rem',
+          fontWeight: 500,
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+          color: '#7A746B',
+          marginBottom: 10,
         }}
       >
-        <p
-          style={{
-            fontSize: 12,
-            fontWeight: 600,
-            color: '#A5B394',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            margin: '0 0 6px',
-          }}
-        >
-          One thing your BootFile will tell your AI:
-        </p>
-        <p
-          style={{
-            fontSize: 14.5,
-            color: '#F7F4EF',
-            lineHeight: 1.6,
-            fontStyle: 'italic',
-            margin: 0,
-          }}
-        >
-          &ldquo;{bridgeLine}&rdquo;
-        </p>
-      </div>
+        One thing your BootFile will tell your AI
+      </p>
+      <p
+        className="font-heading"
+        style={{
+          fontSize: '1.05rem',
+          color: 'rgba(247, 244, 239, 0.85)',
+          fontStyle: 'italic',
+          lineHeight: 1.6,
+          maxWidth: 500,
+          margin: '0 auto 28px',
+        }}
+      >
+        &ldquo;{bridgeLine}&rdquo;
+      </p>
 
       {/* Primary CTA */}
       <button
@@ -207,82 +269,6 @@ export function ArchetypeReveal({ primary, secondary }: ArchetypeRevealProps) {
       >
         Not yet — I&apos;ll come back
       </button>
-
-      {/* Secondary archetype — demoted accordion */}
-      {secondaryArch && (
-        <div style={{ marginTop: 32, paddingTop: 24, borderTop: '1px solid rgba(247, 244, 239, 0.1)' }}>
-          <button
-            onClick={() => setSecondaryExpanded(!secondaryExpanded)}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '8px 18px',
-              borderRadius: 9999,
-              backgroundColor: 'rgba(247, 244, 239, 0.08)',
-              fontSize: 14,
-              color: 'rgba(247, 244, 239, 0.7)',
-              border: 'none',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-              transition: 'background-color 0.2s',
-            }}
-          >
-            <span>{secondaryArch.icon}</span>
-            You also have strong <span style={{ fontWeight: 600, color: '#F7F4EF' }}>{secondaryArch.name}</span> tendencies
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              style={{
-                transition: 'transform 0.3s ease',
-                transform: secondaryExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                marginLeft: 2,
-              }}
-            >
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </button>
-
-          <div
-            style={{
-              maxHeight: secondaryExpanded ? 300 : 0,
-              overflow: 'hidden',
-              transition: 'max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease',
-              opacity: secondaryExpanded ? 1 : 0,
-            }}
-          >
-            <div style={{ paddingTop: 16 }}>
-              <p
-                className="font-heading"
-                style={{
-                  fontSize: '0.95rem',
-                  color: '#7A746B',
-                  fontStyle: 'italic',
-                  marginBottom: 12,
-                }}
-              >
-                &ldquo;{secondaryArch.tagline}&rdquo;
-              </p>
-              <p
-                style={{
-                  fontSize: '0.85rem',
-                  color: 'rgba(247, 244, 239, 0.6)',
-                  lineHeight: 1.7,
-                  textAlign: 'left',
-                  maxWidth: 500,
-                  margin: '0 auto',
-                }}
-              >
-                {secondaryArch.description}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
