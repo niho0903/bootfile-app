@@ -241,7 +241,7 @@ export function ArchetypeReveal({ primary, secondary }: ArchetypeRevealProps) {
           marginBottom: 0,
         }}
       >
-        3 minutes · $4.99 one-time · 7-day refund
+        3 minutes · $4.99 one-time
       </p>
     </div>
   );

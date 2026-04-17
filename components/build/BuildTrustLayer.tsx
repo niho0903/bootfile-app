@@ -17,14 +17,8 @@ export function BuildTrustLayer() {
         }}
       >
         <Column
-          heading="7-day refund, no questions"
-          body={
-            <>
-              If your BootFile doesn&apos;t meaningfully change how your AI responds,
-              email <a href="mailto:support@bootfile.ai" style={{ color: '#5C6650' }}>support@bootfile.ai</a>{' '}
-              within 7 days. We refund you and you keep the file.
-            </>
-          }
+          heading="One-time purchase, yours to keep"
+          body="No subscription, no renewals, no surprise charges. You pay $4.99 once, paste the file into your AI's custom instructions, and use it as long as you want."
         />
         <Column
           heading="Built for people who use AI daily"
