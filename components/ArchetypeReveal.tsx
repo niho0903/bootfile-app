@@ -26,13 +26,6 @@ export function ArchetypeReveal({ primary, secondary }: ArchetypeRevealProps) {
     router.push('/build');
   };
 
-  const handleSoftExit = () => {
-    try {
-      track('result_soft_exit_clicked', { archetype: primary });
-    } catch { /* analytics not loaded */ }
-    router.push('/');
-  };
-
   return (
     <div
       style={{
@@ -250,25 +243,6 @@ export function ArchetypeReveal({ primary, secondary }: ArchetypeRevealProps) {
       >
         3 minutes · $4.99 one-time · 7-day refund
       </p>
-
-      {/* Soft exit link */}
-      <button
-        onClick={handleSoftExit}
-        style={{
-          background: 'none',
-          border: 'none',
-          padding: 0,
-          marginTop: 20,
-          fontSize: 13,
-          color: 'rgba(247, 244, 239, 0.45)',
-          textDecoration: 'underline',
-          textUnderlineOffset: 3,
-          cursor: 'pointer',
-          fontFamily: 'inherit',
-        }}
-      >
-        Not yet — I&apos;ll come back
-      </button>
     </div>
   );
 }
