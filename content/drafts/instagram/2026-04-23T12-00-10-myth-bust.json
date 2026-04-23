@@ -1,0 +1,15 @@
+{
+  "hook": "AI gave you a 5-paragraph essay when you needed a one-liner. That's not an AI problem. That's a calibration problem.",
+  "caption": "AI gave you a 5-paragraph essay when you needed a one-liner. That's not an AI problem. That's a calibration problem.\n\nHere's what's actually happening:\n\nAI defaults to \"thorough\" because thorough feels safe. It doesn't know you're the person who reads the last sentence first. It doesn't know you hate preamble. It doesn't know that when you say \"give me ideas\" you mean 3 punchy bullets, not a content strategy document.\n\nSo it writes for the average person.\n\nAnd you are not the average person.\n\nThe fix isn't a longer prompt every single time. The fix is teaching it how YOUR brain receives information — once — so every response after that already knows:\n\n→ You want the answer before the explanation\n→ You think in systems, not stories\n→ \"Brief\" means 2 sentences, not 2 paragraphs\n→ You'd rather have 3 real options than 10 mediocre ones\n\nThat's what a BootFile does. It's not a prompt. It's a profile of how you think — and it travels with you into every conversation.\n\nStop re-training AI from scratch every Monday morning.",
+  "hashtags": [
+    "AIproductivity",
+    "promptengineering",
+    "worksmarter",
+    "AItools",
+    "personalizedAI",
+    "techfounders",
+    "bootfileai",
+    "AItips"
+  ],
+  "contentType": "myth-bust"
+}
