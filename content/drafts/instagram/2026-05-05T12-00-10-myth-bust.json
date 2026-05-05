@@ -1,0 +1,15 @@
+{
+  "hook": "AI keeps giving you 5 bullet points when you just needed one sentence.",
+  "caption": "AI keeps giving you 5 bullet points when you just needed one sentence.\n\nThis isn't a prompt problem. It's a *calibration* problem.\n\nHere's what's actually happening: ChatGPT, Claude, whatever you're using — they default to \"thorough\" because thorough feels helpful to the average user.\n\nBut you're not the average user.\n\nMaybe you think in first principles and hate summaries that skip the reasoning. Maybe you're a bottom-line person who needs the answer before the explanation. Maybe you process ideas through analogy and every dry, literal response just bounces off your brain.\n\nThe AI doesn't know any of that. So it guesses. And it guesses wrong. Every. Single. Time.\n\nThat's the gap bootfile.ai closes.\n\nYour BootFile is a profile of how YOU think — your reasoning style, your communication preferences, your blind spots, your defaults. You load it into any AI session and suddenly the tool actually fits how your brain works.\n\nNo more reformatting outputs. No more re-explaining what you need. No more getting a dissertation when you asked a yes/no question.\n\nThe AI doesn't get smarter. It just finally gets *you*.\n\nIf you've ever rage-closed a chat window because the response was technically correct but completely useless — yeah. That's what we're fixing.",
+  "hashtags": [
+    "AItools",
+    "productivityhacks",
+    "worksmarter",
+    "AIprompts",
+    "techforgood",
+    "brainwork",
+    "bootfileai",
+    "personalization"
+  ],
+  "contentType": "myth-bust"
+}
