@@ -1,0 +1,15 @@
+{
+  "hook": "The AI gave you a 7-step framework. You needed a 2-sentence answer. Again.",
+  "caption": "The AI gave you a 7-step framework. You needed a 2-sentence answer. Again.\n\nThis isn't a you problem. It's a calibration problem.\n\nChatGPT doesn't know you're the person who:\n— reads the last page of a book first\n— makes decisions in 30 seconds then spends days justifying them\n— needs the conclusion BEFORE the context, not after\n\nSo it defaults to the average user. Which is nobody, really.\n\nThe fix isn't a longer prompt. It's not \"be concise\" tacked onto the end (it will ignore that by paragraph three, we both know it).\n\nThe fix is a persistent profile that travels with you. One that tells the AI: this person thinks in outcomes, not processes. Lead with the answer. Cut the scaffolding.\n\nThat's what a BootFile does.\n\nYou build it once based on how YOU actually think — not how a productivity influencer thinks you should think — and suddenly AI stops feeling like a lecture and starts feeling like a conversation.\n\nBottom line: AI isn't too smart for you. It just doesn't know you yet.",
+  "hashtags": [
+    "AItools",
+    "promptengineering",
+    "productivityhacks",
+    "AIassistant",
+    "ChatGPT",
+    "thinkingstyles",
+    "bootfileai",
+    "worksmarter"
+  ],
+  "contentType": "myth-bust"
+}
