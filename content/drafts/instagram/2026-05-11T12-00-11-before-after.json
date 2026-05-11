@@ -1,0 +1,15 @@
+{
+  "hook": "The AI gave you a 7-step framework when you asked for help with one email.",
+  "caption": "The AI gave you a 7-step framework when you asked for help with one email.\n\nYou didn't ask for a framework. You asked for help.\n\nThis happens because AI defaults to the most \"complete\" answer — not the most *useful* one for how your brain actually works.\n\nSome people think in bullet points. Some need the conclusion first, then the reasoning. Some want one option, not five. Some need the blunt version, not the diplomatic one.\n\nAI doesn't know which one you are. So it hedges. It covers everything. It gives you a buffet when you wanted a sandwich.\n\nThe fix isn't prompting harder. It's teaching the AI your thinking style once — so it stops performing \"helpful\" and starts actually being helpful.\n\nBEFORE: \"Here are 7 considerations when writing a follow-up email to a client...\"\n\nAFTER (calibrated to a direct, bottom-line thinker): \"Lead with the ask. One sentence of context. Sign off. Done.\"\n\nSame question. Completely different usefulness.\n\nThat's what a BootFile does — it's your thinking style, documented, so AI responds like it actually knows you.",
+  "hashtags": [
+    "AItools",
+    "productivitytips",
+    "worksmarter",
+    "AIprompts",
+    "personalization",
+    "techtools",
+    "creatortools",
+    "AIhacks"
+  ],
+  "contentType": "before-after"
+}
