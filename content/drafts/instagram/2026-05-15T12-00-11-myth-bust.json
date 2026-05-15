@@ -1,0 +1,15 @@
+{
+  "hook": "ChatGPT keeps giving you 5-step bullet lists when you just need a straight answer. That's not an AI problem. That's a calibration problem.",
+  "caption": "ChatGPT keeps giving you 5-step bullet lists when you just need a straight answer. That's not an AI problem. That's a calibration problem.\n\nHere's what's actually happening:\n\nAI defaults to \"universally helpful\" — which means it writes for the person who needs everything explained, every time. Numbered steps. Bold headers. A summary at the end that repeats everything it just said.\n\nIf that's not how your brain works, you're not getting help. You're getting homework.\n\nThe fix isn't writing a longer prompt. It's teaching the AI how you think ONCE — and having that travel with you.\n\nSome people want the reasoning before the answer. Some want the answer, full stop, and they'll ask follow-ups if they need more. Some think in systems. Some think in stories. Some need a devil's advocate. Some need validation before critique.\n\nNone of these are wrong. All of them get ignored by default AI.\n\nBootFile builds a profile of exactly how your mind works — your reasoning style, your communication preferences, your tolerance for detail — and turns it into an instruction set you drop into any AI conversation.\n\nSame tool. Finally trained on you.\n\nStop fighting the default. Change it.",
+  "hashtags": [
+    "AIproductivity",
+    "promptengineering",
+    "worksmarter",
+    "AItools",
+    "bootfileai",
+    "personalizedAI",
+    "techforyou",
+    "mindset"
+  ],
+  "contentType": "myth-bust"
+}
