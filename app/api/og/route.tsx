@@ -64,6 +64,7 @@ export async function GET(req: NextRequest) {
   const archetypeParam = searchParams.get('archetype');
   const titleParam = searchParams.get('title');
   const subtitleParam = searchParams.get('subtitle');
+  const formatParam = searchParams.get('format'); // 'square' | 'story' | (default: og 1200x630)
 
   // Blog/Guide card when title is specified
   if (titleParam) {
@@ -242,6 +243,29 @@ export async function GET(req: NextRequest) {
 
   const arch = ARCHETYPE_OG[archetypeParam] ?? ARCHETYPE_OG.surgeon;
 
+  // Per-format dimensions and type-scale.
+  let width = 1200;
+  let height = 630;
+  let nameSize = 72;
+  let taglineSize = 32;
+  let ctaSize = 22;
+  let topGap = '32px';
+  if (formatParam === 'square') {
+    width = 1080;
+    height = 1080;
+    nameSize = 88;
+    taglineSize = 38;
+    ctaSize = 26;
+    topGap = '48px';
+  } else if (formatParam === 'story') {
+    width = 1080;
+    height = 1920;
+    nameSize = 96;
+    taglineSize = 42;
+    ctaSize = 30;
+    topGap = '96px';
+  }
+
   return new ImageResponse(
     (
       <div
@@ -296,12 +320,12 @@ export async function GET(req: NextRequest) {
             height: '4px',
             backgroundColor: '#7D8B6E',
             borderRadius: '9999px',
-            marginBottom: '32px',
+            marginBottom: topGap,
           }}
         />
 
         {/* Icon */}
-        <div style={{ fontSize: '80px', marginBottom: '20px', lineHeight: 1 }}>
+        <div style={{ fontSize: formatParam === 'story' ? '120px' : '80px', marginBottom: '20px', lineHeight: 1 }}>
           {arch.icon}
         </div>
 
@@ -309,7 +333,7 @@ export async function GET(req: NextRequest) {
         <div
           style={{
             color: '#F7F4EF',
-            fontSize: '72px',
+            fontSize: nameSize,
             fontWeight: 400,
             textAlign: 'center',
             lineHeight: 1.1,
@@ -323,10 +347,11 @@ export async function GET(req: NextRequest) {
         <div
           style={{
             color: 'rgba(255,255,255,0.65)',
-            fontSize: '32px',
+            fontSize: taglineSize,
             textAlign: 'center',
             fontStyle: 'italic',
             marginBottom: '48px',
+            maxWidth: '80%',
           }}
         >
           &ldquo;{arch.tagline}&rdquo;
@@ -336,7 +361,7 @@ export async function GET(req: NextRequest) {
         <div
           style={{
             color: 'rgba(255,255,255,0.5)',
-            fontSize: '22px',
+            fontSize: ctaSize,
             textAlign: 'center',
           }}
         >
@@ -344,6 +369,6 @@ export async function GET(req: NextRequest) {
         </div>
       </div>
     ),
-    { width: 1200, height: 630 }
+    { width, height },
   );
 }

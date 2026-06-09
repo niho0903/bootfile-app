@@ -5,6 +5,11 @@ import { buildExtractionPrompt } from '@/lib/bootfile-schema';
 import { getStripe } from '@/lib/stripe';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { validateGenerateInputs } from '@/lib/validation';
+import {
+  generateAllVariants,
+  VARIANTS_START_DELIMITER,
+  VARIANTS_END_DELIMITER,
+} from '@/lib/platform-variants';
 
 export const runtime = 'edge';
 
@@ -115,13 +120,17 @@ export async function POST(req: NextRequest) {
     if (await isSessionConsumed(paymentId)) {
       const supabase = getSupabaseAdmin();
       if (supabase) {
+        // select '*' tolerates missing `bootfile_variants` column during rollout
         const { data: existing } = await supabase
           .from('bootfile_versions')
-          .select('bootfile_text')
+          .select('*')
           .eq('stripe_session_id', paymentId)
           .single();
         if (existing?.bootfile_text) {
-          return NextResponse.json({ bootfile: existing.bootfile_text });
+          return NextResponse.json({
+            bootfile: existing.bootfile_text,
+            variants: existing.bootfile_variants ?? null,
+          });
         }
       }
       return NextResponse.json({ error: 'This payment session has already been used.' }, { status: 403 });
@@ -265,6 +274,22 @@ export async function POST(req: NextRequest) {
           console.warn('[BOOTFILE VALIDATION] Missing sections:', missing);
         }
 
+        // Generate platform variants (6 parallel Haiku calls). On failure, each
+        // variant falls back to master text — never blocks delivery.
+        let variants: Record<string, string> | null = null;
+        if (fullText.length > 0) {
+          try {
+            variants = await generateAllVariants(fullText);
+            controller.enqueue(
+              encoder.encode(
+                `\n\n${VARIANTS_START_DELIMITER}\n${JSON.stringify(variants)}\n${VARIANTS_END_DELIMITER}\n`,
+              ),
+            );
+          } catch (variantErr) {
+            console.error('[VARIANT GENERATION ERROR]', variantErr);
+          }
+        }
+
         // Store in Supabase — must await before closing or edge runtime kills the function
         try {
           const supabase = getSupabaseAdmin();
@@ -278,6 +303,22 @@ export async function POST(req: NextRequest) {
               tier: 'standard',
             });
             if (storeError) console.error('[STORE BOOTFILE ERROR]', storeError.message);
+
+            // Persist variants separately so the insert doesn't fail if the
+            // bootfile_variants column hasn't been added yet.
+            if (variants) {
+              try {
+                const { error: variantStoreError } = await supabase
+                  .from('bootfile_versions')
+                  .update({ bootfile_variants: variants })
+                  .eq('stripe_session_id', paymentId);
+                if (variantStoreError) {
+                  console.error('[STORE VARIANTS ERROR]', variantStoreError.message);
+                }
+              } catch (variantPersistErr) {
+                console.error('[STORE VARIANTS ERROR]', variantPersistErr);
+              }
+            }
 
             // Extract structured JSON (cheap Haiku call) — also awaited
             try {

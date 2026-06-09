@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import { PLATFORM_META, PlatformId, PLATFORMS } from '@/lib/platform-variants';
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, bootfileText, archetypeId } = await req.json();
+    const { email, bootfileText, archetypeId, variants } = await req.json();
 
     if (!email || typeof email !== 'string' || !bootfileText || typeof bootfileText !== 'string') {
       return NextResponse.json({ error: 'Missing required fields.' }, { status: 400 });
@@ -19,12 +20,13 @@ export async function POST(req: NextRequest) {
 
     const sanitizedEmail = email.trim().toLowerCase().slice(0, 254);
     const archetype = typeof archetypeId === 'string' ? archetypeId : 'your';
+    const safeVariants = isVariantsRecord(variants) ? variants : null;
 
     const { error } = await resend.emails.send({
       from: 'BootFile <support@bootfile.ai>',
       to: sanitizedEmail,
       subject: 'Your BootFile is ready',
-      html: buildEmailHtml(bootfileText, archetype),
+      html: buildEmailHtml(bootfileText, archetype, safeVariants),
     });
 
     if (error) {
@@ -39,16 +41,52 @@ export async function POST(req: NextRequest) {
   }
 }
 
-function buildEmailHtml(bootfileText: string, archetype: string): string {
-  // Convert markdown-style headers and preserve formatting
-  const formatted = bootfileText
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
+function isVariantsRecord(v: unknown): v is Record<PlatformId, string> {
+  if (!v || typeof v !== 'object') return false;
+  const obj = v as Record<string, unknown>;
+  return PLATFORMS.some(p => typeof obj[p] === 'string');
+}
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function formatBlock(text: string): string {
+  return escapeHtml(text)
     .replace(/^### (.+)$/gm, '<h3 style="color:#2D2926;font-size:16px;font-weight:600;margin:24px 0 8px 0;">$1</h3>')
     .replace(/^- (.+)$/gm, '<li style="margin-bottom:4px;">$1</li>')
     .replace(/\n{2,}/g, '</p><p style="margin:0 0 16px 0;line-height:1.7;color:#4A453E;">')
     .replace(/\n/g, '<br>');
+}
+
+function buildEmailHtml(
+  bootfileText: string,
+  archetype: string,
+  variants: Record<PlatformId, string> | null,
+): string {
+  const master = formatBlock(bootfileText);
+
+  const variantBlocks = variants
+    ? PLATFORMS
+        .filter(p => typeof variants[p] === 'string' && variants[p].trim().length > 0)
+        .map(p => {
+          const meta = PLATFORM_META[p];
+          const body = formatBlock(variants[p]);
+          return `
+    <details style="background-color:#ffffff;border:1px solid #DDD6CC;border-radius:8px;padding:16px 20px;margin-bottom:12px;">
+      <summary style="cursor:pointer;font-weight:600;color:#2D2926;font-size:15px;">${meta.name} <span style="font-weight:400;color:#7A746B;font-size:13px;">— ${meta.pasteLocation}</span></summary>
+      <div style="margin-top:12px;color:#4A453E;line-height:1.7;font-size:14px;"><p style="margin:0 0 16px 0;line-height:1.7;color:#4A453E;">${body}</p></div>
+    </details>`;
+        })
+        .join('')
+    : '';
+
+  const variantsSection = variantBlocks
+    ? `
+    <h2 style="font-size:18px;color:#2D2926;font-weight:400;margin:40px 0 12px 0;">Platform-tuned versions</h2>
+    <p style="font-size:13px;color:#7A746B;margin:0 0 16px 0;">We've tuned your BootFile for each platform's custom-instruction system. Use these when pasting.</p>
+    ${variantBlocks}`
+    : '';
 
   return `<!DOCTYPE html>
 <html>
@@ -67,10 +105,13 @@ function buildEmailHtml(bootfileText: string, archetype: string): string {
       <p style="margin:0;font-size:14px;color:#5D4E37;"><strong>Save this email.</strong> Copy the text below into your AI platform's custom instructions. See <a href="https://bootfile.ai/guides" style="color:#7D8B6E;">our guides</a> for step-by-step setup.</p>
     </div>
 
-    <!-- BootFile content -->
+    <!-- Master BootFile content -->
+    <h2 style="font-size:18px;color:#2D2926;font-weight:400;margin:0 0 12px 0;">Master BootFile</h2>
     <div style="background-color:#ffffff;border:1px solid #DDD6CC;border-radius:12px;padding:24px;">
-      <p style="margin:0 0 16px 0;line-height:1.7;color:#4A453E;">${formatted}</p>
+      <p style="margin:0 0 16px 0;line-height:1.7;color:#4A453E;">${master}</p>
     </div>
+
+    ${variantsSection}
 
     <!-- CTA -->
     <div style="text-align:center;margin-top:32px;">

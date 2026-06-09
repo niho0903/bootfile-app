@@ -20,6 +20,14 @@ export function Footer() {
           Blog
         </Link>
         <span style={{ margin: '0 8px', color: '#DDD6CC' }}>&middot;</span>
+        <Link href="/methodology" style={{ color: '#7A746B', textDecoration: 'none' }}>
+          Methodology
+        </Link>
+        <span style={{ margin: '0 8px', color: '#DDD6CC' }}>&middot;</span>
+        <Link href="/sample" style={{ color: '#7A746B', textDecoration: 'none' }}>
+          Sample
+        </Link>
+        <span style={{ margin: '0 8px', color: '#DDD6CC' }}>&middot;</span>
         <Link href="/terms" style={{ color: '#7A746B', textDecoration: 'none' }}>
           Terms
         </Link>

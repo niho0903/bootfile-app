@@ -6,6 +6,30 @@ import { formatForPlatforms, PlatformId, PLATFORM_INSTRUCTIONS, extractFirstMess
 interface BootFileDisplayProps {
   bootfileText: string;
   tier?: 'basic' | 'premium' | 'upgrade';
+  /**
+   * Optional LLM-rewritten variants keyed by platform. When present, replaces
+   * the deterministic per-platform output. Falls back to deterministic on
+   * missing keys or empty strings.
+   */
+  variants?: Partial<Record<PlatformId, string>> | null;
+}
+
+/**
+ * ChatGPT/Grok LLM variants put a `---FIELD-SEPARATOR---` line between the
+ * "about you" and "how to respond" fields. Returns the deterministic fallback
+ * if the variant is missing or doesn't contain the separator.
+ */
+function splitTwoFieldVariant(
+  variant: string | undefined,
+  fallback: { field1: string; field2: string },
+): { field1: string; field2: string } {
+  if (!variant) return fallback;
+  const idx = variant.indexOf('---FIELD-SEPARATOR---');
+  if (idx === -1) return fallback;
+  const field1 = variant.slice(0, idx).trim();
+  const field2 = variant.slice(idx + '---FIELD-SEPARATOR---'.length).trim();
+  if (!field1 || !field2) return fallback;
+  return { field1, field2 };
 }
 
 const PLATFORM_CONFIG: Record<PlatformId, { label: string }> = {
@@ -19,12 +43,25 @@ const PLATFORM_CONFIG: Record<PlatformId, { label: string }> = {
 
 const PLATFORM_ORDER: PlatformId[] = ['chatgpt', 'claude', 'gemini', 'grok', 'deepseek', 'copilot'];
 
-export function BootFileDisplay({ bootfileText }: BootFileDisplayProps) {
+export function BootFileDisplay({ bootfileText, variants }: BootFileDisplayProps) {
   const [activeTab, setActiveTab] = useState<PlatformId>('chatgpt');
   const [copiedField, setCopiedField] = useState<string | null>(null);
-  const formatted = formatForPlatforms(bootfileText);
+  const deterministic = formatForPlatforms(bootfileText);
   const instructions = PLATFORM_INSTRUCTIONS[activeTab];
   const firstMessage = extractFirstMessage(bootfileText);
+
+  // Merge: LLM variant wins when non-empty; fall back to deterministic format.
+  const formatted = {
+    chatgpt: splitTwoFieldVariant(variants?.chatgpt, deterministic.chatgpt),
+    claude: variants?.claude?.trim() || deterministic.claude,
+    gemini: {
+      gem: variants?.gemini?.trim() || deterministic.gemini.gem,
+      prefs: deterministic.gemini.prefs, // condensed prefs stay deterministic
+    },
+    grok: splitTwoFieldVariant(variants?.grok, deterministic.grok),
+    deepseek: variants?.deepseek?.trim() || deterministic.deepseek,
+    copilot: variants?.copilot?.trim() || deterministic.copilot,
+  };
 
   const handleCopy = async (text: string, field: string) => {
     try {

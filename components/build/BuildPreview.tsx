@@ -288,10 +288,24 @@ export function BuildPreview({
         )}
       </div>
 
-      {/* Blurred placeholder sections */}
+      {/* Full-archetype sample sections — unblurred so buyers can see what they'd get */}
       <div style={{ marginBottom: 32 }}>
-        <p style={{ fontSize: 13, color: '#7A746B', marginBottom: 12, textAlign: 'center' }}>
-          You&apos;re seeing 2 of 9 sections. The full BootFile includes 7 more.
+        <p
+          style={{
+            fontSize: '0.72rem',
+            fontWeight: 500,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            color: '#7A746B',
+            marginBottom: 8,
+            textAlign: 'center',
+          }}
+        >
+          Sample sections — {arch.name} archetype
+        </p>
+        <p style={{ fontSize: 13, color: '#7A746B', marginBottom: 16, textAlign: 'center', lineHeight: 1.55 }}>
+          The 2 sections above are personalized to you. Here&apos;s what 4 more look like at the archetype level.
+          The full BootFile you unlock is personalized through all 9 sections.
         </p>
         <div
           style={{
@@ -300,40 +314,38 @@ export function BuildPreview({
             borderRadius: 16,
             padding: 24,
             boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
-            position: 'relative',
-            overflow: 'hidden',
           }}
         >
-          <div
-            style={{
-              filter: 'blur(6px)',
-              userSelect: 'none',
-              pointerEvents: 'none',
-              WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
-              maskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
-            }}
-          >
-            {Object.entries(placeholders).map(([section, content]) => (
-              <div key={section} style={{ marginBottom: 24 }}>
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: '#2D2926', marginBottom: 8 }}>
-                  ### {section}
-                </h3>
-                <pre
-                  style={{
-                    whiteSpace: 'pre-wrap',
-                    fontSize: 14,
-                    color: '#2D2926',
-                    lineHeight: 1.6,
-                    fontFamily: 'inherit',
-                    margin: 0,
-                  }}
-                >
-                  {content}
-                </pre>
-              </div>
-            ))}
-          </div>
+          {Object.entries(placeholders).map(([section, content]) => (
+            <div key={section} style={{ marginBottom: 24 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: '#2D2926', marginBottom: 8 }}>
+                ### {section}
+              </h3>
+              <pre
+                style={{
+                  whiteSpace: 'pre-wrap',
+                  fontSize: 14,
+                  color: '#2D2926',
+                  lineHeight: 1.6,
+                  fontFamily: 'inherit',
+                  margin: 0,
+                }}
+              >
+                {content}
+              </pre>
+            </div>
+          ))}
         </div>
+        <p style={{ fontSize: 13, color: '#7A746B', marginTop: 12, textAlign: 'center' }}>
+          <a
+            href="/sample"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: '#7D8B6E', textDecoration: 'underline', textUnderlineOffset: 3 }}
+          >
+            See a complete 9-section sample &rarr;
+          </a>
+        </p>
       </div>
 
       {/* SECTION 4 — Trust layer */}

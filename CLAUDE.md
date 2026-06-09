@@ -6,7 +6,7 @@ Auto-loaded at the start of every Claude Code session in this repo. Keep it conc
 
 ## What this is
 
-BootFile (bootfile.ai) is a Next.js SaaS that sells personalized AI instruction profiles. A visitor takes an 18-question quiz → gets assigned one of 8 cognitive archetypes → sees a preview of a generated BootFile → pays $4.99 one-time → unlocks the full 9-section file to paste into ChatGPT / Claude / Gemini / DeepSeek / Copilot / Grok custom instructions.
+BootFile (bootfile.ai) is a Next.js SaaS that sells personalized AI instruction profiles. A visitor takes an 8-question quiz (see `lib/questions.ts`) → gets assigned one of 8 cognitive archetypes → sees a preview of a generated BootFile → pays $4.99 one-time → unlocks the full 9-section file to paste into ChatGPT / Claude / Gemini / DeepSeek / Copilot / Grok custom instructions.
 
 The product is a text file of behavioral instructions for an AI, personalized from quiz answers. Not a subscription, not a chat interface, not an app the user installs.
 
@@ -33,19 +33,20 @@ Any new archetype copy, demo content, excerpts, or trust copy must cover all 8 a
 
 ## Commercial state
 
-- **Price:** $4.99 one-time. Do not propose or implement subscription pricing without explicit go-ahead. Pricing has been tested at $0.99 and reverted — the lower price signaled "disposable novelty" and violated variable-isolation (don't change price and funnel simultaneously).
+- **Price:** $4.99 one-time. Brief $1.99 push on 2026-06-09 was reverted same day (~36 hours, no measurement read) after Fable MAX strategy session re-anchored the plan on a positioning rebuild before any further price moves. Do not propose or implement subscription pricing without explicit go-ahead. Variable-isolation rule still holds: positioning rebuild first (Phase 1A), then two-SKU architecture (Phase 1B). Do not bundle price + positioning changes again.
 - **Stripe:** LIVE. Real payments flow. Env vars: `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`. Webhook configured.
-- **Refunds:** Terms of Service (`app/terms/page.tsx`) says "all purchases are final, no refunds." Marketing copy must match — do NOT reintroduce "7-day refund" or similar claims without updating ToS first.
-- **Ads:** Google Ads `AW-18052246616` live. Reddit pixel `a2_io9m8gl1e3jf` live. "Frustration" creative is the current Reddit winner. Conversion event fires on `/build/success`.
+- **Refunds:** Terms of Service (`app/terms/page.tsx` §4) updated 2026-06-09 to a **7-day refund** policy (full refund via Stripe within 7 days of purchase, request via support@bootfile.ai, no promised response time). Marketing copy may now reference the 7-day refund. Refund email = `support@bootfile.ai` (existing routing, no new alias).
+- **Ads:** Google Ads `AW-18052246616` live but PAUSED through Phase 1A/1B measurement. Reddit pixel `a2_io9m8gl1e3jf` live. "Frustration" creative is the prior Reddit winner. Conversion event fires on `/build/success`.
 
 ## Current strategic state
 
-*Last updated 2026-04-18. Refresh when materially different.*
+*Last updated 2026-06-09. Refresh when materially different.*
 
-- **Funnel just redesigned.** `/result` consolidated into a single dark card (commits `05a1cf2`, `71cdfd8`, `86b3b6e` on 2026-04-17). No share buttons, no sticky CTA, no soft exit link — one decision per surface. `/build` got demo + excerpts + trust layer + FAQ on 2026-04-15 (`caad56e`).
-- **Measurement anchor: 2026-04-24.** Check `/result → /build` lift. Do NOT layer additional funnel changes before this date — it contaminates the signal. This extends to instrumentation (PostHog, session recording, etc.) — adding measurement tools mid-window also introduces ambiguity. Defer all signal-touching work to April 25+.
-- **Known weak signal:** Google Ads and Reddit Ads have driven traffic but near-zero purchases pre-redesign. Redesign is the first serious conversion attempt.
-- **Strategic lean:** fix conversion at $4.99 first; only consider price changes or adjacent one-time products (gift, check-in, playbook) *after* the current funnel is proven. Subscription is off the table until unit economics at one-time are known.
+- **Fable MAX repositioning lock-in (2026-06-09).** Site is being rebuilt around "The first personality test your AI can read" / "How do you think?" — colloquial-category positioning in hero with the methodology page kept as the technical-honesty layer one click below. Split release: **Phase 1A** rebuilds the homepage (kicker, H1, archetype grid, artifact section, methodology link in FAQ/footer; no new pricing copy). **Phase 1B** ships the two-SKU price architecture and Full Archetype Report, gated by an Architect-spine editorial test (48-hour gap between writer's edit and read).
+- **Tonight's go-list shipped (2026-06-09):** $4.99 restored everywhere; "not a personality test" disclaim language deleted from `app/page.tsx` FAQ, `components/build/BuildFAQ.tsx`, and `content/blog/why-your-ai-feels-generic.md`; "5 minutes" standardized to "3 minutes" across copy/metadata/llms.txt/email drip/Reddit cron prompt; `app/terms/page.tsx` §4 rewritten to 7-day refund via Stripe through support@bootfile.ai (last updated 2026-06-09).
+- **Ads paused** through Phase 1A/1B for a clean measurement window. Do NOT re-enable until both phases ship and a baseline read exists.
+- **Known weak signal:** Pre-rebuild Google + Reddit traffic produced near-zero purchases. The repositioning is the next serious conversion attempt; do not contaminate it with additional variable moves.
+- **Strategic lean:** $4.99 holds as baseline through positioning rebuild. Phase 1B targets a two-SKU split ($9.99 BootFile + $19.99 Complete Profile with Full Archetype Report) only if the Architect-spine editorial test passes; otherwise single-SKU $9.99 and the Report becomes Phase 2. Subscription is off the table.
 - **Content/marketing agent:** Helena (Enrich Labs) onboarded 2026-03-30. Cron-driven blog + Instagram drafts land in `/content/drafts/`. Published via admin review at `/admin`.
 - **Content platform focus:** marketing content should center ChatGPT, Claude, Gemini, Perplexity (per `feedback_content_focus.md` in user memory). Product copy correctly lists all 6 supported platforms — the asymmetry is intentional.
 
@@ -54,20 +55,26 @@ Any new archetype copy, demo content, excerpts, or trust copy must cover all 8 a
 - **Blog publish flow is broken in production.** `lib/drafts.ts:90-122` (`publishBlogDraft`) writes to `content/blog/{slug}.md` via `fs.writeFileSync`. On Vercel, serverless function filesystem writes are ephemeral — the file vanishes on cold start. The only reason posts are live on bootfile.ai is that the user publishes locally and commits to git manually (see commit `423c7cd`). There is NO GitHub API commit step anywhere in the codebase, contrary to any prior documentation claim. Any Supabase draft migration must also move published posts to Supabase (`lib/blog.ts` reads from filesystem → should read from Supabase) or the publish flow remains broken. This is a scope expansion beyond the TODO's original "drafts only" framing.
 - **Draft schema inconsistency.** `lib/drafts.ts:5-12` defines `{id, channel, status, createdAt, content, metadata}`. `app/api/admin/instagram-drafts/route.ts:6-14` has an independent reader expecting `{hook, caption, hashtags, postType, contentType}`. They read the same directory. `app/api/admin/publish/route.ts:18` calls `getDraft(id)` for Instagram drafts, which loads the file but ignores the IG-specific fields — publishing Instagram through that path is silently incomplete. Normalize the schema during the Supabase migration; don't migrate twice.
 
-## Foundation plan (next 21 days)
+## Foundation plan (Phase 0 → 1B)
 
-Week of 2026-04-18 (through measurement anchor, non-signal-touching only):
-- Install vitest + snapshot test suite for `lib/scoring.ts` (canonical fixtures, distribution invariants, threshold boundaries, question-set integrity). Pure test code, zero runtime impact. Human approval required on any snapshot diff — never run `vitest -u` in automation.
-- Stage Supabase draft migration on a branch (schema, parallel `drafts-supabase.ts` module, migration script, dry-run locally). Do NOT merge until April 25.
-- Normalize draft schema during migration design (fix the two-schema inconsistency above).
-- Plan Supabase scope to include published blog posts, not just drafts.
+**Phase 0 — pre-rebuild prep (must land before Phase 1A merges):**
+- Install vitest + snapshot test suite for `lib/scoring.ts` (canonical fixtures, distribution invariants, threshold boundaries, question-set integrity). Hard Rule #5 — must precede any quiz changes.
+- Quiz-completion persistence to Supabase + nightly `rarity_snapshot` cron. Rarity copy stays gated until threshold sample is in.
+- Architect-spine editorial test: write 5 chapters of the Full Archetype Report concept. 48-hour edit gap before reading verdict.
+- Fix `lib/drafts.ts` publish flow: move drafts AND published posts to Supabase, normalize the two-schema inconsistency in `app/api/admin/instagram-drafts/route.ts`.
 
-April 25+ (post-measurement, foundation ship):
-- Read the measurement: `/result → /build` lift, quiz completion, time-on-page. Document the baseline.
-- Merge Supabase draft + blog migration. Parallel-read for two weeks before deleting filesystem fallback.
-- Ship pre-publish fact-check layer (Claude API call: draft + `app/terms/page.tsx` + CLAUDE.md hard rules → violations). Encodes Hard Rule #4 as enforcement, not prose.
-- Install PostHog now (post-measurement, additive instrumentation safe).
-- Set hard budget caps and CPA kill-switches on Google/Reddit Ads via platform-native tools.
+**Phase 1A — homepage rebuild (per Fable HTML mockup):**
+- Archetype grid, kicker "The first personality test your AI can read," H1 "How do you think?," artifact section, methodology link in FAQ + footer.
+- 1A must NOT reference any new pricing. Price stays $4.99 through 1A.
+
+**Phase 1B — pricing architecture (post-Architect-verdict):**
+- If spine passes: two-SKU $9.99 BootFile + $19.99 Complete Profile with Full Archetype Report + lifetime platform updates (qualified as "as long as BootFile exists" in FAQ/ToS).
+- If spine fails: single-SKU $9.99, Report becomes Phase 2.
+
+**Post-1B (measurement-safe):**
+- Read the funnel: `/result → /build` lift, quiz completion, time-on-page. Document the baseline.
+- Install PostHog (post-baseline, additive instrumentation only).
+- Set hard budget caps and CPA kill-switches on Google/Reddit Ads before re-enabling.
 
 Agents (not before May):
 - Content: draft-only autonomy, fact-check gate, admin approval, performance data back to Supabase.
@@ -78,7 +85,7 @@ Agents (not before May):
 ## Hard rules
 
 1. **Single-decision surfaces.** `/result` is a conversion funnel to `/build`. Don't add escape hatches (share, email capture, secondary CTAs) during measurement windows. `/build` is the payment funnel — don't fork that decision either.
-2. **Cross-check ToS and Privacy before making marketing or data-handling claims.** Refund promises, guarantees, SLAs, fingerprinting, behavioral tracking — grep `app/terms/page.tsx` and `app/privacy/page.tsx` first. A marketing claim you shipped beats the ToS in a dispute.
+2. **Cross-check ToS and Privacy before making marketing or data-handling claims.** ToS §4 currently grants a **7-day refund via Stripe through support@bootfile.ai** (updated 2026-06-09). Other promises — guarantees, SLAs, fingerprinting, behavioral tracking — grep `app/terms/page.tsx` and `app/privacy/page.tsx` first. A marketing claim you shipped beats the ToS in a dispute.
 3. **One-time pricing, no subscription** until the user explicitly reverses this. When asked about revenue expansion, propose price increase or adjacent one-time products before recurrence.
 4. **Don't invent numbers or citations.** "7-day refund," "2+ hours a day in Claude," "join X users," "backed by research from Stanford," etc. — if the user hasn't told you it's true and you can't cite a specific verifiable source, don't put it in marketing copy. Flag it as a claim that needs validation.
 5. **Archetype scoring is product thesis.** `lib/scoring.ts`, `lib/questions.ts`, and `lib/archetypes.ts` encode the taxonomy users pay for. Snapshot diffs in the scoring test suite require explicit human review — never run `vitest -u` in automation. Point-value changes, question edits, threshold changes (Δ≤3 secondary, Δ≤5 tertiary), and tiebreaker changes are all product decisions, not implementation details.

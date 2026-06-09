@@ -6,11 +6,13 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { BuildUnlocked } from '@/components/build/BuildUnlocked';
 import { ArchetypeId } from '@/lib/questions';
+import { PlatformId } from '@/lib/platform-variants';
 
 export default function BuildSuccessPage() {
   const router = useRouter();
   const [bootfileText, setBootfileText] = useState<string | null>(null);
   const [archetypeId, setArchetypeId] = useState<ArchetypeId | null>(null);
+  const [variants, setVariants] = useState<Record<PlatformId, string> | null>(null);
 
   useEffect(() => {
     // Read bootfile from localStorage
@@ -22,6 +24,14 @@ export default function BuildSuccessPage() {
     }
 
     setBootfileText(output);
+
+    // Read platform variants (may be absent if generated before variants shipped)
+    try {
+      const rawVariants = localStorage.getItem('bootfile_variants');
+      if (rawVariants) {
+        setVariants(JSON.parse(rawVariants) as Record<PlatformId, string>);
+      }
+    } catch { /* */ }
 
     // Get archetype from quiz state
     try {
@@ -73,7 +83,7 @@ export default function BuildSuccessPage() {
     <>
       <Header />
       <main style={{ paddingTop: 80, paddingBottom: 64, padding: '80px 20px 64px' }}>
-        <BuildUnlocked bootfileText={bootfileText} archetypeId={archetypeId || 'surgeon'} />
+        <BuildUnlocked bootfileText={bootfileText} archetypeId={archetypeId || 'surgeon'} variants={variants} />
       </main>
       <Footer />
     </>

@@ -5,13 +5,15 @@ import { BootFileDisplay } from '@/components/BootFileDisplay';
 import { ShareButtons } from '@/components/ShareButtons';
 import { ARCHETYPES } from '@/lib/archetypes';
 import { ArchetypeId } from '@/lib/questions';
+import { PlatformId } from '@/lib/platform-variants';
 
 interface BuildUnlockedProps {
   bootfileText: string;
   archetypeId: ArchetypeId;
+  variants?: Record<PlatformId, string> | null;
 }
 
-export function BuildUnlocked({ bootfileText, archetypeId }: BuildUnlockedProps) {
+export function BuildUnlocked({ bootfileText, archetypeId, variants }: BuildUnlockedProps) {
   const arch = ARCHETYPES[archetypeId];
 
   return (
@@ -76,7 +78,53 @@ export function BuildUnlocked({ bootfileText, archetypeId }: BuildUnlockedProps)
           boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
         }}
       >
-        <BootFileDisplay bootfileText={bootfileText} tier="premium" />
+        <BootFileDisplay bootfileText={bootfileText} tier="premium" variants={variants} />
+      </div>
+
+      {/* Companion report */}
+      <div
+        style={{
+          marginTop: 32,
+          padding: 20,
+          backgroundColor: '#F7F4EF',
+          border: '1px solid #DDD6CC',
+          borderRadius: 12,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: 16,
+          flexWrap: 'wrap',
+        }}
+      >
+        <div>
+          <p
+            className="font-heading"
+            style={{ fontSize: 15, color: '#2D2926', fontWeight: 500, margin: 0 }}
+          >
+            Companion report
+          </p>
+          <p style={{ fontSize: 13, color: '#7A746B', margin: '4px 0 0', lineHeight: 1.5 }}>
+            A four-page printable on your {arch.name} archetype. Save it as a PDF for your records.
+          </p>
+        </div>
+        <Link
+          href={`/report?archetype=${archetypeId}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            backgroundColor: '#fff',
+            border: '1px solid #DDD6CC',
+            color: '#2D2926',
+            fontWeight: 500,
+            padding: '10px 18px',
+            borderRadius: 8,
+            fontSize: 13,
+            textDecoration: 'none',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          Open report &rarr;
+        </Link>
       </div>
 
       {/* Share */}

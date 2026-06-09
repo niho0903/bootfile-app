@@ -21,8 +21,8 @@ export function BuildTrustLayer() {
           body="No subscription, no renewals, no surprise charges. You pay $4.99 once, paste the file into your AI's custom instructions, and use it as long as you want."
         />
         <Column
-          heading="Built for people who use AI daily"
-          body="BootFile is early. Most of our users are builders, operators, and researchers who spend 2+ hours a day in Claude or ChatGPT and got tired of re-priming every conversation."
+          heading="Built for the multi-AI user"
+          body="ChatGPT for one thing, Claude for another, Gemini for search. Native memory doesn't cross platforms — your BootFile does. Same cognitive profile, every tool."
         />
         <Column
           heading="Your file, not a template"

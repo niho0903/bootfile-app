@@ -10,6 +10,27 @@ import { BuildPreview } from '@/components/build/BuildPreview';
 import { BuildError } from '@/components/build/BuildError';
 import { ArchetypeId } from '@/lib/questions';
 import { SupplementaryAnswers } from '@/lib/supplementary';
+import {
+  VARIANTS_START_DELIMITER,
+  VARIANTS_END_DELIMITER,
+  PlatformId,
+} from '@/lib/platform-variants';
+
+function splitMasterAndVariants(raw: string): { master: string; variants: Record<PlatformId, string> | null } {
+  const startIdx = raw.indexOf(VARIANTS_START_DELIMITER);
+  if (startIdx === -1) return { master: raw, variants: null };
+  const endIdx = raw.indexOf(VARIANTS_END_DELIMITER, startIdx);
+  if (endIdx === -1) return { master: raw.slice(0, startIdx).trim(), variants: null };
+
+  const master = raw.slice(0, startIdx).trim();
+  const jsonBlob = raw.slice(startIdx + VARIANTS_START_DELIMITER.length, endIdx).trim();
+  try {
+    const parsed = JSON.parse(jsonBlob) as Record<PlatformId, string>;
+    return { master, variants: parsed };
+  } catch {
+    return { master, variants: null };
+  }
+}
 
 type BuildState = 'questions' | 'generating_preview' | 'preview' | 'generating_full' | 'unlocked';
 
@@ -189,11 +210,13 @@ function BuildContent() {
 
       const text = await res.text();
       let bootfile: string;
+      let variants: Record<PlatformId, string> | null = null;
 
       try {
         const data = JSON.parse(text);
         if (data.bootfile) {
           bootfile = data.bootfile;
+          variants = (data.variants as Record<PlatformId, string> | null) ?? null;
         } else {
           setError({
             message: data.error || 'Generation failed. Please try again.',
@@ -202,14 +225,21 @@ function BuildContent() {
           return;
         }
       } catch {
-        // Raw text from streaming response
-        bootfile = text;
+        // Raw text from streaming response — may include variants delimiter at the end
+        const split = splitMasterAndVariants(text);
+        bootfile = split.master;
+        variants = split.variants;
       }
 
       if (bootfile.length > 0) {
         try {
           localStorage.setItem('bootfile_output', bootfile);
           localStorage.setItem('bootfile_payment_intent', paymentIntentId);
+          if (variants) {
+            localStorage.setItem('bootfile_variants', JSON.stringify(variants));
+          } else {
+            localStorage.removeItem('bootfile_variants');
+          }
         } catch { /* */ }
 
         // Fire-and-forget purchase tracking
@@ -238,6 +268,7 @@ function BuildContent() {
               email: supplementary.email,
               bootfileText: bootfile,
               archetypeId: body?.primaryArchetype,
+              variants,
             }),
           }).catch(() => { /* non-blocking */ });
         }

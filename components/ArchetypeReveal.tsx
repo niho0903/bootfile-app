@@ -15,6 +15,7 @@ interface ArchetypeRevealProps {
 export function ArchetypeReveal({ primary, secondary }: ArchetypeRevealProps) {
   const router = useRouter();
   const [secondaryExpanded, setSecondaryExpanded] = useState(false);
+  const [cardSaved, setCardSaved] = useState(false);
   const arch = ARCHETYPES[primary];
   const secondaryArch = secondary ? ARCHETYPES[secondary] : null;
   const bridgeLine = BRIDGE_LINES[primary];
@@ -24,6 +25,38 @@ export function ArchetypeReveal({ primary, secondary }: ArchetypeRevealProps) {
       track('result_cta_clicked', { archetype: primary });
     } catch { /* analytics not loaded */ }
     router.push('/build');
+  };
+
+  const handleSaveCard = async () => {
+    try {
+      track('result_card_saved', { archetype: primary });
+    } catch { /* analytics not loaded */ }
+    const url = `/api/og?archetype=${primary}&format=square`;
+    try {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      if (isIOS) {
+        window.open(url, '_blank');
+        setCardSaved(true);
+        setTimeout(() => setCardSaved(false), 3000);
+        return;
+      }
+      const response = await fetch(url);
+      if (!response.ok) return;
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.startsWith('image/')) return;
+      const arrayBuffer = await response.arrayBuffer();
+      const blob = new Blob([arrayBuffer], { type: 'image/png' });
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objectUrl;
+      a.download = `bootfile-${primary}-card.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(objectUrl);
+      setCardSaved(true);
+      setTimeout(() => setCardSaved(false), 3000);
+    } catch { /* swallow */ }
   };
 
   return (
@@ -59,7 +92,7 @@ export function ArchetypeReveal({ primary, secondary }: ArchetypeRevealProps) {
           marginBottom: 16,
         }}
       >
-        YOUR AI STYLE
+        YOUR COGNITIVE ARCHETYPE
       </p>
 
       {/* Name */}
@@ -172,6 +205,60 @@ export function ArchetypeReveal({ primary, secondary }: ArchetypeRevealProps) {
         </div>
       )}
 
+      {/* Assessment depth: pressure mode + the trap */}
+      <div
+        style={{
+          marginTop: 28,
+          maxWidth: 500,
+          margin: '28px auto 0',
+          textAlign: 'left',
+        }}
+      >
+        <p
+          style={{
+            fontSize: '0.7rem',
+            fontWeight: 500,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            color: '#7A746B',
+            marginBottom: 6,
+          }}
+        >
+          Under pressure
+        </p>
+        <p
+          style={{
+            fontSize: '0.9rem',
+            color: 'rgba(247, 244, 239, 0.75)',
+            lineHeight: 1.6,
+            marginBottom: 18,
+          }}
+        >
+          {arch.underPressure}
+        </p>
+        <p
+          style={{
+            fontSize: '0.7rem',
+            fontWeight: 500,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            color: '#7A746B',
+            marginBottom: 6,
+          }}
+        >
+          The trap
+        </p>
+        <p
+          style={{
+            fontSize: '0.9rem',
+            color: 'rgba(247, 244, 239, 0.75)',
+            lineHeight: 1.6,
+          }}
+        >
+          {arch.trap}
+        </p>
+      </div>
+
       {/* Thin divider */}
       <div
         style={{
@@ -243,6 +330,26 @@ export function ArchetypeReveal({ primary, secondary }: ArchetypeRevealProps) {
       >
         3 minutes · $4.99 one-time
       </p>
+
+      {/* Subtle save-card affordance — text-link, well below the primary CTA */}
+      <button
+        type="button"
+        onClick={handleSaveCard}
+        style={{
+          marginTop: 20,
+          background: 'none',
+          border: 'none',
+          padding: 0,
+          color: 'rgba(247, 244, 239, 0.4)',
+          fontSize: 12,
+          fontFamily: 'inherit',
+          cursor: 'pointer',
+          textDecoration: 'underline',
+          textUnderlineOffset: 3,
+        }}
+      >
+        {cardSaved ? 'Saved ✓' : 'Save your archetype card'}
+      </button>
     </div>
   );
 }
