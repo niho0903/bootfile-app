@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
   const channel = searchParams.get('channel') as 'blog' | 'instagram' | null;
   const status = searchParams.get('status') || undefined;
 
-  const drafts = getDrafts(channel || undefined, status);
+  const drafts = await getDrafts(channel || undefined, status);
   return NextResponse.json({ drafts });
 }
 
@@ -28,7 +28,7 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'Missing draft id' }, { status: 400 });
     }
 
-    const existing = getDraft(id);
+    const existing = await getDraft(id);
     if (!existing) {
       return NextResponse.json({ error: 'Draft not found' }, { status: 404 });
     }
@@ -39,7 +39,7 @@ export async function PATCH(req: NextRequest) {
     }
     if (content !== undefined) updates.content = content;
 
-    const updated = updateDraft(id, updates);
+    const updated = await updateDraft(id, updates);
     return NextResponse.json({ draft: updated });
   } catch {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });

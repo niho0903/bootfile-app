@@ -35,6 +35,14 @@ export async function GET(request: Request) {
     results.emailDrip = { error: err instanceof Error ? err.message : 'failed' };
   }
 
+  // Always run rarity snapshot
+  try {
+    const res = await fetch(`${baseUrl}/api/cron/rarity-snapshot`, { headers });
+    results.raritySnapshot = await res.json();
+  } catch (err) {
+    results.raritySnapshot = { error: err instanceof Error ? err.message : 'failed' };
+  }
+
   // Day-specific tasks
   if (day === 1 || day === 4) {
     // Monday or Thursday — generate blog

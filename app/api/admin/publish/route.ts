@@ -15,13 +15,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing draft id' }, { status: 400 });
     }
 
-    const draft = getDraft(id);
+    const draft = await getDraft(id);
     if (!draft) {
       return NextResponse.json({ error: 'Draft not found' }, { status: 404 });
     }
 
     if (draft.channel === 'blog') {
-      const slug = publishBlogDraft(draft);
+      const slug = await publishBlogDraft(draft);
       if (!slug) {
         return NextResponse.json({ error: 'Failed to publish blog post' }, { status: 500 });
       }
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       // Instagram publishing requires Meta API credentials
       // For now, mark as approved and return the content for manual posting
       const { updateDraft } = await import('@/lib/drafts');
-      updateDraft(id, { status: 'approved' });
+      await updateDraft(id, { status: 'approved' });
 
       return NextResponse.json({
         published: false,

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAdminAuthorized } from '@/lib/admin-auth';
-import fs from 'fs';
-import path from 'path';
+import { getDrafts, getDraft, updateDraft } from '@/lib/drafts';
 
 export interface InstagramDraft {
   id: string;
@@ -13,9 +12,6 @@ export interface InstagramDraft {
   postType: string;
 }
 
-const DRAFTS_DIR = path.join(process.cwd(), 'content', 'drafts', 'instagram');
-
-// Map Growth Agent contentType to display-friendly post type
 const TYPE_MAP: Record<string, string> = {
   'myth-bust': 'frustration',
   'tip': 'concept',
@@ -28,42 +24,23 @@ const TYPE_MAP: Record<string, string> = {
   'product_moment': 'product_moment',
 };
 
-function readDrafts(status?: string): InstagramDraft[] {
-  if (!fs.existsSync(DRAFTS_DIR)) return [];
-
-  const files = fs.readdirSync(DRAFTS_DIR).filter(f => f.endsWith('.json'));
-  const drafts: InstagramDraft[] = [];
-
-  for (const file of files) {
-    try {
-      const raw = JSON.parse(fs.readFileSync(path.join(DRAFTS_DIR, file), 'utf-8'));
-      const id = file.replace('.json', '');
-
-      // Parse date from filename like "2026-03-24T12-00-12-myth-bust"
-      const dateMatch = id.match(/^(\d{4}-\d{2}-\d{2})T(\d{2})-(\d{2})-(\d{2})/);
-      const createdAt = dateMatch
-        ? `${dateMatch[1]}T${dateMatch[2]}:${dateMatch[3]}:${dateMatch[4]}Z`
-        : new Date().toISOString();
-
-      const draft: InstagramDraft = {
-        id,
-        status: raw.status || 'pending',
-        createdAt,
-        hook: raw.hook || '',
-        caption: raw.caption || '',
-        hashtags: raw.hashtags || [],
-        postType: TYPE_MAP[raw.contentType || raw.post_type || 'frustration'] || 'frustration',
-      };
-
-      if (!status || status === 'all' || draft.status === status) {
-        drafts.push(draft);
-      }
-    } catch {
-      // skip malformed files
-    }
-  }
-
-  return drafts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+function toInstagramDraft(d: {
+  id: string;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: string;
+  metadata: Record<string, unknown>;
+}): InstagramDraft {
+  const meta = d.metadata || {};
+  const contentType = (meta.contentType as string) ?? (meta.post_type as string) ?? 'frustration';
+  return {
+    id: d.id,
+    status: d.status,
+    createdAt: d.createdAt,
+    hook: (meta.hook as string) ?? '',
+    caption: (meta.caption as string) ?? '',
+    hashtags: Array.isArray(meta.hashtags) ? (meta.hashtags as string[]) : [],
+    postType: TYPE_MAP[contentType] || 'frustration',
+  };
 }
 
 export async function GET(req: NextRequest) {
@@ -72,7 +49,10 @@ export async function GET(req: NextRequest) {
   }
 
   const status = req.nextUrl.searchParams.get('status') || 'pending';
-  const drafts = readDrafts(status);
+  const all = await getDrafts('instagram', status);
+  const drafts = all
+    .map(toInstagramDraft)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   return NextResponse.json({ drafts });
 }
@@ -88,21 +68,31 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'ID required' }, { status: 400 });
   }
 
-  const filePath = path.join(DRAFTS_DIR, `${id}.json`);
-  if (!fs.existsSync(filePath)) {
+  const existing = await getDraft(id);
+  if (!existing) {
     return NextResponse.json({ error: 'Draft not found' }, { status: 404 });
   }
 
-  try {
-    const raw = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  const updates: Parameters<typeof updateDraft>[1] = {};
+  if (status && ['pending', 'approved', 'rejected'].includes(status)) {
+    updates.status = status as 'pending' | 'approved' | 'rejected';
+  }
 
-    if (status) raw.status = status;
-    if (caption !== undefined) raw.caption = caption;
-    if (hook !== undefined) raw.hook = hook;
+  if (caption !== undefined || hook !== undefined) {
+    const nextMeta = { ...existing.metadata };
+    if (caption !== undefined) nextMeta.caption = caption;
+    if (hook !== undefined) nextMeta.hook = hook;
+    updates.metadata = nextMeta;
 
-    fs.writeFileSync(filePath, JSON.stringify(raw, null, 2));
-    return NextResponse.json({ ok: true });
-  } catch {
+    const nextHook = (nextMeta.hook as string) ?? '';
+    const nextCaption = (nextMeta.caption as string) ?? '';
+    updates.content = [nextHook, nextCaption].filter(Boolean).join('\n\n');
+  }
+
+  const updated = await updateDraft(id, updates);
+  if (!updated) {
     return NextResponse.json({ error: 'Failed to update' }, { status: 500 });
   }
+
+  return NextResponse.json({ ok: true });
 }

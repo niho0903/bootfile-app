@@ -33,7 +33,8 @@ export async function POST(req: NextRequest) {
     let response;
 
     if (channel === 'blog') {
-      const existingPosts = getAllPosts().map((p) => `- ${p.title} (${p.slug})`).join('\n');
+      const posts = await getAllPosts();
+      const existingPosts = posts.map((p) => `- ${p.title} (${p.slug})`).join('\n');
 
       response = await client.messages.create({
         model: 'claude-sonnet-4-20250514',
@@ -73,7 +74,7 @@ Today's date: ${today}`,
     const generatedContent =
       response.content[0].type === 'text' ? response.content[0].text : '';
 
-    const draft = saveDraft(channel, generatedContent, {
+    const draft = await saveDraft(channel, generatedContent, {
       pillar,
       topic,
       type,

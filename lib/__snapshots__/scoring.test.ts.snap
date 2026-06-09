@@ -1,0 +1,243 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Layer 1 — canonical personas > canonical fixtures snapshot (full result objects) 1`] = `
+[
+  {
+    "name": "pure surgeon",
+    "result": {
+      "lowest": [
+        "copilot",
+        "sparring",
+      ],
+      "primary": "surgeon",
+      "scores": {
+        "architect": 2,
+        "closer": 4,
+        "copilot": 2,
+        "librarian": 3,
+        "maker": 5,
+        "sparring": 1,
+        "surgeon": 12,
+        "translator": 3,
+      },
+      "secondary": null,
+      "tertiary": null,
+    },
+  },
+  {
+    "name": "pure architect",
+    "result": {
+      "lowest": [
+        "librarian",
+        "translator",
+      ],
+      "primary": "architect",
+      "scores": {
+        "architect": 12,
+        "closer": 7,
+        "copilot": 3,
+        "librarian": 0,
+        "maker": 1,
+        "sparring": 4,
+        "surgeon": 1,
+        "translator": 0,
+      },
+      "secondary": null,
+      "tertiary": null,
+    },
+  },
+  {
+    "name": "pure sparring",
+    "result": {
+      "lowest": [
+        "surgeon",
+        "architect",
+      ],
+      "primary": "sparring",
+      "scores": {
+        "architect": 0,
+        "closer": 4,
+        "copilot": 4,
+        "librarian": 1,
+        "maker": 4,
+        "sparring": 12,
+        "surgeon": 1,
+        "translator": 4,
+      },
+      "secondary": null,
+      "tertiary": null,
+    },
+  },
+  {
+    "name": "pure translator",
+    "result": {
+      "lowest": [
+        "maker",
+        "surgeon",
+      ],
+      "primary": "translator",
+      "scores": {
+        "architect": 3,
+        "closer": 3,
+        "copilot": 3,
+        "librarian": 4,
+        "maker": 1,
+        "sparring": 3,
+        "surgeon": 0,
+        "translator": 12,
+      },
+      "secondary": null,
+      "tertiary": null,
+    },
+  },
+  {
+    "name": "pure copilot",
+    "result": {
+      "lowest": [
+        "translator",
+        "surgeon",
+      ],
+      "primary": "copilot",
+      "scores": {
+        "architect": 10,
+        "closer": 1,
+        "copilot": 12,
+        "librarian": 3,
+        "maker": 1,
+        "sparring": 1,
+        "surgeon": 0,
+        "translator": 1,
+      },
+      "secondary": "architect",
+      "tertiary": null,
+    },
+  },
+  {
+    "name": "pure librarian",
+    "result": {
+      "lowest": [
+        "copilot",
+        "sparring",
+      ],
+      "primary": "librarian",
+      "scores": {
+        "architect": 3,
+        "closer": 3,
+        "copilot": 1,
+        "librarian": 13,
+        "maker": 4,
+        "sparring": 1,
+        "surgeon": 3,
+        "translator": 3,
+      },
+      "secondary": null,
+      "tertiary": null,
+    },
+  },
+  {
+    "name": "pure closer",
+    "result": {
+      "lowest": [
+        "librarian",
+        "translator",
+      ],
+      "primary": "closer",
+      "scores": {
+        "architect": 0,
+        "closer": 13,
+        "copilot": 1,
+        "librarian": 0,
+        "maker": 9,
+        "sparring": 1,
+        "surgeon": 9,
+        "translator": 0,
+      },
+      "secondary": null,
+      "tertiary": "surgeon",
+    },
+  },
+  {
+    "name": "pure maker",
+    "result": {
+      "lowest": [
+        "translator",
+        "sparring",
+      ],
+      "primary": "maker",
+      "scores": {
+        "architect": 1,
+        "closer": 5,
+        "copilot": 4,
+        "librarian": 4,
+        "maker": 14,
+        "sparring": 0,
+        "surgeon": 4,
+        "translator": 1,
+      },
+      "secondary": null,
+      "tertiary": null,
+    },
+  },
+  {
+    "name": "close race: surgeon primary, architect in secondary range",
+    "result": {
+      "lowest": [
+        "maker",
+        "librarian",
+      ],
+      "primary": "surgeon",
+      "scores": {
+        "architect": 10,
+        "closer": 1,
+        "copilot": 1,
+        "librarian": 0,
+        "maker": 1,
+        "sparring": 2,
+        "surgeon": 12,
+        "translator": 3,
+      },
+      "secondary": "architect",
+      "tertiary": null,
+    },
+  },
+  {
+    "name": "all A (tiebreaker exercise)",
+    "result": {
+      "lowest": [
+        "copilot",
+        "maker",
+      ],
+      "primary": "architect",
+      "scores": {
+        "architect": 7,
+        "closer": 5,
+        "copilot": 1,
+        "librarian": 4,
+        "maker": 1,
+        "sparring": 4,
+        "surgeon": 7,
+        "translator": 3,
+      },
+      "secondary": "surgeon",
+      "tertiary": "closer",
+    },
+  },
+]
+`;
+
+exports[`Layer 2 — distribution invariants over 1000 random vectors (seed=42) > distribution snapshot (primary counts + secondary/tertiary totals) 1`] = `
+{
+  "primaryCounts": {
+    "architect": 169,
+    "closer": 133,
+    "copilot": 156,
+    "librarian": 123,
+    "maker": 141,
+    "sparring": 108,
+    "surgeon": 101,
+    "translator": 69,
+  },
+  "secondaryCount": 848,
+  "tertiaryCount": 877,
+}
+`;
