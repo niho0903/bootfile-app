@@ -13,34 +13,34 @@ const faqs = [
   {
     question: 'What is a BootFile?',
     answer:
-      'A BootFile is a personalized AI instruction profile based on how you think. It tells your AI how to reason with you, how to format responses, and what to avoid, so every conversation feels like the AI already knows you.',
+      'A BootFile is the output of an eight-archetype cognitive assessment — a portable profile that tells any AI how you reason, how you make decisions, and what kind of thinking earns your trust. Same file, works across ChatGPT, Claude, Gemini, and every major AI you use.',
   },
   {
     question: 'How long does the quiz take?',
     answer:
-      'About five minutes. A short quiz identifies your reasoning style, then a few follow-up questions personalize your BootFile to your exact needs.',
+      'About three minutes. A short assessment identifies your cognitive archetype, then a few follow-up questions personalize the profile to your work and your context.',
   },
   {
     question: 'Which AI platforms does BootFile work with?',
     answer:
-      'BootFile generates custom instructions formatted for ChatGPT, Claude, Google Gemini, Grok, DeepSeek, and Microsoft Copilot. Each format is optimized for the platform\u2019s specific instruction system.',
+      'Every major AI: ChatGPT, Claude, Google Gemini, Grok, DeepSeek, and Microsoft Copilot. Your BootFile is formatted for each platform’s custom-instruction system, so it’s the same cognitive profile expressed in the way each tool expects.',
   },
   {
     question: 'How much does it cost?',
     answer:
-      'The quiz is free. A BootFile is $4.99, one-time. It includes all 6 AI platform formats.',
+      'The quiz is free. A BootFile is $4.99, one-time. It includes formatted output for all 6 AI platforms.',
   },
   {
     question: 'Is my data private?',
     answer:
-      'Yes. Your quiz answers are used only to generate your BootFile. We don\u2019t sell your data or share it with third parties. See our Privacy Policy for full details.',
+      'Yes. Your quiz answers are used only to generate your BootFile. We don’t sell your data or share it with third parties. See our Privacy Policy for full details.',
   },
 ];
 
 export const metadata = {
-  title: 'BootFile | Know Your AI Style',
+  title: 'BootFile | Find Your Cognitive Archetype',
   description:
-    'Take the quiz. Get a personalized AI instruction profile that tells your AI how to reason with you, not just how to talk.',
+    'Find your cognitive archetype in three minutes. Get a portable AI profile that works the same across ChatGPT, Claude, Gemini, and every tool you use.',
 };
 
 export default function LandingPage() {
@@ -83,7 +83,7 @@ export default function LandingPage() {
                 fontWeight: 400,
               }}
             >
-              Your AI doesn&apos;t know yet. It takes five minutes to fix that.
+              Find your cognitive archetype. Get a profile every AI understands.
             </p>
 
             <Link
@@ -128,7 +128,7 @@ export default function LandingPage() {
                 marginBottom: 16,
               }}
             >
-              A BootFile is a personalized instruction profile.
+              Eight cognitive archetypes. One belongs to you.
             </h2>
 
             <p
@@ -139,9 +139,9 @@ export default function LandingPage() {
                 marginBottom: 20,
               }}
             >
-              It tells your AI how you reason, how you make decisions, and what
-              kind of thinking earns your trust. Not a personality test. A thinking
-              profile that makes every conversation feel like it already knows you.
+              Take the three-minute quiz to find yours. Your BootFile is a portable
+              thinking profile — paste it into any AI you use, and every
+              conversation starts with the AI already understanding how you reason.
             </p>
 
             <Link
@@ -368,7 +368,7 @@ export default function LandingPage() {
               marginBottom: 24,
             }}
           >
-            Five minutes. One profile. Better conversations from the first message.
+            Three minutes. One profile. Every AI you use, finally on the same page about you.
           </h2>
 
           <Link
@@ -390,6 +390,18 @@ export default function LandingPage() {
           >
             Take the Quiz
           </Link>
+          <p style={{ marginTop: 16, fontSize: 14 }}>
+            <Link
+              href="/sample"
+              style={{
+                color: '#7A746B',
+                textDecoration: 'underline',
+                textUnderlineOffset: 3,
+              }}
+            >
+              Or see a complete sample BootFile first &rarr;
+            </Link>
+          </p>
         </section>
       </main>
       <Footer />

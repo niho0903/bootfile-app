@@ -75,7 +75,7 @@ const DRIP_SEQUENCE: DripEmail[] = [
           ${archetypeLine}
         </p>
         <p style="margin:0 0 24px;line-height:1.7;color:#4A453E;">
-          The quiz is free and takes about 5 minutes. Share it with someone who'd find it interesting.
+          The quiz is free and takes about 3 minutes. Share it with someone who'd find it interesting.
         </p>
 
         <div style="background:#F0EDE7;border-radius:8px;padding:20px;text-align:center;margin-bottom:16px;">

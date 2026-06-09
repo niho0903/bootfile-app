@@ -85,7 +85,7 @@ Key product facts:
 - Free quiz discovers your AI reasoning archetype (8 types: Surgeon, Architect, Sparring Partner, Translator, Co-Pilot, Librarian, Closer, Maker)
 - Full BootFile is $4.99 one-time
 - Works with ChatGPT, Claude, Gemini, Grok, DeepSeek, Copilot
-- The quiz takes ~5 minutes
+- The quiz takes ~3 minutes
 - There's a free simulator at bootfile.ai/simulator
 
 Generate content that would genuinely get upvotes in r/${sub.name}. Return ONLY valid JSON.`,

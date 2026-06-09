@@ -4,14 +4,14 @@ import { track } from '@vercel/analytics';
 
 const FAQS: Array<{ id: string; q: string; a: string }> = [
   {
-    id: 'pricing',
-    q: 'Why $4.99 and not free?',
-    a: `Generation runs on the Claude API and costs real money per BootFile. Pricing it at $4.99 covers generation cost and keeps the product honest — if it were free, we'd either have to sell your data or cut generation quality. We don't want to do either. The tradeoff: you pay once, you own the file, and we have no reason to monetize you a second time.`,
-  },
-  {
     id: 'actually_works',
     q: 'Will this actually work with my AI, or is it just a fancy prompt?',
     a: `It's a structured set of instructions you paste into custom instructions (ChatGPT), project memory (Claude), or the equivalent persistent-context feature on Gemini, DeepSeek, Copilot, and Grok. Once pasted, it persists across every new conversation on that platform. It's not a one-time prompt — it's the thing your AI reads before every response you send.`,
+  },
+  {
+    id: 'pricing',
+    q: 'Why $4.99 and not free?',
+    a: `Generation runs on the Claude API and costs real money per BootFile. Pricing it at $4.99 covers generation cost and keeps the product honest — if it were free, we'd either have to sell your data or cut generation quality. We don't want to do either. The tradeoff: you pay once, you own the file, and we have no reason to monetize you a second time.`,
   },
   {
     id: 'wrong_archetype',

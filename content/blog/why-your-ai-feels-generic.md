@@ -17,7 +17,7 @@ This is the gap that custom instructions were supposed to fill. But most people 
 
 The problem isn't the AI. It's the lack of a shared language between you and the machine. You know how you like to think, but the AI doesn't. And it has no way to learn unless you tell it explicitly.
 
-That's what a BootFile does. It's a structured instruction profile based on how you actually reason, make decisions, and process information. Not a personality quiz. A thinking profile that translates your cognitive style into language your AI can act on.
+That's what a BootFile does. It's a structured instruction profile based on how you actually reason, make decisions, and process information. A thinking profile that translates your cognitive style into language your AI can act on.
 
 There are eight distinct reasoning styles, from The Surgeon who wants answers without preamble, to The Architect who needs to see the full system before making a move. Each one maps to a specific set of instructions that reshape how the AI communicates with you.
 

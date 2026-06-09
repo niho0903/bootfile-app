@@ -24,7 +24,7 @@ export default function TermsPage() {
             Terms of Service
           </h1>
           <p style={{ fontSize: '0.85rem', color: '#7A746B', marginBottom: 32 }}>
-            Effective date: June 1, 2025 &middot; Last updated: March 14, 2026
+            Effective date: June 1, 2025 &middot; Last updated: June 9, 2026
           </p>
 
           <div style={{ fontSize: '0.95rem', color: '#2D2926', lineHeight: 1.8 }}>
@@ -59,9 +59,12 @@ export default function TermsPage() {
             <Section title="4. Purchases and Payment">
               <ul style={{ paddingLeft: 20, margin: '8px 0' }}>
                 <li>
-                  <strong>All purchases are final.</strong> Because your BootFile is a digital product
-                  generated instantly and delivered immediately, we do not offer refunds, returns, or
-                  exchanges.
+                  <strong>7-day refund.</strong> If you&apos;re not satisfied with your BootFile, you
+                  may request a full refund within 7 days of purchase by emailing{' '}
+                  <strong>support@bootfile.ai</strong> from the address used at checkout. Refunds are
+                  processed through Stripe and typically appear on your statement within 5–10
+                  business days. We do not guarantee a specific response time. After 7 days, purchases
+                  are final.
                 </li>
                 <li>
                   Payment is processed securely by Stripe. We never see or store your payment card

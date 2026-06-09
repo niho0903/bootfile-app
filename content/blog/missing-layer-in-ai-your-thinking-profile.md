@@ -81,7 +81,7 @@ This is what BootFile is about.
 
 We started with a simple question: what if you could hand your AI a file that tells it how to think with you — not just how to talk at you? The quiz identifies your thinking style. The supplementary questions add specificity — your domain, your technical depth, your decision framework, what frustrates you most about AI today. The output is a structured instruction profile that you paste into any AI platform — ChatGPT, Claude, Gemini, Grok, DeepSeek, Copilot — and it works from the first conversation.
 
-The profiles we generate aren't vague preferences. They're concrete behavioral instructions: reasoning frameworks the AI should follow, communication rules it should obey, failure conditions it should watch for, and hard prohibitions it should never violate. The kind of instructions that take a sophisticated power user six months of daily iteration to arrive at — delivered in five minutes.
+The profiles we generate aren't vague preferences. They're concrete behavioral instructions: reasoning frameworks the AI should follow, communication rules it should obey, failure conditions it should watch for, and hard prohibitions it should never violate. The kind of instructions that take a sophisticated power user six months of daily iteration to arrive at — delivered in three minutes.
 
 ## The Bigger Question
 
@@ -95,4 +95,4 @@ Maybe that layer stays fragmented across platforms forever. Maybe one platform w
 
 We don't know which of these futures wins. But we know the layer is missing. And we think the best way to figure out what it should look like is to build it, give it to people, and see what happens.
 
-If you're curious about your thinking style, [the quiz takes about five minutes](https://bootfile.ai/quiz).
+If you're curious about your thinking style, [the quiz takes about three minutes](https://bootfile.ai/quiz).
