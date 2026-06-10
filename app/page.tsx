@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { JsonLd } from '@/components/JsonLd';
+import { ARCHETYPES } from '@/lib/archetypes';
+import { SAMPLE_BOOTFILE_TEXT } from '@/lib/sample-bootfile';
 import {
   organizationJsonLd,
   webApplicationJsonLd,
@@ -9,7 +11,11 @@ import {
   breadcrumbJsonLd,
 } from '@/lib/json-ld';
 
-const faqs = [
+const faqs: {
+  question: string;
+  answer: string;
+  link?: { href: string; label: string };
+}[] = [
   {
     question: 'What is a BootFile?',
     answer:
@@ -19,6 +25,12 @@ const faqs = [
     question: 'How long does the quiz take?',
     answer:
       'About three minutes. A short assessment identifies your cognitive archetype, then a few follow-up questions personalize the profile to your work and your context.',
+  },
+  {
+    question: 'How does the assessment work?',
+    answer:
+      'Eight questions measure how you prefer to reason — how you process information, how you make decisions, and what kind of answers earn your trust. Your answer pattern maps to one of eight cognitive archetypes. We developed the framework specifically for AI interaction, and we publish exactly how it works.',
+    link: { href: '/methodology', label: 'Read the full methodology' },
   },
   {
     question: 'Which AI platforms does BootFile work with?',
@@ -59,6 +71,19 @@ export default function LandingPage() {
         {/* Hero — cream background */}
         <section className="hero-glow" style={{ padding: '120px 20px 80px', textAlign: 'center', backgroundColor: '#F7F4EF' }}>
           <div className="hero-animate" style={{ maxWidth: 480, margin: '0 auto' }}>
+            <p
+              className="hero-animate"
+              style={{
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                color: '#7D8B6E',
+                textTransform: 'uppercase' as const,
+                letterSpacing: '0.08em',
+                marginBottom: 16,
+              }}
+            >
+              The first personality test your AI can read
+            </p>
             <h1
               className="font-heading hero-animate"
               style={{
@@ -109,13 +134,14 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Explanation — stone background */}
+        {/* Archetype grid — stone background */}
         <section style={{ padding: '80px 20px', backgroundColor: '#ECEAE4' }}>
           <div
             style={{
-              maxWidth: 600,
+              maxWidth: 800,
               margin: '0 auto',
               padding: 0,
+              textAlign: 'center',
             }}
           >
             <h2
@@ -136,13 +162,50 @@ export default function LandingPage() {
                 fontSize: '1rem',
                 lineHeight: 1.7,
                 color: '#7A746B',
-                marginBottom: 20,
+                maxWidth: 600,
+                margin: '0 auto 40px',
               }}
             >
               Take the three-minute quiz to find yours. Your BootFile is a portable
               thinking profile — paste it into any AI you use, and every
               conversation starts with the AI already understanding how you reason.
             </p>
+
+            <style>{`
+              .bf-archetype-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+              @media (min-width: 700px) { .bf-archetype-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; } }
+            `}</style>
+            <div className="bf-archetype-grid" style={{ marginBottom: 32 }}>
+              {Object.values(ARCHETYPES).map((archetype) => (
+                <div
+                  key={archetype.name}
+                  style={{
+                    backgroundColor: '#F7F4EF',
+                    borderRadius: 12,
+                    padding: '24px 16px',
+                    textAlign: 'center',
+                  }}
+                >
+                  <div style={{ fontSize: '1.6rem', marginBottom: 10 }} aria-hidden>
+                    {archetype.icon}
+                  </div>
+                  <p
+                    className="font-heading"
+                    style={{
+                      fontSize: '1rem',
+                      color: '#2D2926',
+                      fontWeight: 400,
+                      marginBottom: 6,
+                    }}
+                  >
+                    {archetype.name}
+                  </p>
+                  <p style={{ fontSize: '0.85rem', color: '#7A746B', lineHeight: 1.4 }}>
+                    {archetype.tagline}
+                  </p>
+                </div>
+              ))}
+            </div>
 
             <Link
               href="/quiz"
@@ -156,6 +219,88 @@ export default function LandingPage() {
             >
               8 ways of thinking. Which one is yours? &rarr;
             </Link>
+          </div>
+        </section>
+
+        {/* Artifact — cream background */}
+        <section style={{ padding: '80px 20px', backgroundColor: '#F7F4EF' }}>
+          <div style={{ maxWidth: 600, margin: '0 auto' }}>
+            <h2
+              className="font-heading"
+              style={{
+                fontSize: '1.5rem',
+                lineHeight: 1.3,
+                color: '#2D2926',
+                fontWeight: 400,
+                marginBottom: 16,
+                textAlign: 'center',
+              }}
+            >
+              You get a file, not a feeling.
+            </h2>
+            <p
+              style={{
+                fontSize: '1rem',
+                lineHeight: 1.7,
+                color: '#7A746B',
+                textAlign: 'center',
+                maxWidth: 480,
+                margin: '0 auto 32px',
+              }}
+            >
+              Most personality tests end with a label. This one ends with a
+              nine-section instruction file your AI actually reads — paste it
+              once and every conversation starts calibrated to you.
+            </p>
+
+            <div
+              style={{
+                backgroundColor: '#2D2926',
+                borderRadius: 12,
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  padding: '10px 16px',
+                  backgroundColor: '#3A3633',
+                  fontSize: 12,
+                  color: '#A09B93',
+                  letterSpacing: '0.03em',
+                  fontFamily: 'ui-monospace, monospace',
+                }}
+              >
+                bootfile-architect.txt
+              </div>
+              <pre
+                style={{
+                  margin: 0,
+                  padding: '20px 16px 28px',
+                  fontSize: 12.5,
+                  lineHeight: 1.65,
+                  color: '#C4BFB6',
+                  fontFamily: 'ui-monospace, monospace',
+                  whiteSpace: 'pre-wrap',
+                  maskImage: 'linear-gradient(to bottom, black 60%, transparent)',
+                  WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent)',
+                }}
+              >
+                {SAMPLE_BOOTFILE_TEXT.split('\n').slice(0, 14).join('\n')}
+              </pre>
+            </div>
+
+            <p style={{ textAlign: 'center', marginTop: 20, fontSize: 14 }}>
+              <Link
+                href="/sample"
+                style={{
+                  color: '#7D8B6E',
+                  fontWeight: 500,
+                  textDecoration: 'none',
+                }}
+              >
+                See the complete sample BootFile &rarr;
+              </Link>
+            </p>
           </div>
         </section>
 
@@ -351,6 +496,20 @@ export default function LandingPage() {
                   >
                     {faq.answer}
                   </p>
+                  {faq.link && (
+                    <p style={{ marginTop: 8, fontSize: '0.95rem' }}>
+                      <Link
+                        href={faq.link.href}
+                        style={{
+                          color: '#7D8B6E',
+                          fontWeight: 500,
+                          textDecoration: 'none',
+                        }}
+                      >
+                        {faq.link.label} &rarr;
+                      </Link>
+                    </p>
+                  )}
                 </div>
               ))}
             </div>

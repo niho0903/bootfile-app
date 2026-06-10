@@ -40,8 +40,9 @@ Any new archetype copy, demo content, excerpts, or trust copy must cover all 8 a
 
 ## Current strategic state
 
-*Last updated 2026-06-09. Refresh when materially different.*
+*Last updated 2026-06-10. Refresh when materially different.*
 
+- **Phase 1A homepage rebuild shipped (2026-06-10).** Kicker ("The first personality test your AI can read"), H1 "How do you think?", 8-archetype card grid, artifact section (renders the first lines of `lib/sample-bootfile.ts` as a file card → `/sample`), and "How does the assessment work?" FAQ entry linking `/methodology`. No pricing copy touched — $4.99 unchanged. Phase 1B remains gated on the Architect-spine editorial test, which has NOT been written yet.
 - **Fable MAX repositioning lock-in (2026-06-09).** Site is being rebuilt around "The first personality test your AI can read" / "How do you think?" — colloquial-category positioning in hero with the methodology page kept as the technical-honesty layer one click below. Split release: **Phase 1A** rebuilds the homepage (kicker, H1, archetype grid, artifact section, methodology link in FAQ/footer; no new pricing copy). **Phase 1B** ships the two-SKU price architecture and Full Archetype Report, gated by an Architect-spine editorial test (48-hour gap between writer's edit and read).
 - **Tonight's go-list shipped (2026-06-09):** $4.99 restored everywhere; "not a personality test" disclaim language deleted from `app/page.tsx` FAQ, `components/build/BuildFAQ.tsx`, and `content/blog/why-your-ai-feels-generic.md`; "5 minutes" standardized to "3 minutes" across copy/metadata/llms.txt/email drip/Reddit cron prompt; `app/terms/page.tsx` §4 rewritten to 7-day refund via Stripe through support@bootfile.ai (last updated 2026-06-09).
 - **Ads paused** through Phase 1A/1B for a clean measurement window. Do NOT re-enable until both phases ship and a baseline read exists.
@@ -63,7 +64,7 @@ Any new archetype copy, demo content, excerpts, or trust copy must cover all 8 a
 - Architect-spine editorial test: write 5 chapters of the Full Archetype Report concept. 48-hour edit gap before reading verdict.
 - Fix `lib/drafts.ts` publish flow: move drafts AND published posts to Supabase, normalize the two-schema inconsistency in `app/api/admin/instagram-drafts/route.ts`.
 
-**Phase 1A — homepage rebuild (per Fable HTML mockup):**
+**Phase 1A — homepage rebuild (per Fable HTML mockup):** ✅ shipped 2026-06-10
 - Archetype grid, kicker "The first personality test your AI can read," H1 "How do you think?," artifact section, methodology link in FAQ + footer.
 - 1A must NOT reference any new pricing. Price stays $4.99 through 1A.
 
@@ -108,8 +109,9 @@ Agents (not before May):
 
 ## Known open work
 
-- **Supabase migration (drafts + published posts).** See "Known structural bugs." Scope is bigger than the original TODO implied; must include published post persistence, not just draft storage. Holds until April 25.
-- **Test coverage.** Zero test files exist in the repo. Snapshot tests for `lib/scoring.ts` are the starting point; broader coverage comes after.
+- **Supabase migration — production side unverified.** Code landed in `02fa873` (`lib/blog-supabase.ts`, `lib/drafts-supabase.ts`, `/api/admin/migrate-content`), but it's unconfirmed whether the new Supabase tables and the `bootfile_variants` column exist in production, or whether the migration endpoint was ever run. Verify before relying on Supabase-backed publish.
+- **Architect-spine editorial test.** Not started. Gates Phase 1B; the 48-hour edit gap doesn't start until the 5 chapters are drafted.
+- **Test coverage.** `lib/scoring.test.ts` (25 snapshot/invariant tests) landed in `02fa873`. Broader coverage (API routes, drafts, payment flow) still open.
 - **Pre-publish fact-check layer.** Encodes Hard Rule #4 as enforcement. Reads a draft + ToS + Privacy + CLAUDE.md hard rules, returns violations. Must be in place before any content agent has autonomy to auto-publish. Ships April 25.
 - **Email capture / list** — no email gate on quiz results. Intentionally deferred until funnel is proven; see strategic state above.
 - **TikTok** — profile exists, no content strategy yet.
