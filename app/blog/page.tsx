@@ -8,6 +8,9 @@ import { getAllPosts } from '@/lib/blog';
 import { ARCHETYPES } from '@/lib/archetypes';
 import { ArchetypeId } from '@/lib/questions';
 
+// Keep the index list fresh as posts are published/edited in Supabase.
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: 'Blog',
   description:

@@ -10,6 +10,11 @@ import { getAllPosts, getPostBySlug } from '@/lib/blog';
 import { ARCHETYPES } from '@/lib/archetypes';
 import { ArchetypeId } from '@/lib/questions';
 
+// ISR: re-render from Supabase at most hourly so edits to an already-published
+// post (e.g. a correction) propagate without a redeploy. Without this, the
+// full-route cache holds the first render of each slug indefinitely.
+export const revalidate = 3600;
+
 export async function generateStaticParams() {
   const posts = await getAllPosts();
   return posts.map((post) => ({ slug: post.slug }));
