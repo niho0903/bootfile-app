@@ -1,0 +1,15 @@
+{
+  "hook": "The AI gave you a 7-step framework. You needed a one-line answer. Again.",
+  "caption": "The AI gave you a 7-step framework. You needed a one-line answer. Again.\n\nHere's what's actually happening: ChatGPT doesn't know you're the person who thinks in bullet points, hates preamble, and just wants the answer — not the explanation of why the answer is correct.\n\nSo it defaults to \"helpful.\"\n\nWhich looks like:\n→ A 400-word intro\n→ Three caveats\n→ A numbered list you didn't ask for\n→ A closing sentence that starts with \"Ultimately...\"\n\nYou're not bad at prompting. The model just has zero context about how your brain works.\n\nSome people need the framework. Some people need the one-liner. Some need examples first, then theory. Some need to be challenged before they'll trust an answer.\n\nAI gives everyone the same output shape because it doesn't know which one you are.\n\nThat's the gap bootfile.ai was built for — a profile that tells AI how you actually think, so the first response fits instead of the fourth.\n\nDo you rewrite your prompts multiple times just to get the format right? Drop a number below:\n\n1 — Every. Single. Time.\n2 — Sometimes\n3 — I've just accepted the wall of text",
+  "hashtags": [
+    "AItools",
+    "productivityhacks",
+    "AIprompts",
+    "worksmarter",
+    "chatgpt",
+    "personalizedAI",
+    "techtools",
+    "bootfileai"
+  ],
+  "contentType": "myth-bust"
+}
