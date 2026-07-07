@@ -1,0 +1,15 @@
+{
+  "hook": "The AI gave you a 5-paragraph essay. You asked for a quick thought.",
+  "caption": "The AI gave you a 5-paragraph essay. You asked for a quick thought.\n\nThis isn't the AI being bad at its job.\n\nIt's the AI not knowing YOUR job.\n\nWithout context about how you think, AI defaults to \"thorough.\" It assumes you want the full picture, the caveats, the structured breakdown.\n\nBut some people think in bullets. Some think in narratives. Some want the answer first, explanation never. Some need the \"why\" before they can even hear the \"what.\"\n\nGeneric AI gives you the Wikipedia version of your question.\n\nCalibrated AI gives you the answer the way your brain actually receives it.\n\nThere's a real difference between:\n\n→ \"Here are 7 considerations to keep in mind...\"\n→ \"Short answer: do the second option. Here's the one reason that matters.\"\n\nSame information. Completely different usefulness depending on who's reading it.\n\nBootFile builds an instruction profile around how YOU process information — your pace, your format preferences, your tolerance for nuance — so the first response is actually the right one.\n\nNot the one you have to edit down yourself at 11pm.",
+  "hashtags": [
+    "AItools",
+    "productivityhacks",
+    "AIprompts",
+    "worksmarter",
+    "techfounders",
+    "AIworkflow",
+    "personalization",
+    "bootfile"
+  ],
+  "contentType": "myth-bust"
+}
