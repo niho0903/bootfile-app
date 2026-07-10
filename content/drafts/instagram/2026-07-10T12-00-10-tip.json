@@ -1,0 +1,15 @@
+{
+  "hook": "AI keeps giving you 5-step numbered lists when you just wanted a quick answer.",
+  "caption": "AI keeps giving you 5-step numbered lists when you just wanted a quick answer.\n\nThis isn't a you problem. It's a calibration problem.\n\nMost AI tools default to \"helpful mode\" — which apparently means structured, comprehensive, and formatted like a corporate memo.\n\nBut some people think in bullet points. Some think in paragraphs. Some want the answer first, context second. Some need the context first or the answer doesn't land.\n\nThe AI doesn't know which one you are. So it guesses. And it guesses wrong. Constantly.\n\nHere's the fix most people skip:\n\nTell it your output format BEFORE you ask your question. Not after. Not when you're already annoyed at the response.\n\n\"I prefer short, direct answers. No lists unless I ask.\"\n\"Give me the bottom line first, then explain if I need it.\"\n\"Talk to me like a smart friend, not a consultant.\"\n\nPaste that at the top of every new chat. Watch what happens.\n\nOr — and this is what BootFile does — stop retyping it every single time. Your thinking style doesn't change conversation to conversation. Your AI context shouldn't either.",
+  "hashtags": [
+    "AItools",
+    "ChatGPT",
+    "productivityhacks",
+    "AIprompts",
+    "worksmarter",
+    "techlife",
+    "AIcalibration",
+    "bootfileai"
+  ],
+  "contentType": "tip"
+}
