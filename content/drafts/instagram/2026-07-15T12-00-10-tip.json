@@ -1,0 +1,15 @@
+{
+  "hook": "AI keeps giving you essays when you asked for a sentence.",
+  "caption": "AI keeps giving you essays when you asked for a sentence.\n\nYou typed: 'give me a quick summary'\n\nIt gave you: four paragraphs, a bullet list, and a closing statement that starts with 'In conclusion.'\n\nThis isn't the AI being thorough. This is the AI not knowing you.\n\nSome people want the full breakdown. They need context, caveats, the whole picture before they can move.\n\nOthers need one crisp line they can act on immediately. More words = more friction = they're already gone.\n\nNeither is wrong. But default AI treats everyone like they're writing a term paper.\n\nThe fix isn't typing 'be brief' every single time (you've tried that — it lasts one response).\n\nThe fix is the AI knowing your output style before you say a word.\n\nThat's what a BootFile does. It tells the AI: this person thinks in bullets, not paragraphs. This person wants the answer first, explanation second. This person will not read a conclusion.\n\nOne setup. Every conversation starts calibrated to you.\n\nStop training the AI on every prompt. Let it already know.",
+  "hashtags": [
+    "AIproductivity",
+    "ChatGPTtips",
+    "promptengineering",
+    "AItools",
+    "worksmarter",
+    "bootfileai",
+    "personalizedAI",
+    "techhacks"
+  ],
+  "contentType": "tip"
+}
