@@ -1,0 +1,15 @@
+{
+  "hook": "ChatGPT keeps giving you 5 bullet points when you needed one sentence. That's not an AI problem. That's a calibration problem.",
+  "caption": "ChatGPT keeps giving you 5 bullet points when you needed one sentence. That's not an AI problem. That's a calibration problem.\n\nHere's what's actually happening:\n\nAI defaults to \"helpful for everyone\" — which means it's optimized for no one.\n\nThe person who wants a dense 800-word breakdown and the person who wants a two-line answer are both typing into the same blank box. So AI splits the difference and gives you medium-length, medium-specific, medium-useful output.\n\nEvery. Single. Time.\n\nThe myth is that better prompting fixes this.\n\nIt doesn't. Not really.\n\nYou can write \"be concise\" in every prompt for the rest of your life and AI will still pad the third paragraph. Because it doesn't actually know if YOU mean \"concise like a text message\" or \"concise like a well-edited essay.\"\n\nThose are completely different things.\n\nWhat actually fixes it is giving AI a persistent picture of how your brain works — your tolerance for detail, your decision-making style, how much context you need before you trust an answer.\n\nThat's not a prompt. That's a profile.\n\nWhen AI knows you're the person who needs the one sentence, you stop getting the five bullet points.\n\nThe tool doesn't change. Your relationship with it does.",
+  "hashtags": [
+    "AItools",
+    "productivitytips",
+    "AIprompting",
+    "worksmarter",
+    "techtools",
+    "artificialintelligence",
+    "personalization",
+    "bootfileai"
+  ],
+  "contentType": "myth-bust"
+}
