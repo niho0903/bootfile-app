@@ -1,0 +1,15 @@
+{
+  "hook": "AI keeps giving you 5-step bullet lists when you just wanted a straight answer.",
+  "caption": "AI keeps giving you 5-step bullet lists when you just wanted a straight answer.\n\nHere's what's actually happening.\n\nThe model doesn't know if you're a visual learner who needs scaffolding or an expert who finds bullet points condescending. So it hedges. It defaults to \"organized and thorough\" because that offends the fewest people.\n\nIt's not wrong. It's just not *you*.\n\nSome people need the list. They're scanning, they're overwhelmed, they want handles to grab onto.\n\nOther people — maybe you — read a bullet list and feel like you're being talked down to. You wanted the insight, not the PowerPoint slide.\n\nThe fix isn't rewording your prompt every single time. It's giving AI a baseline understanding of how your brain actually processes information.\n\nDo you think in examples first, then principles? Do you need the conclusion up front and the reasoning after? Do you want someone to push back on you or just execute?\n\nThat's not a prompt. That's a profile.\n\nBootFile builds it once. Then every response starts from *that* — not from the average of everyone who's ever used AI.\n\nThe bullet list problem is small. But it's a symptom of something bigger: AI that was built for everyone is quietly useless for anyone specific.\n\nLink in bio to build yours.",
+  "hashtags": [
+    "AItools",
+    "productivitytips",
+    "AIprompts",
+    "personalization",
+    "thinkingtools",
+    "worksmarter",
+    "techtools",
+    "bootfileai"
+  ],
+  "contentType": "myth-bust"
+}
