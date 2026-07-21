@@ -1,0 +1,15 @@
+{
+  "hook": "ChatGPT keeps explaining things to you like you're 12. Here's why.",
+  "caption": "ChatGPT keeps explaining things to you like you're 12. Here's why.\n\nIt's not being condescending. It literally doesn't know who you are.\n\nEvery single conversation, AI starts from zero. No memory of the fact that you're a senior engineer who doesn't need the \"what is an API\" paragraph. No memory that you hate bullet points. No memory that you always want the contrarian take, not the safe one.\n\nSo it defaults to: explain everything, hedge everything, format it like a 5th grade book report.\n\nThe fix most people try: typing a novel of context at the top of every chat. \"I'm a UX designer with 8 years experience, I prefer concise answers, don't use filler phrases...\"\n\nYou forget half of it. You rewrite it differently every time. The AI interprets it differently every time.\n\nWhat actually works: one persistent profile that travels with you. Built from how you actually think — not how you THINK you think.\n\nThat's the difference between AI that performs and AI that clicks.\n\nBootFile builds that profile for you. Answer a few questions about how you process information, what you're optimizing for, how you like to be challenged.\n\nThen every prompt starts from *you* — not from square one.\n\nLink in bio to build yours.",
+  "hashtags": [
+    "AIproductivity",
+    "promptengineering",
+    "ChatGPT",
+    "AItools",
+    "worksmarter",
+    "techmindset",
+    "artificialintelligence",
+    "bootfileai"
+  ],
+  "contentType": "myth-bust"
+}
