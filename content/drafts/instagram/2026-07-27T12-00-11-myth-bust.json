@@ -1,0 +1,15 @@
+{
+  "hook": "AI keeps giving you 5-step bullet lists when you just needed one sentence. Here's why.",
+  "caption": "AI keeps giving you 5-step bullet lists when you just needed one sentence. Here's why.\n\nMost AI tools default to a \"thorough\" response template. Headers. Bullets. A summary at the end. Looks helpful. Feels exhausting.\n\nHere's the problem: thorough for a researcher looks completely different from thorough for a founder who reads at 2x speed between meetings.\n\nThe AI isn't wrong. It just doesn't know you.\n\nIt doesn't know you hate filler phrases like \"Certainly! Great question!\"\n\nIt doesn't know you want the answer first and the reasoning after — not a three-paragraph windup.\n\nIt doesn't know you'd rather get a blunt \"this won't work because X\" than a diplomatic sandwich of maybe-yes-maybe-no.\n\nSo it guesses. And its default guess is: wall of structured text.\n\nThe fix isn't reprompting every single time. That's exhausting and you'll stop doing it within a week.\n\nThe fix is an instruction profile that travels with you — so the AI already knows you prefer direct, already knows your context, already knows not to explain things you didn't ask it to explain.\n\nThat's what bootfile.ai builds for you.\n\nOne profile. Every session starts knowing how you think.",
+  "hashtags": [
+    "AIproductivity",
+    "promptengineering",
+    "AItools",
+    "worksmarternotharder",
+    "techfounders",
+    "AIworkflow",
+    "personalization",
+    "bootfileai"
+  ],
+  "contentType": "myth-bust"
+}
