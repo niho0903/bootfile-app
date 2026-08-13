@@ -1,0 +1,15 @@
+{
+  "hook": "ChatGPT keeps explaining things to me like I'm 12. I have a PhD.",
+  "caption": "ChatGPT keeps explaining things to me like I'm 12. I have a PhD.\n\nNot a complaint about AI. A complaint about AI that doesn't know you.\n\nHere's what's actually happening: every time you open a new chat, the model resets to a kind of \"neutral user\" assumption. No expertise. No context. No idea that you've spent 15 years in this field.\n\nSo it hedges everything. Defines terms you taught yourself in grad school. Adds disclaimers you don't need.\n\nThe fix most people try: typing \"I'm an expert, skip the basics\" at the start of every prompt.\n\nThe problem: that's still you doing the labor. Every. Single. Time.\n\nThe better fix: your AI should already know that you want dense, assumption-heavy responses. That you'd rather be wrong fast than hand-held slow. That you hate bullet points and think in systems.\n\nThat's what a BootFile does. It's a calibrated instruction profile — built around how YOU actually think — that travels with you into every conversation.\n\nOne setup. Every response feels like it's talking to an adult.\n\nSpecifically, you.",
+  "hashtags": [
+    "AItools",
+    "productivityhacks",
+    "ChatGPT",
+    "AIprompts",
+    "techfounders",
+    "worksmarter",
+    "bootfileai",
+    "AIforexperts"
+  ],
+  "contentType": "myth-bust"
+}
