@@ -1,0 +1,15 @@
+{
+  "hook": "AI gave you a 400-word essay when you needed a one-line answer. Again.",
+  "caption": "AI gave you a 400-word essay when you needed a one-line answer. Again.\n\nHere's what's actually happening:\n\nChatGPT doesn't know if you're a \"give me the bottom line\" person or a \"walk me through every step\" person. So it guesses. And it usually guesses wrong — defaulting to the safest, most thorough, most exhausting response possible.\n\nIt's not broken. It just doesn't know you.\n\nThe fix isn't reprompting every single time. The fix is teaching it once.\n\nThere's a specific phrase that changes everything:\n\n\"I'm a bottom-line-first thinker. Lead with the answer, then give me 1-2 sentences of context max. Only expand if I ask.\"\n\nPaste that at the start of a new chat and watch the whole vibe shift.\n\nThis is literally what bootfile.ai automates — it figures out your thinking style (are you a Synthesizer? A Validator? A Sprinter?) and builds a profile that tells AI how your brain actually works.\n\nSo you stop re-explaining yourself every time you open a new tab.\n\nSmall change. Wildly different results.",
+  "hashtags": [
+    "AIproductivity",
+    "promptengineering",
+    "ChatGPT",
+    "worksmarter",
+    "AItools",
+    "techhacks",
+    "bootfileai",
+    "artificialintelligence"
+  ],
+  "contentType": "tip"
+}
