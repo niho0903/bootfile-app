@@ -1,0 +1,15 @@
+{
+  "hook": "You've reprompted the same thing 6 times. The AI isn't broken. It just doesn't know you.",
+  "caption": "You've reprompted the same thing 6 times. The AI isn't broken. It just doesn't know you.\n\nHere's what's actually happening:\n\nYou asked for \"a professional email.\" It gave you corporate fluff. You said \"make it shorter.\" Still stiff. You said \"more casual.\" Now it sounds like a intern trying to be cool.\n\nThe problem isn't the prompt. It's that the AI has zero context about who you are.\n\nIt doesn't know you hate filler phrases like \"I hope this finds you well.\"\n\nIt doesn't know your version of \"professional\" means direct and warm, not formal and distant.\n\nIt doesn't know you always want a one-liner opening that gets straight to the point.\n\nSo it guesses. And it guesses generically. Because generic is safe when you know nothing about the person asking.\n\nThis is the core problem bootfile.ai exists to solve.\n\nYour BootFile is essentially a cognitive fingerprint — it captures how you think, communicate, and make decisions. Then every AI interaction starts from *that*, not from zero.\n\nFirst response. Right tone. No six-draft spiral.\n\nThe AI didn't get smarter. It just finally knows who it's talking to.",
+  "hashtags": [
+    "AItools",
+    "productivity",
+    "promptengineering",
+    "worksmarter",
+    "AIassistant",
+    "techlife",
+    "bootfileai",
+    "personalization"
+  ],
+  "contentType": "myth-bust"
+}
