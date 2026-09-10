@@ -1,0 +1,15 @@
+{
+  "hook": "AI gave you a 9-step framework when you asked a yes/no question. Again.",
+  "caption": "AI gave you a 9-step framework when you asked a yes/no question. Again.\n\nHere's what's actually happening:\n\nThe model doesn't know if you're a \"just tell me the answer\" person or a \"walk me through the reasoning\" person. So it defaults to: comprehensive. Thorough. Exhaustive.\n\nWhich is great if you love reading.\n\nBut if your brain works in fast decisions and bullet points, that wall of text isn't helpful — it's friction. You either skim it, miss something important, or just close the tab and guess anyway.\n\nThe fix isn't reprompting every single time with \"be more concise\" like you're scolding a golden retriever.\n\nThe fix is teaching the AI how your brain actually processes information — once — so it stops explaining things to you like you're writing a thesis when you're just trying to make a Tuesday decision.\n\nSome people need the 9 steps. Genuinely. They want the full picture before they move.\n\nYou're probably not that person. And that's valid.\n\nBootFile builds your thinking profile so the AI already knows which one you are before you type a single word.\n\nNo more \"be concise.\" No more reformatting the answer yourself. Just responses that actually match how your brain works.\n\nLink in bio to build yours.",
+  "hashtags": [
+    "AItools",
+    "productivitytips",
+    "worksmarter",
+    "AIprompts",
+    "techhacks",
+    "braintype",
+    "bootfileai",
+    "digitalmindset"
+  ],
+  "contentType": "tip"
+}
