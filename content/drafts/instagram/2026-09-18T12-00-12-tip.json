@@ -1,0 +1,15 @@
+{
+  "caption": "Everyone's obsessed with prompting better. Nobody talks about setting up the foundation first.\n\nCustom instructions exist in ChatGPT, Claude, and Gemini — and almost nobody uses them correctly.\n\nHere's what actually matters:\n\n**ChatGPT** → Settings > Personalization > Custom Instructions. Two boxes. One for what ChatGPT should know about you. One for how it should respond. Most people write 2 sentences. That's why they're still frustrated.\n\n**Claude** → Look for \"Profile\" in the sidebar. Same idea, different vibe. Claude responds really well to tone preferences and communication style cues here.\n\n**Gemini** → Extensions > Personal Info. Less customizable than the others right now, but still worth filling out.\n\nThe problem? These fields are blank boxes with no guidance. So people paste in random stuff like \"I like bullet points\" and call it done.\n\nThat's not a profile. That's a sticky note.\n\nA real AI instruction profile captures HOW you think — your reasoning style, your communication preferences, your blind spots, what frustrates you about generic responses.\n\nThat's what bootfile.ai actually builds for you. Answer a few questions about how you process information, and you get a ready-to-paste profile for all three platforms.\n\nSame AI. Completely different experience.\n\nFill the box properly and your AI stops feeling like a stranger.",
+  "hashtags": [
+    "ChatGPT",
+    "ClaudeAI",
+    "AItools",
+    "CustomInstructions",
+    "AIproductivity",
+    "GeminiAI",
+    "promptengineering",
+    "bootfileai"
+  ],
+  "hook": "You've been leaving the most powerful AI setting completely blank.",
+  "contentType": "tip"
+}
