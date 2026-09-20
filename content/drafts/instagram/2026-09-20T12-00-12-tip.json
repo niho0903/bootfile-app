@@ -1,0 +1,15 @@
+{
+  "caption": "Everyone's talking about custom instructions. Nobody's talking about why they don't actually work.\n\nYou spend 20 minutes writing your ChatGPT custom instructions. You paste in your job title, your communication style, your preferences. You feel like you've finally cracked the code.\n\nThen you ask it a question and it still responds like it's writing a corporate memo for a stranger.\n\nHere's the problem: you wrote ABOUT yourself. Not HOW you think.\n\nThere's a difference.\n\n\"I'm a designer who likes concise answers\" tells AI your label.\n\n\"I process problems visually first, hate abstract frameworks without examples, and make faster decisions when I see a bad option next to a good one\" tells AI your brain.\n\nThe platforms give you the box. They don't tell you what to put in it.\n\nFor ChatGPT → Settings > Personalization > Custom Instructions\nFor Claude → Start any convo with a system prompt or just tell it directly\nFor Gemini → Settings > Extensions isn't it — you want the \"Gems\" feature (custom AI versions)\n\nBut the real hack isn't finding the right settings menu.\n\nIt's knowing what to actually say once you're there.\n\nThat's the part bootfile.ai figures out FOR you — your reasoning style, your blind spots, your decision patterns — turned into an instruction profile that actually sounds like your brain.\n\nNot your job title. You.",
+  "hashtags": [
+    "ChatGPT",
+    "CustomInstructions",
+    "AIProductivity",
+    "ClaudeAI",
+    "GeminiAI",
+    "AITips",
+    "BootfileAI",
+    "WorkSmarter"
+  ],
+  "hook": "Your ChatGPT custom instructions aren't working. Here's the real reason why.",
+  "contentType": "tip"
+}
