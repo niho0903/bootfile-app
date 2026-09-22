@@ -1,0 +1,15 @@
+{
+  "caption": "Nobody told you that \"custom instructions\" on ChatGPT, Claude, and Gemini are basically empty text boxes staring back at you.\n\nLike... okay? What do I type here? My whole personality?\n\nHere's what actually works across all three platforms:\n\n**ChatGPT Custom Instructions:**\nSettings → Personalization → Custom Instructions. Two boxes. First one: how you think and work. Second one: how you want responses. Most people write two sentences. That's why it still sounds generic.\n\n**Claude's System Prompt:**\nStart any conversation with \"For this conversation...\" or use Projects to save a persistent prompt. Claude responds really well to communication style preferences — tell it if you hate bullet points or love them.\n\n**Gemini's \"Gems\":**\nCreate a custom Gem with a detailed instruction set. This is actually Gemini's most underrated feature and almost nobody uses it.\n\nThe real problem isn't the platform. It's that you're trying to describe yourself from scratch every time — and most people don't know how to articulate how they actually think.\n\nThat's what BootFile does. It builds the instruction profile for you, based on your actual thinking style — then gives you something you can paste directly into any of these platforms.\n\nStop writing \"I like concise responses\" and calling it a day.\n\nYour AI should know you well enough to finish your sentences.",
+  "hashtags": [
+    "ChatGPT",
+    "ClaudeAI",
+    "CustomInstructions",
+    "AIProductivity",
+    "GeminiAI",
+    "AITips",
+    "BootFile",
+    "WorkSmarter"
+  ],
+  "hook": "Nobody told you that \"custom instructions\" is just an empty text box staring back at you.",
+  "contentType": "tip"
+}
