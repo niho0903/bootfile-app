@@ -1,0 +1,15 @@
+{
+  "caption": "Custom instructions on ChatGPT. System prompts on Claude. Gem instructions on Gemini.\n\nThree platforms. Three different setups. And somehow AI still responds like it just met you.\n\nHere's the problem: most people type something like \"be concise and professional\" into these fields and call it done.\n\nThat's not a custom instruction. That's a vibe.\n\nIf you actually want AI to sound like it knows how you think, your setup needs to answer these things:\n\n→ How do you make decisions? (data first? gut check? both?)\n→ What do you hate in a response? (bullet overload? fake enthusiasm? unnecessary caveats?)\n→ What's your context? (solo founder? creative director? researcher?)\n→ What does \"good\" actually look like to you?\n\nChatGPT has two fields — what you do + how you want it to respond. Use both. Be specific.\n\nClaude's system prompt is more open. Treat it like a briefing doc, not a settings menu.\n\nGemini's Gems let you build role-specific versions. Stop using one generic setup for everything.\n\nThe instructions are only as good as your self-awareness about how you actually think.\n\nThat's the part nobody tells you.\n\nbootfile.ai builds that profile for you — so you stop starting from scratch every time you switch tools.",
+  "hashtags": [
+    "ChatGPT",
+    "ClaudeAI",
+    "AIProductivity",
+    "CustomInstructions",
+    "AITools",
+    "PromptEngineering",
+    "bootfileai",
+    "WorkSmarter"
+  ],
+  "hook": "You've had custom instructions set up for months. AI still doesn't know how you think.",
+  "contentType": "tip"
+}
