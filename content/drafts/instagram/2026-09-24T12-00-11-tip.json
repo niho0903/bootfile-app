@@ -1,0 +1,15 @@
+{
+  "caption": "Custom instructions for ChatGPT. System prompts for Claude. Gem instructions for Gemini.\n\nYou've probably set these up. You probably wrote something like \"be concise\" or \"I'm a marketing professional\" and called it a day.\n\nAnd then wondered why the AI still doesn't *get* you.\n\nHere's the real problem: those platforms give you a blank text box and zero guidance. So most people write the equivalent of a resume bullet point and expect the AI to read their mind.\n\nWhat actually changes how an AI responds to you:\n\n→ How you process information (visual? systems-first? narrative?)\n→ What you're optimizing for (speed? depth? creativity? accuracy?)\n→ How much hand-holding you want vs. how much you want to drive\n→ What your default reaction is when an AI is wrong\n\nNone of that fits in \"be concise. I work in marketing.\"\n\nBootFile builds the instruction profile that actually belongs in those boxes — based on your real thinking patterns, not a guessing game.\n\nOne profile. Drop it into ChatGPT, Claude, Gemini — wherever you work.\n\nThe AI doesn't change. But suddenly it stops feeling like it's talking to a stranger.",
+  "hashtags": [
+    "ChatGPT",
+    "ClaudeAI",
+    "AItools",
+    "CustomInstructions",
+    "AIproductivity",
+    "GeminiAI",
+    "WorkSmarter",
+    "bootfileai"
+  ],
+  "hook": "You set up custom instructions for ChatGPT. The AI still doesn't get you. Here's why.",
+  "contentType": "tip"
+}
