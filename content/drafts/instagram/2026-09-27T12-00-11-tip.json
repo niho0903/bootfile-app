@@ -1,0 +1,15 @@
+{
+  "caption": "Nobody told me there was a \"right\" way to fill out custom instructions. So I just typed \"be helpful and concise\" and wondered why AI still felt like talking to a stranger.\n\nHere's what actually works across ChatGPT, Claude, and Gemini:\n\n**ChatGPT** → Settings > Personalization > Custom Instructions. Two boxes: who you are, how you want responses. Most people write 2 sentences. The people getting great results write 2 paragraphs.\n\n**Claude** → Start any conversation with a \"profile message\" or use Projects to save your context permanently. Claude responds really well to knowing your reasoning style, not just your job title.\n\n**Gemini** → Settings > Extensions & personalization. Less robust than the others right now, but your Google profile data already shapes it more than you think.\n\nThe real problem? All three platforms give you a blank box and zero guidance on what to actually put in it.\n\nSo people write vague stuff. AI gives vague responses. You assume AI just \"isn't that smart.\" It is. It just doesn't know how YOU think.\n\nThat's literally why we built BootFile — it figures out your thinking style first, then generates a custom instruction profile you can drop into any of these platforms in 60 seconds.\n\nNo blank box staring back at you. No guessing.",
+  "hashtags": [
+    "ChatGPT",
+    "ClaudeAI",
+    "AIProductivity",
+    "CustomInstructions",
+    "GeminiAI",
+    "AITips",
+    "BootFile",
+    "WorkSmarter"
+  ],
+  "hook": "You've been leaving the most important AI setting completely blank.",
+  "contentType": "tip"
+}
