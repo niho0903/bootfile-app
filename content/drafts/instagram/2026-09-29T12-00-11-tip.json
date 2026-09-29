@@ -1,0 +1,15 @@
+{
+  "caption": "Nobody told you there's a settings page that changes everything.\n\nChatGPT, Claude, and Gemini all have a place where you can tell the AI *who you are* before every single conversation. And almost nobody uses it.\n\nHere's the 3-minute setup that actually matters:\n\n**ChatGPT** → Settings → Personalization → Custom Instructions. Two boxes. One for what you do. One for how you want responses.\n\n**Claude** → Bottom left → Profile → \"What should Claude know about you?\" Don't leave this blank.\n\n**Gemini** → Settings → \"Your info in Gemini Apps.\" Buried. Worth finding.\n\nBut here's the thing nobody talks about — *what you write in those boxes is the whole game.*\n\nMost people write something like \"I'm a marketer who likes short answers.\" And the AI just... slightly adjusts. Still feels generic. Still misses you.\n\nThe people getting actually useful responses? They're telling the AI how they *think*. Not just what they do.\n\nDo you want pushback or validation first? Do you process through examples or principles? Do you hate bullet points or live by them?\n\nThat's the layer most custom instructions skip entirely.\n\nBootFile builds that layer for you — a precise instruction profile based on your actual thinking style, ready to drop into any platform.\n\nLink in bio if you're tired of re-explaining yourself every single chat.",
+  "hashtags": [
+    "ChatGPT",
+    "AIProductivity",
+    "CustomInstructions",
+    "ClaudeAI",
+    "GeminiAI",
+    "AITips",
+    "PromptEngineering",
+    "BootFile"
+  ],
+  "hook": "Nobody told you there's a settings page that changes everything.",
+  "contentType": "tip"
+}
