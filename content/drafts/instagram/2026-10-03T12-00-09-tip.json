@@ -1,0 +1,15 @@
+{
+  "caption": "Custom instructions are not a personality test.\n\nEveryone tells you to fill in the \"about me\" box in ChatGPT like it's a dating profile. \"I'm a curious person who loves learning.\" Cool. So is literally everyone using AI.\n\nHere's what actually moves the needle:\n\n→ Tell it how you process information first (big picture vs. details first)\n→ Tell it what annoys you (bullet points? long disclaimers? being talked down to?)\n→ Tell it what you're actually trying to DO most of the time\n→ Tell it how you make decisions (gut + data? pure logic? consensus?)\n\nFor ChatGPT: Settings → Personalization → Custom Instructions. Two boxes. Most people fill one. Fill both.\n\nFor Claude: Start a new chat and literally say \"here's how I think\" before your first real question. Claude holds context better than you'd expect.\n\nFor Gemini: Use the Gems feature if you're on Advanced. Build a specific gem for your most repeated use case instead of trying to make one instruction set do everything.\n\nThe real problem isn't the platform. It's that you're describing yourself like a resume instead of describing how your brain actually works under pressure.\n\nThat's the gap bootfile.ai exists to close.",
+  "hashtags": [
+    "ChatGPT",
+    "ClaudeAI",
+    "AIProductivity",
+    "CustomInstructions",
+    "AITips",
+    "GeminiAI",
+    "WorkSmarter",
+    "bootfileai"
+  ],
+  "hook": "Your custom instructions are doing nothing. Here's why.",
+  "contentType": "tip"
+}
