@@ -1,0 +1,15 @@
+{
+  "caption": "Your AI has a \"Custom Instructions\" box and you're probably leaving it blank.\n\nHere's what most people type when they finally open it:\n\n\"Be concise and professional.\"\n\nCool. You've described literally every AI's default setting.\n\nThe custom instructions field isn't a vibe check. It's surgery. And most people are using a butter knife.\n\nHere's what actually moves the needle:\n\n**ChatGPT:** Tell it your job title, your decision-making style, and what you hate. \"I'm a founder who thinks in systems. Never give me fluffy intros. If I ask for feedback, be brutal.\"\n\n**Claude:** Claude responds incredibly well to context about *why* you're asking. Give it your working style, your constraints, your audience. It'll hold that frame across the whole conversation.\n\n**Gemini:** Tell it your output format preferences upfront. Gemini loves structure — give it yours or it'll invent one you don't like.\n\nThe problem? Most people don't actually know how they think. So they can't explain it to an AI.\n\nThat's exactly why we built BootFile — it creates your personalized AI instruction profile based on your actual thinking style, then gives you copy-paste prompts tuned for each platform.\n\nStop training AI one frustrating conversation at a time.\n\nLink in bio to generate yours.",
+  "hashtags": [
+    "ChatGPT",
+    "CustomInstructions",
+    "AIProductivity",
+    "ClaudeAI",
+    "PromptEngineering",
+    "AITools",
+    "BootFile",
+    "WorkSmart"
+  ],
+  "hook": "Your AI has a \"Custom Instructions\" box and you're probably leaving it blank.",
+  "contentType": "tip"
+}
