@@ -1,0 +1,15 @@
+{
+  "caption": "Nobody tells you this when you set up custom instructions.\n\nYou spend 20 minutes writing what you think you want — \"be concise, be professional, help me with marketing\" — and the AI still responds like it's never met you.\n\nHere's why: you're describing your job. Not your brain.\n\nThe three big platforms all have a version of this now:\n\n→ ChatGPT has \"Custom Instructions\"\n→ Claude has \"Personal Preferences\"\n→ Gemini has \"Personalization\"\n\nBut filling them out with your job title and a vibe check doesn't actually calibrate anything. You're giving the AI a résumé when it needs a thinking style.\n\nWhat actually works:\n\n1. Tell it HOW you process information, not just what you do. (Do you need the conclusion first? Do you think in frameworks? Do analogies help or annoy you?)\n\n2. Tell it where you get stuck — not just what you're good at.\n\n3. Tell it what \"good\" looks like to you. Bullet points? Narrative? Tables? Short and sharp or thorough and detailed?\n\nThe platforms give you the box. They don't tell you what to put in it.\n\nThat's the gap bootfile.ai fills — it figures out your actual thinking profile and translates it into instructions these tools can use.\n\nStop telling AI what you do. Start telling it how you think.",
+  "hashtags": [
+    "ChatGPT",
+    "CustomInstructions",
+    "ClaudeAI",
+    "AIProductivity",
+    "GeminiAI",
+    "AITools",
+    "PromptEngineering",
+    "bootfileai"
+  ],
+  "hook": "Nobody tells you this when you set up custom instructions.",
+  "contentType": "tip"
+}
