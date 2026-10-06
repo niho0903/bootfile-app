@@ -1,0 +1,15 @@
+{
+  "caption": "You've been giving AI a blank stare every single session.\n\nCustom instructions exist on every major AI platform — and almost nobody sets them up properly.\n\nHere's the quick version:\n\n**ChatGPT** → Settings → Personalization → Custom Instructions. Two boxes: who you are, how you want responses.\n\n**Claude** → Bottom of sidebar → \"Profile\" → add your background and preferences.\n\n**Gemini** → Tap your avatar → Extensions & settings → Personalization.\n\nBut here's where everyone goes wrong: they write stuff like \"I like concise answers\" or \"I'm a marketer.\" That's not a profile. That's a sticky note.\n\nAI doesn't know that you hate bullet points unless you say so. It doesn't know you're the person in the room who needs the contrarian take, not the consensus one. It doesn't know you process ideas by arguing with them first.\n\nThat's the gap. The fields exist. The self-knowledge doesn't.\n\nBootFile was built for exactly this — it asks you the questions that surface how you actually think, then hands you instruction text you can drop straight into any platform.\n\nNot a vibe. A profile.\n\nLink in bio to build yours.",
+  "hashtags": [
+    "ChatGPT",
+    "CustomInstructions",
+    "ClaudeAI",
+    "GeminiAI",
+    "AIProductivity",
+    "AITips",
+    "PromptEngineering",
+    "BootFile"
+  ],
+  "hook": "You've been giving AI a blank stare every single session.",
+  "contentType": "tip"
+}
