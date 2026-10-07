@@ -1,0 +1,15 @@
+{
+  "caption": "Nobody tells you this when you set up custom instructions.\n\nYou spend 20 minutes writing a paragraph about yourself. You tell ChatGPT you're a \"marketing professional who values clarity and efficiency.\"\n\nAnd then... it still responds like it's writing a LinkedIn post for a Fortune 500 company.\n\nHere's the problem: custom instructions ask you to describe yourself. But you don't think in descriptions. You think in patterns.\n\nThe fix is specific.\n\nInstead of: \"I like concise responses\"\nWrite: \"Never use bullet points unless I ask. Lead with the answer, not the context.\"\n\nInstead of: \"I work in marketing\"\nWrite: \"I'm writing for founders who are skeptical and time-poor. Cut anything that sounds like an ad.\"\n\nDo this across ChatGPT (Settings → Personalization → Custom Instructions), Claude (bottom of any chat → Profile), and Gemini (Settings → Your AI).\n\nSame principle for all three: replace adjectives with behavior.\n\nNot \"I'm creative.\" → \"Push back if my first idea is the obvious one.\"\n\nNot \"I'm analytical.\" → \"Show me the assumption you're making before you give me the answer.\"\n\nThe gap between a frustrating AI and a useful one isn't the model.\n\nIt's whether the model knows how you actually think.\n\nThat's the whole idea behind BootFile — we build that profile for you, so you're not guessing at the right words.",
+  "hashtags": [
+    "ChatGPT",
+    "CustomInstructions",
+    "AIProductivity",
+    "ClaudeAI",
+    "GeminiAI",
+    "AITips",
+    "BootFile",
+    "WorkSmarter"
+  ],
+  "hook": "Nobody tells you this when you set up custom instructions.",
+  "contentType": "tip"
+}
