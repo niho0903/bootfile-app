@@ -1,0 +1,15 @@
+{
+  "caption": "Your AI has a \"Custom Instructions\" box and you're probably wasting it.\n\nMost people type something like \"I like concise answers\" or \"I'm a marketer\" and call it a day.\n\nThen wonder why the responses still feel… off.\n\nHere's the actual problem: AI doesn't need your job title. It needs to know HOW you think.\n\nFor ChatGPT → Settings > Personalization > Custom Instructions\nFor Claude → Profile > Custom Instructions (or just paste it into any conversation)\nFor Gemini → Settings > Personalization\n\nBut what do you actually PUT there?\n\nNot: \"I work in finance and like bullet points.\"\n\nYes: \"I think in systems. I need you to show me how things connect before giving me recommendations. Skip the reassurance. If my idea has a flaw, lead with the flaw.\"\n\nSee the difference?\n\nOne tells AI your job. One tells AI your brain.\n\nThe custom instructions box is only as useful as your self-awareness about how you process information — which, honestly, most of us have never been asked to think about.\n\nThat's exactly what BootFile does. It builds the instruction profile you'd never think to write yourself.\n\nLink in bio to generate yours.",
+  "hashtags": [
+    "ChatGPT",
+    "ClaudeAI",
+    "AIProductivity",
+    "CustomInstructions",
+    "AITips",
+    "WorkSmarter",
+    "BootFile",
+    "AITools"
+  ],
+  "hook": "Your AI has a \"Custom Instructions\" box and you're probably wasting it.",
+  "contentType": "tip"
+}
