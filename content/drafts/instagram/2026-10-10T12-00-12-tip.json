@@ -1,0 +1,15 @@
+{
+  "caption": "Nobody told me there was a \"right\" way to set up custom instructions. I just typed \"be concise\" and called it a day. 🙃\n\nHere's what actually works across ChatGPT, Claude, and Gemini:\n\n**ChatGPT** → Settings > Personalization > Custom Instructions. Two boxes: what you want it to know about you, and how you want it to respond. Most people leave these half-empty. Don't.\n\n**Claude** → Open any conversation, click your profile icon, find \"Profile.\" It reads this before every response. Treat it like a briefing doc, not a bio.\n\n**Gemini** → Settings > Extensions & Personalization. Less flexible than the others, but still worth filling out. It compounds over time.\n\nThe problem isn't the setup. It's what you put in.\n\n\"Be helpful and concise\" tells the AI nothing. It's already trying to do that.\n\nWhat actually moves the needle:\n— How you make decisions (data first vs. gut check first)\n— What you hate seeing in responses (bullet points? long intros? false hype?)\n— What you're actually using it for day to day\n— How you handle uncertainty — do you want options or a recommendation?\n\nThis is exactly what BootFile figures out for you. Instead of guessing what to write in those boxes, you get a profile built around how you actually think — ready to paste wherever.\n\nYour custom instructions should sound like you wrote them after a really honest moment of self-reflection. Not like a LinkedIn headline.",
+  "hashtags": [
+    "chatgpt",
+    "claudeai",
+    "custominstructions",
+    "aitools",
+    "productivityhacks",
+    "artificialintelligence",
+    "bootfile",
+    "aitips"
+  ],
+  "hook": "Nobody told me there was a \"right\" way to set up custom instructions. I just typed \"be concise\" and called it a day. 🙃",
+  "contentType": "tip"
+}
