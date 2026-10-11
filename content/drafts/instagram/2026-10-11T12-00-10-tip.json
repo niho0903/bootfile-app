@@ -1,0 +1,15 @@
+{
+  "caption": "Nobody tells you this when you set up custom instructions.\n\nYou spend 20 minutes writing what feels like a great prompt. \"I'm a marketing manager. I like concise answers. Bullet points are great.\"\n\nAnd then... the AI is still kind of mid.\n\nHere's why: you described your job title. Not how you think.\n\nThere's a massive difference between telling ChatGPT *what you do* and telling it *how your brain works*.\n\nFor ChatGPT → Settings > Personalization > Custom Instructions\nFor Claude → Profile settings > Custom Instructions\nFor Gemini → Extensions panel > Customize Gem\n\nAll three have the field. Almost nobody fills it out right.\n\nInstead of \"I work in finance,\" try:\n\"I need the tradeoffs laid out before the recommendation. Don't tell me what to do until I've seen the options. I'll ask follow-up questions — don't anticipate them.\"\n\nThat's not a job description. That's a thinking pattern.\n\nBootFile exists because this is genuinely hard to write about yourself. We figure out your thinking style and translate it into instructions these models actually understand.\n\nThe field is there. Most people just don't know what to put in it.",
+  "hashtags": [
+    "ChatGPT",
+    "CustomInstructions",
+    "AIProductivity",
+    "Claude",
+    "Gemini",
+    "AITips",
+    "BootfileAI",
+    "WorkSmarter"
+  ],
+  "hook": "Nobody tells you this when you set up custom instructions.",
+  "contentType": "tip"
+}
