@@ -1,0 +1,15 @@
+{
+  "caption": "Your AI has a \"Custom Instructions\" box. You're probably wasting it.\n\nMost people type something like: \"I'm a marketer. Be concise. Use bullet points.\"\n\nAnd then wonder why their AI still sounds like it's writing for a corporate newsletter from 2019.\n\nHere's the problem: Custom instructions ask you to describe yourself. But most of us don't actually know *how* we think — we just know when the output feels wrong.\n\nSo here's what actually works:\n\n**ChatGPT** → Settings > Personalization > Custom Instructions. Use the second box (\"How should ChatGPT respond?\") way more than the first. Be specific about tone, not just role. Don't say \"be professional.\" Say \"don't over-explain things I didn't ask about.\"\n\n**Claude** → It's called a \"System Prompt\" in Projects. This is where Claude shines — it actually holds context. Tell it your decision-making style, not just your job title.\n\n**Gemini** → Look for \"Gems\" (custom AI versions). Still early, but worth building one now before everyone else does.\n\nThe real unlock? Stop describing your *job* and start describing your *brain.*\n\nHow you handle ambiguity. Whether you want options or a single recommendation. If you hate when AI hedges everything with \"it depends.\"\n\nThat's what separates a generic response from one that actually sounds like *you* thought of it.\n\nBootFile does this automatically — it figures out your thinking style so you don't have to reverse-engineer it yourself.",
+  "hashtags": [
+    "ChatGPT",
+    "ClaudeAI",
+    "AIProductivity",
+    "CustomInstructions",
+    "AITools",
+    "WorkSmarter",
+    "PromptEngineering",
+    "BootFile"
+  ],
+  "hook": "Your AI has a \"Custom Instructions\" box. You're probably wasting it.",
+  "contentType": "tip"
+}
