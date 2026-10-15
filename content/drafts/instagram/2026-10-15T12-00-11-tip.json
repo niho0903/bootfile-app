@@ -1,0 +1,15 @@
+{
+  "caption": "Nobody tells you this when you set up custom instructions.\n\nYou open the settings. You stare at the blank box. You type something like \"be concise and helpful\" and hit save.\n\nCongratulations. You've told AI to be... AI.\n\nHere's what actually belongs in your custom instructions:\n\n→ How you make decisions (data-first vs. gut-check-first)\n→ What you do for work AND how you think about that work\n→ Your biggest communication pet peeve (mine: bullet points for everything)\n→ Whether you want to be challenged or supported when you share an idea\n→ The format that makes your brain click — not what looks \"professional\"\n\nChatGPT has the custom instructions panel. Claude has a system prompt field. Gemini lets you set context in Gems. Three platforms, same problem: they're all waiting for YOU to tell them who you are.\n\nBut most people either leave it blank or paste in something generic they found on Reddit.\n\nThe people getting genuinely useful AI responses? They've done the work of understanding how they actually think — and then encoding that.\n\nThat's exactly what BootFile does. It builds your thinking profile so you stop starting from zero every single session.\n\nLink in bio if you're tired of re-explaining yourself to AI.",
+  "hashtags": [
+    "ChatGPT",
+    "CustomInstructions",
+    "AIProductivity",
+    "ClaudeAI",
+    "GeminiAI",
+    "BootFileAI",
+    "AITools",
+    "WorkSmarter"
+  ],
+  "hook": "Nobody tells you this when you set up custom instructions.",
+  "contentType": "tip"
+}
