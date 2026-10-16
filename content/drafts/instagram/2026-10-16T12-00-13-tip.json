@@ -1,0 +1,15 @@
+{
+  "caption": "Nobody talks about how different \"custom instructions\" actually are across ChatGPT, Claude, and Gemini — and why copy-pasting the same thing into all three is basically useless.\n\nHere's the breakdown:\n\n**ChatGPT** has two fields: what you want it to know about you, and how you want it to respond. Most people fill in 3 sentences and wonder why nothing changes.\n\n**Claude** lets you set a system prompt in Projects. It's more powerful, but also more blank-page terrifying. No structure = most people write something vague like \"be concise and helpful.\" Cool. So helpful.\n\n**Gemini** has a \"Gems\" feature where you can build custom personas — but it's weirdly buried and half the people who'd benefit from it don't know it exists.\n\nThe real problem isn't the platform. It's that nobody actually knows what to put in these fields.\n\nMost custom instructions sound like a LinkedIn bio written in a hurry. They tell the AI your job title and that you \"prefer bullet points.\" That's not a thinking style. That's a formatting preference.\n\nWhat actually changes AI behavior: telling it how you process information, what you're trying to avoid, where you get stuck, and what good output actually looks like FOR YOU.\n\nThat's what a BootFile does — it turns how you think into a profile you can drop into any of these platforms and actually feel the difference.\n\nStop filling out custom instructions like a form. Start treating it like you're briefing someone who needs to think with you, not just for you.",
+  "hashtags": [
+    "ChatGPT",
+    "ClaudeAI",
+    "AIProductivity",
+    "CustomInstructions",
+    "AITools",
+    "PromptEngineering",
+    "bootfileai",
+    "WorkSmarterNotHarder"
+  ],
+  "hook": "You've set up custom instructions on ChatGPT. Claude. Gemini. And honestly? Nothing really changed.",
+  "contentType": "tip"
+}
