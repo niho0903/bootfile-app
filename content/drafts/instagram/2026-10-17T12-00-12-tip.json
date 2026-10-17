@@ -1,0 +1,15 @@
+{
+  "caption": "Your AI has a \"Custom Instructions\" box. You're probably wasting it.\n\nMost people type something like \"I like concise answers\" or \"I'm a marketer\" and call it done.\n\nThen wonder why the responses still feel... off.\n\nHere's what actually works:\n\n**ChatGPT** → Settings → Custom Instructions. Two boxes. The first one isn't about your job title. It's about how your brain works. Are you a visual thinker? Do you need context before conclusions? Say that.\n\n**Claude** → Start any conversation with a profile block at the top. Claude holds context beautifully. Give it your communication style, not just your industry.\n\n**Gemini** → Extensions + custom instructions in the settings panel. Underused. Completely underrated for people who live in Google Workspace.\n\nThe real problem isn't the platform. It's that most people describe *what they do* instead of *how they think*.\n\n\"I'm a founder\" tells AI nothing.\n\"I think in systems, get frustrated by surface-level answers, and need options not prescriptions\" — now we're talking.\n\nThis is literally what BootFile was built to solve. One profile that captures how your brain actually works. Drop it into any AI. Stop re-explaining yourself every single session.\n\nSave this post. Seriously. Come back to it when you're setting up your instructions and you'll write something 10x more useful than you would have otherwise.",
+  "hashtags": [
+    "ChatGPT",
+    "ClaudeAI",
+    "AIProductivity",
+    "CustomInstructions",
+    "AITools",
+    "WorkSmarter",
+    "BootFile",
+    "AITips"
+  ],
+  "hook": "Your AI has a \"Custom Instructions\" box. You're probably wasting it.",
+  "contentType": "tip"
+}
