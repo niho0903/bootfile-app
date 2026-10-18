@@ -1,0 +1,15 @@
+{
+  "caption": "Nobody told me there was a settings page that changes everything.\n\nChatGPT, Claude, and Gemini all have a place where you can tell the AI about yourself BEFORE you ever type a single prompt.\n\nHere's the 60-second version:\n\n→ ChatGPT: Settings → Personalization → Custom Instructions. Two boxes. One for \"what should ChatGPT know about you\" and one for \"how should it respond.\"\n\n→ Claude: Start any conversation with a system prompt, or use Projects to save your preferences permanently across chats.\n\n→ Gemini: Tap your profile → Personal Info. Limited, but it reads your Google activity to fill in gaps.\n\nThe problem? Most people write something like \"I'm a marketer who likes concise answers\" and call it done.\n\nThat's like handing someone a business card and expecting them to know how you think.\n\nThe AI still doesn't know:\n— Whether you want options or one clear recommendation\n— If you need the \"why\" before the \"what\"\n— Whether blunt feedback energizes you or shuts you down\n— How much structure vs. free-form thinking you actually absorb\n\nCustom instructions are the right idea. Most people just don't know what to put in them.\n\nThat's exactly what bootfile.ai figures out for you — your thinking style, your communication preferences, your decision-making patterns — then turns it into an instruction profile you can drop into any AI tool.\n\nSame settings page. Completely different experience.",
+  "hashtags": [
+    "ChatGPT",
+    "CustomInstructions",
+    "AIProductivity",
+    "ClaudeAI",
+    "GeminiAI",
+    "AITools",
+    "PromptEngineering",
+    "bootfileai"
+  ],
+  "hook": "Nobody told me there was a settings page that changes everything.",
+  "contentType": "tip"
+}
