@@ -1,0 +1,15 @@
+{
+  "caption": "Nobody told me custom instructions existed for 2 years. Now I can't shut up about them.\n\nHere's the 60-second setup that actually changes how AI talks to you:\n\n**ChatGPT:** Settings → Personalization → Custom Instructions. Two boxes. One for \"what should ChatGPT know about you\" and one for \"how should it respond.\" Most people leave both empty. Don't.\n\n**Claude:** Start any conversation with a system prompt or just tell it directly: \"Here's how I think and what I need from you.\" Claude holds context unusually well. Use that.\n\n**Gemini:** Settings → Your profile. Less flexible than the others right now, but still worth filling out.\n\nThe problem? All three ask you to describe yourself — and most people have no idea what to write. So they type \"be concise\" and call it a day.\n\nThat's like handing someone a blank form that says \"describe your personality\" and expecting a useful answer.\n\nWhat actually works is knowing your thinking style FIRST — how you process information, what kind of responses make you trust an answer, whether you want options or decisions, detail or direction.\n\nThat's what we built BootFile for. It figures out how you think and turns it into instructions you can paste directly into any AI tool.\n\nOne profile. Works everywhere. Finally feels like the AI gets you.",
+  "hashtags": [
+    "ChatGPT",
+    "CustomInstructions",
+    "AITools",
+    "ClaudeAI",
+    "Gemini",
+    "AIProductivity",
+    "BootFile",
+    "WorkSmarterNotHarder"
+  ],
+  "hook": "Nobody told me custom instructions existed for 2 years. Now I can't shut up about them.",
+  "contentType": "tip"
+}
