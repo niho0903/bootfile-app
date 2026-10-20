@@ -22,7 +22,7 @@ const faqs = [
   { question: 'Do I need a paid ChatGPT plan?', answer: 'You receive your complete pack from Bootfile. To reuse the setup, you need access to ChatGPT; you can paste it into a conversation. A paid ChatGPT subscription is not included or required by Bootfile. Availability and usage limits are set by OpenAI.' },
   { question: 'Will it send emails or post for me?', answer: 'You get editable drafts and a checklist. You decide what to use and publish it through your own email and social accounts. Before publishing, check the facts, links, dates, and fit for your audience.' },
   { question: 'Is this a subscription?', answer: 'No. Marketing Setup is a one-time $49 purchase in USD for one business and one promotion. You keep the downloadable pack and can reuse its setup in your own ChatGPT account. A new Bootfile-generated promotion is a separate purchase.' },
-  { question: 'What if the result isn’t right for me?', answer: 'You can request a full refund within seven days of purchase by emailing support@bootfile.ai from the address used at checkout. See the Terms for the full refund policy.' },
+  { question: 'What if the result isn’t right for me?', answer: 'You can request a full refund within seven days of purchase from your private order page, when available, or by emailing support@bootfile.ai from the address used at checkout. See the Terms for the full refund policy.' },
 ];
 
 const deliverables = [
