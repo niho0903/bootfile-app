@@ -72,11 +72,11 @@ Applying private tables and RPCs does not activate a web worker, validate provid
 | Independent owned-blog review/publication | Implemented; review and publication flags default off | No actual model review, public article, or deployed publisher has been verified |
 | Explicit useful/use/reuse reporting | Implemented; private feedback schema and smoke verified | Authenticated self-reporting is supported by the code; no customer outcome cohort is established |
 | Support inbox | Not connected | Self-service recovery/refund code does not establish unattended email support |
-| External hourly oversight | “Bootfile operations” created and enabled; hourly, `America/New_York` | First scheduled attempt is `in_progress`; no completed result or recovery outcome is available yet |
+| External hourly oversight | “Bootfile operations” created and enabled; hourly, `America/New_York` | First read-check run completed; no paid-worker execution or recovery outcome is established |
 | Remote release branches and PRs | Application PR #2 and operating-service PR #1 persisted with successful CI | Immutable implementation references are recorded above; this is not production promotion |
 | Paid acquisition | Allocation remains $0 | No advertising budget or promotional-outreach authority has been introduced |
 
-The hourly oversight task is configured to check GitHub, Supabase, and Railway evidence with healthy preflights, report actionable changes, and suppress healthy updates and duplicate notices for unchanged known blockers. Its enabled schedule is configuration evidence; its first attempt has not produced a completed result. It does not replace the application's paid-order scheduler.
+The hourly oversight task is configured to check GitHub, Supabase, and Railway evidence with healthy preflights, report actionable changes, and suppress healthy updates and duplicate notices for unchanged known blockers. Its first recorded run completed on 2026-10-20 at 23:48:41 UTC and reported successful infrastructure reads without a new production incident. The optional attempt to post PR comments was blocked by GitHub tool safety checks; that action has been removed from the watch. Monitoring results remain in the task record, with owner notices limited to material exceptions. One completed read-check run does not establish sustained reliability or a paid-order recovery outcome. It does not replace the application's paid-order scheduler.
 
 The daily native fallback alone does not satisfy the operations dashboard's twenty-minute freshness requirement. Normal recovery needs the optional five-minute Railway trigger, correctly configured and observed. Application rows authenticated with a cron secret prove invocations; they do not independently prove the provider's schedule settings.
 
@@ -102,7 +102,7 @@ Agents should complete ordinary release work and present evidence. These gates d
 6. **Prove one controlled commerce flow.** Verify payment amount/product binding, saved generation, transactional delivery evidence, safe retry/idempotency behavior, customer-requested eligible refund recovery, and explicit feedback persistence. Provider email acceptance is distinct from inbox arrival; a saved setup is distinct from usefulness or reuse.
 7. **Prove unattended recovery.** Enable the selected five-minute scheduler and observe two successive unattended executions with final run outcomes. Confirm the deployed growth-service SHA and configuration. A manual endpoint call or registered cron expression is insufficient proof.
 8. **Prove the limited publisher.** First observe an independent review with public writes disabled. Verify exact source/article binding, approved-source checks, changed-content refusal, publication caps, and one controlled publish/withdraw cycle, including blog and sitemap refresh. Only then enable routine owned-blog publication under the operating charter.
-9. **Verify oversight results and support boundaries.** The “Bootfile operations” watch is created and enabled on an hourly `America/New_York` schedule. Its first attempt is `in_progress`; verify a completed result and its exception behavior before claiming successful monitoring. Connect and verify an approved support-inbox workflow before claiming unattended inbox support. Until then, record that limit explicitly.
+9. **Verify oversight results and support boundaries.** The “Bootfile operations” watch is created and enabled on an hourly `America/New_York` schedule. Its first read-check run completed and the unnecessary blocked PR-comment action was removed. Continue verifying exception handling and sustained operation; the watch does not prove paid-order worker execution. Connect and verify an approved support-inbox workflow before claiming unattended inbox support. Until then, record that limit explicitly.
 10. **Measure the business test.** Track confirmed purchases, provider/operating costs, delivery failures, refunds, explicit usefulness/use/reuse reports with their denominators, and owner-intervention time. Revenue, profit, product demand, and the 99% autonomy objective require observed evidence after launch.
 
 ## Owner decisions stay limited
@@ -126,6 +126,6 @@ Routine reconciliation, eligible policy refunds, bounded retries, compliant owne
 | New Railway deployment ID / SHA / enabled capabilities | Pending |
 | Two unattended operation run IDs | Pending |
 | Controlled provider and publication verification | Pending |
-| Hourly oversight / schedule / observed result | “Bootfile operations” created and enabled; hourly `America/New_York`; first attempt `in_progress`, no completed result yet |
+| Hourly oversight / schedule / observed result | “Bootfile operations” created and enabled; hourly `America/New_York`; first read-check run completed; optional PR-comment action blocked and removed; no paid-worker execution proven |
 
 Operating details: [charter](OPERATING_CHARTER.md), [operations runbook](OPERATIONS_RUNBOOK.md), and [growth migration/publication contract](GROWTH_AGENT_MIGRATION.md).
