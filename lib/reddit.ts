@@ -23,6 +23,8 @@ interface RedditEvent {
  * Fire-and-forget — never blocks the user experience.
  */
 export async function sendRedditEvent(event: RedditEvent): Promise<void> {
+  // Advertising is paused. Enabling attribution requires its own reviewed data/consent policy.
+  if (process.env.LEGACY_AD_CONVERSIONS_ENABLED !== 'true') return;
   const token = process.env.REDDIT_CAPI_TOKEN;
   if (!token) return;
 

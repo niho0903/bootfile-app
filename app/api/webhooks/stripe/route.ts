@@ -1,6 +1,13 @@
-import { NextRequest } from 'next/server';
+import { after, NextRequest } from 'next/server';
 import Stripe from 'stripe';
 import { getStripe } from '@/lib/stripe';
+import { handleStudioStripeEvent } from '@/lib/studio/payments';
+import { runStudioWorker } from '@/lib/studio/worker';
+import { studioErrorCode } from '@/lib/studio/errors';
+import { recordStudioRefundEvent } from '@/lib/studio/refunds';
+
+export const runtime = 'nodejs';
+export const maxDuration = 180;
 
 export async function POST(req: NextRequest) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -23,6 +30,25 @@ export async function POST(req: NextRequest) {
   } catch {
     console.error('[WEBHOOK] Signature verification failed');
     return new Response('Webhook signature verification failed', { status: 400 });
+  }
+
+  try {
+    if (['refund.created', 'refund.updated', 'refund.failed'].includes(event.type)) {
+      await recordStudioRefundEvent(event);
+      return Response.json({ received: true });
+    }
+    const studio = await handleStudioStripeEvent(event);
+    if (studio.handled) {
+      if (studio.queued) after(async () => {
+        try { await runStudioWorker({ limit: 1 }); } catch (error) { console.error('[STUDIO WEBHOOK WORKER]', studioErrorCode(error)); }
+      });
+      // Queue persistence has succeeded before acknowledging Stripe. Cron retries any crashed worker.
+      return Response.json({ received: true });
+    }
+  } catch (error) {
+    console.error('[STUDIO WEBHOOK]', studioErrorCode(error));
+    // Returning 5xx is intentional: Stripe retries instead of losing a paid order.
+    return new Response('Unable to persist payment event', { status: 503 });
   }
 
   switch (event.type) {

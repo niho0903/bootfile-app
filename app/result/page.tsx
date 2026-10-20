@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { track } from '@vercel/analytics';
 import { ArchetypeReveal } from '@/components/ArchetypeReveal';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ArchetypeId } from '@/lib/questions';
+import { useBrowserStorage } from '@/lib/use-browser-storage';
 
 interface QuizState {
   primary: ArchetypeId;
@@ -16,32 +17,17 @@ interface QuizState {
 
 export default function ResultPage() {
   const router = useRouter();
-  const [quizState, setQuizState] = useState<QuizState | null>(null);
+  const raw = useBrowserStorage('bootfile_quiz');
+  const quizState = useMemo(() => {
+    try {
+      const parsed = raw ? JSON.parse(raw) as QuizState : null;
+      return parsed && typeof parsed.primary === 'string' ? parsed : null;
+    } catch { return null; }
+  }, [raw]);
 
   useEffect(() => {
-    const raw = localStorage.getItem('bootfile_quiz');
-    if (!raw) {
-      router.push('/quiz');
-      return;
-    }
-    try {
-      setQuizState(JSON.parse(raw));
-    } catch {
-      router.push('/quiz');
-    }
-  }, [router]);
-
-  // Reddit pixel ViewContent event
-  useEffect(() => {
-    if (!quizState) return;
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const w = window as any;
-      if (w.rdt) {
-        w.rdt('track', 'ViewContent');
-      }
-    } catch { /* pixel not loaded */ }
-  }, [quizState]);
+    if (raw !== undefined && !quizState) router.replace('/quiz');
+  }, [raw, quizState, router]);
 
   // result_page_bridge_seen event
   useEffect(() => {

@@ -56,7 +56,7 @@ export function Header() {
             Blog
           </Link>
           <Link
-            href="/quiz"
+            href="/studio"
             style={{
               fontSize: '0.88rem',
               fontWeight: 450,
@@ -65,7 +65,7 @@ export function Header() {
               transition: 'color 0.2s',
             }}
           >
-            Take the Quiz
+            Start a setup
           </Link>
         </nav>
       </div>

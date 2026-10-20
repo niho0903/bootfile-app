@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 interface Draft {
   id: string;
@@ -119,10 +119,10 @@ export default function AdminPage() {
     'Content-Type': 'application/json',
   }), [password]);
 
-  const fetchDrafts = useCallback(async () => {
+  const fetchDrafts = useCallback(async (nextFilter = filter) => {
     setLoading(true);
     try {
-      const statusParam = filter === 'all' ? '' : `&status=${filter}`;
+      const statusParam = nextFilter === 'all' ? '' : `&status=${nextFilter}`;
       const res = await fetch(`/api/admin/drafts?${statusParam}`, {
         headers: authHeader(),
       });
@@ -152,10 +152,6 @@ export default function AdminPage() {
       setMessage('Invalid password');
     }
   };
-
-  useEffect(() => {
-    if (authed) fetchDrafts();
-  }, [authed, filter, fetchDrafts]);
 
   const handleGenerate = async () => {
     setGenerating(true);
@@ -257,10 +253,10 @@ export default function AdminPage() {
     }
   };
 
-  const fetchRedditDrafts = useCallback(async () => {
+  const fetchRedditDrafts = useCallback(async (nextFilter = redditFilter) => {
     setRedditLoading(true);
     try {
-      const res = await fetch(`/api/admin/reddit-drafts?status=${redditFilter}`, {
+      const res = await fetch(`/api/admin/reddit-drafts?status=${nextFilter}`, {
         headers: authHeader(),
       });
       if (res.ok) {
@@ -274,14 +270,10 @@ export default function AdminPage() {
     }
   }, [redditFilter, authHeader]);
 
-  useEffect(() => {
-    if (authed && tab === 'reddit') fetchRedditDrafts();
-  }, [authed, tab, redditFilter, fetchRedditDrafts]);
-
-  const fetchInstaDrafts = useCallback(async () => {
+  const fetchInstaDrafts = useCallback(async (nextFilter = instaFilter) => {
     setInstaLoading(true);
     try {
-      const res = await fetch(`/api/admin/instagram-drafts?status=${instaFilter}`, {
+      const res = await fetch(`/api/admin/instagram-drafts?status=${nextFilter}`, {
         headers: authHeader(),
       });
       if (res.ok) {
@@ -294,10 +286,6 @@ export default function AdminPage() {
       setInstaLoading(false);
     }
   }, [instaFilter, authHeader]);
-
-  useEffect(() => {
-    if (authed && tab === 'instagram') fetchInstaDrafts();
-  }, [authed, tab, instaFilter, fetchInstaDrafts]);
 
   const handleInstaAction = async (id: string, status: 'approved' | 'rejected') => {
     try {
@@ -543,7 +531,7 @@ export default function AdminPage() {
         {/* Tab switcher */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
           <button
-            onClick={() => setTab('content')}
+            onClick={() => { setTab('content'); void fetchDrafts(); }}
             style={{ ...s.button(tab === 'content' ? 'primary' : 'ghost') }}
           >
             Content
@@ -555,13 +543,13 @@ export default function AdminPage() {
             Customer Lookup
           </button>
           <button
-            onClick={() => setTab('instagram')}
+            onClick={() => { setTab('instagram'); void fetchInstaDrafts(); }}
             style={{ ...s.button(tab === 'instagram' ? 'primary' : 'ghost') }}
           >
             Instagram
           </button>
           <button
-            onClick={() => setTab('reddit')}
+            onClick={() => { setTab('reddit'); void fetchRedditDrafts(); }}
             style={{ ...s.button(tab === 'reddit' ? 'primary' : 'ghost') }}
           >
             Reddit Drafts
@@ -818,7 +806,7 @@ export default function AdminPage() {
                     {(['pending', 'approved', 'rejected', 'all'] as const).map((f) => (
                       <button
                         key={f}
-                        onClick={() => setInstaFilter(f)}
+                        onClick={() => { setInstaFilter(f); void fetchInstaDrafts(f); }}
                         style={{
                           ...s.button('ghost'),
                           ...(instaFilter === f ? { borderColor: '#7D8B6E', color: '#7D8B6E' } : {}),
@@ -990,7 +978,7 @@ export default function AdminPage() {
                     {(['pending', 'approved', 'rejected', 'all'] as const).map((f) => (
                       <button
                         key={f}
-                        onClick={() => setRedditFilter(f)}
+                        onClick={() => { setRedditFilter(f); void fetchRedditDrafts(f); }}
                         style={{
                           ...s.button('ghost'),
                           ...(redditFilter === f ? { borderColor: '#7D8B6E', color: '#7D8B6E' } : {}),
@@ -1151,7 +1139,7 @@ export default function AdminPage() {
             {(['pending', 'approved', 'rejected', 'all'] as const).map((f) => (
               <button
                 key={f}
-                onClick={() => setFilter(f)}
+                onClick={() => { setFilter(f); void fetchDrafts(f); }}
                 style={{
                   ...s.button('ghost'),
                   ...(filter === f ? { borderColor: '#7D8B6E', color: '#7D8B6E' } : {}),

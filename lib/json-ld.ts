@@ -9,7 +9,7 @@ export function organizationJsonLd() {
     logo: `${BASE_URL}/api/og`,
     sameAs: ['https://www.instagram.com/bootfile.ai/', 'https://www.tiktok.com/@bootfileai'],
     description:
-      'BootFile creates personalized AI instruction profiles based on how you think, not generic templates.',
+      'BootFile creates practical marketing setups and reusable AI instructions from an approved business brief.',
   };
 }
 
@@ -17,24 +17,24 @@ export function webApplicationJsonLd() {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
-    name: 'BootFile',
-    url: BASE_URL,
+    name: 'BootFile Marketing Setup',
+    url: `${BASE_URL}/studio`,
     applicationCategory: 'ProductivityApplication',
     operatingSystem: 'Any',
     description:
-      'Take a short quiz to discover your AI reasoning style. Get a personalized instruction profile that works across ChatGPT, Claude, Gemini, Grok, DeepSeek, and Copilot.',
+      'Create one promotional email, three coordinated social posts, and a reusable AI workflow from a reviewed business brief.',
     offers: {
       '@type': 'Offer',
-      name: 'BootFile',
-      price: '4.99',
+      name: 'Marketing Setup',
+      price: '49.00',
       priceCurrency: 'USD',
       description:
-        'Personalized AI instruction profile for all 6 platforms.',
+        'One-time marketing setup for one business brief.',
     },
     featureList: [
-      'Reasoning style quiz',
-      '8 AI interaction archetypes',
-      'Custom instructions for ChatGPT, Claude, Gemini, Grok, DeepSeek, and Copilot',
+      'Approved business brief',
+      'One promotional email and three coordinated social posts',
+      'Reusable AI context, workflow, and review checklist',
     ],
   };
 }
@@ -117,7 +117,7 @@ export function collectionPageJsonLd(posts: { slug: string; title: string; descr
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     name: 'BootFile Blog',
-    description: 'Tips, insights, and guides on getting more from AI with personalized instruction profiles.',
+    description: 'Practical guides to using AI for business tasks, clear briefs, and reusable workflows.',
     url: `${BASE_URL}/blog`,
     mainEntity: {
       '@type': 'ItemList',

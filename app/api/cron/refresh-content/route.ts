@@ -1,3 +1,4 @@
+import { isCronAuthorized } from '@/lib/operations/auth';
 import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { BLOG_SYSTEM_PROMPT } from '@/lib/content-prompts';
@@ -11,9 +12,11 @@ const GITHUB_REPO = 'niho0903/bootfile-app';
  * Also updates posts that rank on page 2 (positions 8-20) to push them to page 1.
  */
 export async function GET(request: Request) {
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!isCronAuthorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  if (process.env.LEGACY_GROWTH_ENABLED !== 'true') {
+    return NextResponse.json({ status: 'paused', reason: 'legacy_growth_replaced_by_studio_operations' });
   }
 
   const anthropicKey = process.env.ANTHROPIC_API_KEY;

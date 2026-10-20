@@ -1,3 +1,4 @@
+import { isCronAuthorized } from '@/lib/operations/auth';
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { getSupabaseAdmin } from '@/lib/supabase';
@@ -124,9 +125,11 @@ const DRIP_SEQUENCE: DripEmail[] = [
 ];
 
 export async function GET(request: Request) {
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!isCronAuthorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  if (process.env.LEGACY_GROWTH_ENABLED !== 'true') {
+    return NextResponse.json({ status: 'paused', reason: 'legacy_growth_replaced_by_studio_operations' });
   }
 
   const resendKey = process.env.RESEND_API_KEY;

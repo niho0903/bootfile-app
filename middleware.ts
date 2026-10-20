@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { isPrivatePath } from '@/lib/privacy';
 
 // Rate limit configs per route pattern
 const RATE_LIMITS: Record<string, { max: number; windowMs: number }> = {
@@ -17,6 +18,12 @@ const RATE_LIMITS: Record<string, { max: number; windowMs: number }> = {
   '/api/admin/drafts':           { max: 60, windowMs: 60_000 },   // 60/min
   '/api/admin/publish':          { max: 20, windowMs: 3600_000 }, // 20/hour
   '/api/send-bootfile':          { max: 5,  windowMs: 3600_000 }, // 5/hour
+  '/api/studio/orders':         { max: 5,  windowMs: 3600_000 },
+  '/api/studio/config':         { max: 120, windowMs: 60_000 },
+  '/api/studio/order-access':   { max: 90, windowMs: 60_000 },
+  '/api/studio/checkout':       { max: 10, windowMs: 3600_000 },
+  '/api/studio/refund':         { max: 5, windowMs: 3600_000 },
+  '/api/operations':            { max: 30, windowMs: 60_000 },
 };
 
 function getClientIp(req: NextRequest): string {
@@ -38,15 +45,30 @@ const SECURITY_HEADERS: Record<string, string> = {
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const privatePath = isPrivatePath(pathname);
+  const headers = {
+    ...SECURITY_HEADERS,
+    ...(privatePath ? {
+      'Cache-Control': 'private, no-store, max-age=0',
+      'Referrer-Policy': 'no-referrer',
+      'X-Robots-Tag': 'noindex, nofollow, noarchive',
+    } : {}),
+  };
 
   // --- API route protection ---
   if (pathname.startsWith('/api/')) {
     const ip = getClientIp(req);
 
     // Rate limiting
-    const limitConfig = RATE_LIMITS[pathname];
+    const ratePath = pathname.startsWith('/api/operations/') ? '/api/operations'
+      : /^\/api\/studio\/orders\/[^/]+\/refund$/.test(pathname) ? '/api/studio/refund'
+      : /^\/api\/studio\/orders\/[^/]+\/checkout$/.test(pathname) ? '/api/studio/checkout'
+      : pathname.startsWith('/api/studio/orders/') ? '/api/studio/order-access'
+      : pathname;
+    // This is a per-instance first filter. Studio order creation also has durable DB limits.
+    const limitConfig = RATE_LIMITS[ratePath];
     if (limitConfig) {
-      const key = `${pathname}:${ip}`;
+      const key = `${ratePath}:${ip}`;
       const result = checkRateLimit(key, limitConfig.max, limitConfig.windowMs);
 
       if (!result.allowed) {
@@ -57,7 +79,7 @@ export function middleware(req: NextRequest) {
             headers: {
               'Content-Type': 'application/json',
               'Retry-After': String(Math.ceil(result.resetMs / 1000)),
-              ...SECURITY_HEADERS,
+              ...headers,
             },
           },
         );
@@ -65,22 +87,25 @@ export function middleware(req: NextRequest) {
     }
 
     // Origin/Referer check for mutating endpoints (CSRF protection)
-    // Skip for webhooks (Stripe calls from their servers)
+    // Webhooks verify provider signatures; operations verifies a non-cookie bearer secret.
+    const serverAuthenticatedRoute = pathname.startsWith('/api/webhooks/')
+      || (pathname.startsWith('/api/operations/') && /^Bearer \S+$/.test(req.headers.get('authorization') || ''));
     if (['POST', 'PATCH', 'PUT', 'DELETE'].includes(req.method) &&
-        !pathname.startsWith('/api/webhooks/')) {
+        !serverAuthenticatedRoute) {
       const origin = req.headers.get('origin');
       const referer = req.headers.get('referer');
-      const allowedHost = req.nextUrl.host;
+      const sameOrigin = (value: string | null) => {
+        if (!value) return false;
+        try { return new URL(value).origin === req.nextUrl.origin; }
+        catch { return false; }
+      };
 
-      const originOk = origin && new URL(origin).host === allowedHost;
-      const refererOk = referer && new URL(referer).host === allowedHost;
-
-      if (!originOk && !refererOk) {
+      if (!(origin ? sameOrigin(origin) : sameOrigin(referer))) {
         return new NextResponse(
           JSON.stringify({ error: 'Forbidden.' }),
           {
             status: 403,
-            headers: { 'Content-Type': 'application/json', ...SECURITY_HEADERS },
+            headers: { 'Content-Type': 'application/json', ...headers },
           },
         );
       }
@@ -94,7 +119,7 @@ export function middleware(req: NextRequest) {
           JSON.stringify({ error: 'Request too large.' }),
           {
             status: 413,
-            headers: { 'Content-Type': 'application/json', ...SECURITY_HEADERS },
+            headers: { 'Content-Type': 'application/json', ...headers },
           },
         );
       }
@@ -103,7 +128,7 @@ export function middleware(req: NextRequest) {
 
   // Apply security headers to all responses
   const response = NextResponse.next();
-  for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
+  for (const [key, value] of Object.entries(headers)) {
     response.headers.set(key, value);
   }
 

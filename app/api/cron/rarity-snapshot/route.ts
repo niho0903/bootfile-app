@@ -1,3 +1,4 @@
+import { isCronAuthorized } from '@/lib/operations/auth';
 import { NextResponse } from 'next/server';
 import { ARCHETYPE_IDS, ArchetypeId } from '@/lib/questions';
 import { getSupabaseAdmin } from '@/lib/supabase';
@@ -20,8 +21,7 @@ import { getSupabaseAdmin } from '@/lib/supabase';
  *   unique (snapshot_date, archetype_id)
  */
 export async function GET(request: Request) {
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!isCronAuthorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

@@ -7,8 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
+  },
+  "engines": {
+    "node": ">=22 <25"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
@@ -20,7 +24,7 @@
     "googleapis": "^171.4.0",
     "gray-matter": "^4.0.3",
     "marked": "^17.0.4",
-    "next": "16.1.6",
+    "next": "16.4.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-markdown": "^10.1.0",
@@ -35,7 +39,7 @@
     "@types/react-dom": "^19",
     "@vitest/ui": "^4.1.4",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
+    "eslint-config-next": "16.4.2",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.4"

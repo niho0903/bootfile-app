@@ -1,16 +1,10 @@
 import { NextRequest } from 'next/server';
+import { createHash, timingSafeEqual } from 'node:crypto';
 
 export function isAdminAuthorized(req: NextRequest): boolean {
-  const authHeader = req.headers.get('authorization');
-  if (!authHeader) return false;
-
+  const match = /^Bearer (\S+)$/.exec(req.headers.get('authorization') || '');
   const adminPassword = process.env.ADMIN_PASSWORD;
-  if (!adminPassword) {
-    console.error('[ADMIN] ADMIN_PASSWORD environment variable is not set');
-    return false;
-  }
-
-  // Expect: "Bearer <password>"
-  const token = authHeader.replace('Bearer ', '');
-  return token === adminPassword;
+  if (!match || !adminPassword) return false;
+  const hash = (value: string) => createHash('sha256').update(value).digest();
+  return timingSafeEqual(hash(match[1]), hash(adminPassword));
 }

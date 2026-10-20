@@ -1,75 +1,33 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { BuildUnlocked } from '@/components/build/BuildUnlocked';
 import { ArchetypeId } from '@/lib/questions';
 import { PlatformId } from '@/lib/platform-variants';
+import { useBrowserStorage } from '@/lib/use-browser-storage';
 
 export default function BuildSuccessPage() {
   const router = useRouter();
-  const [bootfileText, setBootfileText] = useState<string | null>(null);
-  const [archetypeId, setArchetypeId] = useState<ArchetypeId | null>(null);
-  const [variants, setVariants] = useState<Record<PlatformId, string> | null>(null);
+  const bootfileText = useBrowserStorage('bootfile_output');
+  const rawVariants = useBrowserStorage('bootfile_variants');
+  const rawQuiz = useBrowserStorage('bootfile_quiz');
+  const variants = useMemo(() => {
+    try {
+      return rawVariants ? JSON.parse(rawVariants) as Record<PlatformId, string> : null;
+    } catch { return null; }
+  }, [rawVariants]);
+  const archetypeId = useMemo(() => {
+    try {
+      return rawQuiz ? (JSON.parse(rawQuiz)?.primary as ArchetypeId | null) : null;
+    } catch { return null; }
+  }, [rawQuiz]);
 
   useEffect(() => {
-    // Read bootfile from localStorage
-    const output = localStorage.getItem('bootfile_output');
-    if (!output) {
-      // No bootfile — redirect to quiz
-      router.push('/quiz');
-      return;
-    }
-
-    setBootfileText(output);
-
-    // Read platform variants (may be absent if generated before variants shipped)
-    try {
-      const rawVariants = localStorage.getItem('bootfile_variants');
-      if (rawVariants) {
-        setVariants(JSON.parse(rawVariants) as Record<PlatformId, string>);
-      }
-    } catch { /* */ }
-
-    // Get archetype from quiz state
-    try {
-      const raw = localStorage.getItem('quiz_state');
-      if (raw) {
-        const state = JSON.parse(raw);
-        setArchetypeId(state.primary as ArchetypeId);
-      }
-    } catch { /* */ }
-
-    // Fire conversion pixels
-    try {
-      // Reddit pixel
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const w = window as any;
-      if (w.rdt) {
-        (w.rdt as (...args: unknown[]) => void)('track', 'Purchase', {
-          value: 4.99,
-          currency: 'USD',
-          itemCount: 1,
-        });
-      }
-    } catch { /* pixel not loaded */ }
-
-    try {
-      // Google Ads gtag conversion (will fire if gtag is loaded)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const w = window as any;
-      if (w.gtag) {
-        (w.gtag as (...args: unknown[]) => void)('event', 'conversion', {
-          send_to: 'AW-18052246616/idTcCMD71ZIcENjY_Z9D',
-          value: 1.0,
-          currency: 'USD',
-          transaction_id: localStorage.getItem('bootfile_payment_intent') || '',
-        });
-      }
-    } catch { /* gtag not loaded */ }
-  }, [router]);
+    if (bootfileText !== undefined && !bootfileText) router.replace('/quiz');
+  }, [bootfileText, router]);
 
   if (!bootfileText) {
     return (
