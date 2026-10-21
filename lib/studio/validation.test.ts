@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { STUDIO_PLATFORMS } from './types';
 import { STUDIO_DEMO_BUNDLE, STUDIO_DEMO_INTAKE } from './demo';
-import { assembleStudioBundle, studioBundleMarkdown } from './bundle';
+import { assembleStudioBundle, platformSetupSteps, studioBundleMarkdown } from './bundle';
 import { validateStudioDraft, validateStudioIntake } from './validation';
 
 describe('studio intake and source-grounded delivery checks', () => {
@@ -36,6 +36,12 @@ describe('studio intake and source-grounded delivery checks', () => {
     expect(bundle.reusableWorkflow.platform).toBe(platform);
     expect(bundle.reusableWorkflow.setupSteps[0]).toContain(name);
     expect(bundle.reusableWorkflow.context).toContain(intake.callToAction);
+    const instructions = platformSetupSteps(platform).join(' ');
+    const expectedInstallAction = { chatgpt: 'Project settings', claude: 'Set project instructions', gemini: 'Gems, skills' }[platform];
+    expect(instructions).toContain(expectedInstallAction);
+    expect(instructions).toContain('normal');
+    expect(instructions).toContain('Next-task prompt');
+    expect(instructions).toContain('nothing is sent automatically');
     expect(bundle.businessBrief).not.toHaveProperty('email');
   });
 
