@@ -1,0 +1,7 @@
+/* Keep decorative art inside the mobile column without hiding actual page overflow.
+   The rotated background previously extended 22px beyond the 390px viewport.
+   Forms and result grids remain subject to the browser overflow assertion. */
+.brandHero > *, .brandWorkspace > *, .brandBrandGrid > *, .brandPartnerGrid > * { min-width: 0; }
+@media (max-width: 720px) {
+  .brandHeroArt::before { inset: 14px 24px; transform: rotate(5deg); }
+}

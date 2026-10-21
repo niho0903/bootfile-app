@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { BrandStudio } from '@/components/brand/BrandStudio';
 import './brand.css';
+import './responsive.css';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
