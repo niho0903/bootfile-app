@@ -33,6 +33,8 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
+      - name: Audit production dependency advisories
+        run: npm audit --omit=dev --audit-level=high
       - name: Check types
         run: npm run typecheck
       - name: Check lint
