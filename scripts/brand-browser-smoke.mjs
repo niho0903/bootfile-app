@@ -26,7 +26,22 @@ const runtimeErrors = [];
 const mutations = [];
 const externalRequests = [];
 async function next() { await page.getByRole('button', { name: /^Continue/ }).click(); }
-async function noOverflow() { assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1), false, 'Page must not overflow horizontally'); }
+async function noOverflow(label) {
+  await page.evaluate(() => document.fonts.ready);
+  const metrics = await page.evaluate(() => ({
+    viewport: window.innerWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+    offenders: [...document.querySelectorAll('.brandApp *')].map(element => {
+      const rect = element.getBoundingClientRect();
+      return { tag: element.tagName, className: String(element.className), left: Math.round(rect.left), right: Math.round(rect.right), width: Math.round(rect.width) };
+    }).filter(item => item.right > window.innerWidth + 1 || item.left < -1).slice(0, 20),
+  }));
+  if (metrics.scrollWidth > metrics.viewport + 1) {
+    await writeFile(output + '/overflow.json', JSON.stringify({ label, ...metrics }, null, 2));
+    console.error('Overflow bounds:', JSON.stringify({ label, ...metrics }));
+  }
+  assert.ok(metrics.scrollWidth <= metrics.viewport + 1, label + ': page must not overflow horizontally');
+}
 try {
   let ready = false;
   for (let attempt = 0; attempt < 100; attempt++) {
@@ -49,13 +64,14 @@ try {
     return route.continue();
   });
   page = await context.newPage();
+  page.setDefaultTimeout(10000);
   page.on('pageerror', error => runtimeErrors.push(error.message));
   await page.goto(origin + '/brand');
   await page.getByRole('button', { name: /Start with how I work/ }).waitFor();
-  await noOverflow();
+  await noOverflow('desktop landing');
   await page.screenshot({ path: output + '/01-brand-home-desktop.png', fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
-  await noOverflow();
+  await noOverflow('mobile landing');
   await page.screenshot({ path: output + '/02-brand-home-mobile.png', fullPage: true });
   await page.setViewportSize({ width: 1440, height: 1000 });
   groups++;
@@ -91,7 +107,10 @@ try {
   await page.keyboard.press('ArrowRight');
   assert.equal(await page.getByRole('tab', { name: 'First campaign', exact: true }).getAttribute('aria-selected'), 'true');
   assert.equal(await page.locator('.brandSocialGrid article').count(), 3);
-  assert.equal(await page.locator('.brandSocialGrid img').evaluateAll(images => images.every(image => image.complete && image.naturalWidth > 0)), true);
+  await page.waitForFunction(() => {
+    const images = [...document.querySelectorAll('.brandSocialGrid img')];
+    return images.length === 3 && images.every(image => image.complete && image.naturalWidth > 0);
+  });
   const pngPromise = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Save PNG', exact: true }).first().click();
   const png = await pngPromise;
@@ -135,10 +154,10 @@ try {
   groups++;
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: /Explore a fictional example/ }).click();
-  await noOverflow();
+  await noOverflow('mobile result');
   await page.screenshot({ path: output + '/07-brand-result-mobile.png', fullPage: true });
   await page.getByRole('tab', { name: 'Use & export', exact: true }).click();
-  await noOverflow();
+  await noOverflow('mobile exports');
   await page.screenshot({ path: output + '/08-brand-exports-mobile.png', fullPage: true });
   groups++;
   assert.deepEqual(runtimeErrors, [], 'No browser runtime errors');
