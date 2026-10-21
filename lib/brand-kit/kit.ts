@@ -111,8 +111,8 @@ export function brandIssues(input: BrandInput): string[] {
 }
 export function canvaVoice(input: BrandInput): string {
   const voice = VOICES[input.voice];
-  // Fields are bounded before this composition; critical exclusions are never truncated.
-  return `${voice.name}. ${voice.rules[0]} Do not invent facts or promises.${input.voiceNotes.trim() ? ` Style: ${input.voiceNotes.trim()}` : ''}${input.avoid.trim() ? ` Never: ${input.avoid.trim()}` : ''}`;
+  // A neutral label preserves both "No discounts" and "discounts" without double negation.
+  return `${voice.name}. ${voice.rules[0]} Do not invent facts or promises.${input.voiceNotes.trim() ? ` Style: ${input.voiceNotes.trim()}` : ''}${input.avoid.trim() ? ` Owner restrictions: ${input.avoid.trim()}` : ''}`;
 }
 export function buildBrandKit(raw: unknown) {
   const input = normalizeBrandInput(raw);
@@ -130,7 +130,7 @@ export function buildBrandKit(raw: unknown) {
     schemaVersion: BRAND_KIT_VERSION,
     mode: 'local-template-preview' as const,
     business,
-    positioning: `For ${business.audience}, ${business.name} offers ${campaign.offer}.`,
+    positioning: `${business.name}. Intended audience: ${business.audience.replace(/[.!?]+$/, '')}. Current offer: ${campaign.offer.replace(/[.!?]+$/, '')}.`,
     positioningStatus: 'Suggested wording assembled from your answers. Not researched or independently verified.' as const,
     ownerPreferences: ownerProfile(input),
     voice: { id: input.voice, name: voice.name, rules: [...voice.rules], avoid: [voice.avoid, input.avoid.trim()].filter(Boolean), notes: input.voiceNotes.trim(), canvaSummary: canvaVoice(input) },
