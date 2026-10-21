@@ -41,3 +41,5 @@ jobs:
         run: npm test
       - name: Build the production application
         run: npm run build
+      - name: Smoke test disabled checkout, private routes, and release headers
+        run: npm run smoke:prelaunch
