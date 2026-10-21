@@ -125,8 +125,16 @@ export function middleware(req: NextRequest) {
       const referer = req.headers.get('referer');
       const sameOrigin = (value: string | null) => {
         if (!value) return false;
-        try { return new URL(value).origin === req.nextUrl.origin; }
-        catch { return false; }
+        try {
+          const supplied = new URL(value);
+          if (supplied.origin === req.nextUrl.origin) return true;
+          // Next's production adapter may normalize nextUrl.hostname to localhost.
+          // Accept the actual request Host only with the same request protocol.
+          // A cross-site browser request cannot choose a Host different from its target.
+          const requestHost = req.headers.get('host');
+          return !!requestHost && supplied.host.toLowerCase() === requestHost.toLowerCase()
+            && supplied.protocol === req.nextUrl.protocol;
+        } catch { return false; }
       };
 
       if (!(origin ? sameOrigin(origin) : sameOrigin(referer))) {
