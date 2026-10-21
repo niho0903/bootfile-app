@@ -1,5 +1,14 @@
 # Bootfile Studio release status
 
+## October 21 prelaunch prototype update (verified source)
+
+- Application PR #2 now contains the Edge middleware compatibility repair and bounded in-memory rate-store cleanup at commit `c791827a92617bef20efb671c0c93143728323c6`. The first isolated patch at `1d85ff7` was incorporated and improved on the existing rebuild branch; that standalone branch is not the release source.
+- Application PR #2 also contains a free-alternative comparison on `/studio/sample`, a directly copyable prompt, and a neutral evaluation checklist at commit `d26f0768fcb79f603f1781bd815abeecd5d89d58`. The goal is to validate the paid value against a good native-AI solution; no improved conversion or quality has been claimed.
+- GitHub Actions workflow `39534422382` for `d26f0768` completed successfully. Its typecheck, lint, automated tests, and production build steps all succeeded. The Vercel `bootfile-app` status for that commit was **pending** at this check; do not mark hosted acceptance complete until the source-specific result is observed.
+- Neither application PR #2 nor growth-service PR #1 has been merged. Existing launch gates, flags, and $0 paid-acquisition budget remain unchanged. The current Railway deployment still points at the March legacy master source.
+- Overnight staged-autonomy iterations are scheduled for 23:00 through 06:00 America/New_York, with an evidence-only review at 07:00. A scheduled task is not proof that fixes were produced or executed; read the actual commits, statuses, and run records before making a launch claim.
+
+
 Evidence recorded on 2026-10-20. This document separates verified implementation and database work from production activation. Update the pending entries with observed results before describing the rebuilt business as live.
 
 ## Current position
