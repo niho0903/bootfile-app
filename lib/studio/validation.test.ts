@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { STUDIO_PLATFORMS } from './types';
 import { STUDIO_DEMO_BUNDLE, STUDIO_DEMO_INTAKE } from './demo';
 import { assembleStudioBundle, studioBundleMarkdown } from './bundle';
 import { validateStudioDraft, validateStudioIntake } from './validation';
@@ -25,6 +26,17 @@ describe('studio intake and source-grounded delivery checks', () => {
     expect(bundle.businessBrief).not.toHaveProperty('email');
     expect(bundle.validation.requiresHumanReview).toBe(true);
     expect(studioBundleMarkdown(bundle)).toContain('Next-task prompt');
+  });
+
+  it.each(STUDIO_PLATFORMS)('preserves the selected %s assistant in a reusable workflow', platform => {
+    const intake = validateStudioIntake({ ...STUDIO_DEMO_INTAKE, platform });
+    const draft = validateStudioDraft(STUDIO_DEMO_BUNDLE, intake);
+    const bundle = assembleStudioBundle(intake, draft);
+    const name = { chatgpt: 'ChatGPT', claude: 'Claude', gemini: 'Gemini' }[platform];
+    expect(bundle.reusableWorkflow.platform).toBe(platform);
+    expect(bundle.reusableWorkflow.setupSteps[0]).toContain(name);
+    expect(bundle.reusableWorkflow.context).toContain(intake.callToAction);
+    expect(bundle.businessBrief).not.toHaveProperty('email');
   });
 
   it.each([
