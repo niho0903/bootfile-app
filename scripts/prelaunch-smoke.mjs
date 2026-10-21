@@ -101,6 +101,13 @@ try {
   expectPrivateHeaders(csrf, '/api/studio/orders');
   checks += 1;
 
+  const foreignOrigin = await request('/api/studio/orders', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Origin: 'https://untrusted.example' }, body: '{}',
+  });
+  assert.equal(foreignOrigin.status, 403, 'A foreign Origin must never pass the CSRF guard');
+  expectPrivateHeaders(foreignOrigin, '/api/studio/orders');
+  checks += 1;
+
   const invalidIntake = await request('/api/studio/orders', {
     method: 'POST', headers: { 'Content-Type': 'application/json', Origin: origin }, body: '{}',
   });
