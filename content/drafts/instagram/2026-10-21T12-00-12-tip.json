@@ -1,0 +1,15 @@
+{
+  "caption": "Your AI has a 'custom instructions' box and you're probably leaving it empty.\n\nHere's the thing — every major AI right now (ChatGPT, Claude, Gemini) has a place where you can tell it who you are and how you think. And most people either ignore it completely or write something like 'be concise and professional.'\n\nCool. So does everyone else.\n\nHere's what actually moves the needle:\n\n**ChatGPT** → Settings > Personalization > Custom Instructions. Two boxes: what you do, and how you want responses. Don't describe your job title. Describe how your brain works.\n\n**Claude** → Start any conversation with a system-level brief, or use Projects to store context that persists. Claude responds VERY differently when it understands your reasoning style.\n\n**Gemini** → Settings > Personalization. Newer, less robust — but still worth using.\n\nThe problem? Most people don't know what to actually put in those boxes. 'Be concise' is not a thinking style. It's a formatting preference.\n\nReal custom instructions sound like: 'I think in systems. I need the why before the what. I get frustrated when AI skips steps or over-explains basics.'\n\nThat's the gap bootfile.ai fills — we figure out HOW you think so you stop guessing what to type in that box.\n\nLink in bio to build your profile.",
+  "hashtags": [
+    "ChatGPT",
+    "ClaudeAI",
+    "CustomInstructions",
+    "AIProductivity",
+    "GeminiAI",
+    "AITips",
+    "PromptEngineering",
+    "bootfileai"
+  ],
+  "hook": "Your AI has a 'custom instructions' box and you're probably leaving it empty.",
+  "contentType": "tip"
+}
