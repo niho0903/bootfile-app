@@ -1,6 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { checkRateLimit } from '@/lib/rate-limit';
-import { isPrivatePath } from '@/lib/privacy';
+// Keep middleware self-contained for the Edge bundler. The application-level
+// privacy helpers and rate limiter remain available to Node route handlers.
+const rateStore = new Map<string, number[]>();
+function checkRateLimit(key: string, maxRequests: number, windowMs: number) {
+  const now = Date.now();
+  const cutoff = now - windowMs;
+  const recent = (rateStore.get(key) ?? []).filter(t => t > cutoff);
+  if (recent.length >= maxRequests) return { allowed: false, resetMs: Math.max(1, recent[0] + windowMs - now) };
+  recent.push(now);
+  rateStore.set(key, recent);
+  return { allowed: true, resetMs: windowMs };
+}
+function isPrivatePath(pathname: string): boolean {
+  return ['/api/', '/operations', '/admin', '/build', '/bootfile', '/result'].some(prefix => pathname.startsWith(prefix))
+    || (pathname.startsWith('/studio') && !['/studio/sample', '/studio/sample/'].includes(pathname));
+}
 
 // Rate limit configs per route pattern
 const RATE_LIMITS: Record<string, { max: number; windowMs: number }> = {
