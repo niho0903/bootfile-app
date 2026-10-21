@@ -20,6 +20,7 @@ export function StudioBundleView({ bundle, isSample = false }: { bundle: StudioB
   const [checkedItems, setCheckedItems] = useState<Set<number>>(() => new Set());
   const [downloadError, setDownloadError] = useState('');
   const platform = { chatgpt: 'ChatGPT', claude: 'Claude', gemini: 'Gemini' }[bundle.reusableWorkflow.platform];
+  const platformUrl = { chatgpt: 'https://chatgpt.com/', claude: 'https://claude.ai/projects', gemini: 'https://gemini.google.com/' }[bundle.reusableWorkflow.platform];
   const completeMarkdown = `${isSample ? '# Illustrative example — fictional business\n\n' : ''}${studioBundleMarkdown(bundle)}`;
 
   function downloadPack() {
@@ -81,7 +82,8 @@ export function StudioBundleView({ bundle, isSample = false }: { bundle: StudioB
           </> : activeTab === 'setup' ? <>
             <PanelIntro title="Ready for your next promotion." description={`Keep this setup and use it in your own ${platform} account when you have another offer to work on.`} />
             <div className="studio-pack-document">
-              <h3 className="font-heading" style={{ fontSize: 25, fontWeight: 400, marginBottom: 21 }}>Set it up in {platform}</h3>
+              <h3 className="font-heading" style={{ fontSize: 25, fontWeight: 400, marginBottom: 11 }}>Set it up in {platform}</h3>
+              <a href={platformUrl} target="_blank" rel="noopener noreferrer" className="studio-text-link" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 13, marginBottom: 21 }}>Open {platform} in a new tab <ArrowIcon /></a>
               <ol style={{ listStyle: 'none', display: 'grid', gap: 18, marginBottom: 28 }}>{bundle.reusableWorkflow.setupSteps.map((step, index) => <li key={index} style={{ display: 'grid', gridTemplateColumns: '22px 1fr', gap: 12, fontSize: 13, lineHeight: 1.8, color: '#514D46' }}><span style={{ color: c.green, fontSize: 11, paddingTop: 2 }}>{String(index + 1).padStart(2, '0')}</span><span>{step}</span></li>)}</ol>
               <div style={{ background: c.wash, border: '1px solid #D6DDCB', borderRadius: 9, padding: 20 }}><CopyBlock label="Your reusable business setup" text={bundle.reusableWorkflow.context} copyLabel="Copy setup"><p style={{ fontSize: 12, color: c.muted, marginTop: 13, lineHeight: 1.8 }}>Copy this into a new {platform} conversation. It includes your business brief, your tone, and rules for handling missing facts.</p><details style={{ marginTop: 13 }}><summary style={{ cursor: 'pointer', color: c.green, fontSize: 12 }}>Read the complete setup</summary><pre className="studio-copy-text" style={{ fontSize: 12, marginTop: 16 }}>{bundle.reusableWorkflow.context}</pre></details></CopyBlock></div>
               <div style={{ marginTop: 25 }}><CopyBlock label="Then start your next task" text={bundle.reusableWorkflow.nextTaskPrompt} copyLabel="Copy prompt"><div className="studio-copy-text" style={{ marginTop: 15, fontSize: 13 }}>{bundle.reusableWorkflow.nextTaskPrompt}</div></CopyBlock></div>
