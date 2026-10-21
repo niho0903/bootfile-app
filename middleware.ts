@@ -1,6 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { checkRateLimit } from '@/lib/rate-limit';
-import { isPrivatePath } from '@/lib/privacy';
+// Keep middleware self-contained for the Edge bundler. The application-level
+// privacy helpers and rate limiter remain available to Node route handlers.
+const rateStore = new Map<string, number[]>();
+let lastRateStoreCleanup = 0;
+const RATE_STORE_RETENTION_MS = 3_600_000; // Longest configured rate-limit window
+function checkRateLimit(key: string, maxRequests: number, windowMs: number) {
+  const now = Date.now();
+  // Retain entries from longer windows even when a one-minute endpoint triggers cleanup.
+  if (now - lastRateStoreCleanup >= 60_000) {
+    const oldestNeeded = now - RATE_STORE_RETENTION_MS;
+    for (const [entryKey, timestamps] of rateStore) {
+      const current = timestamps.filter(timestamp => timestamp > oldestNeeded);
+      if (current.length) rateStore.set(entryKey, current);
+      else rateStore.delete(entryKey);
+    }
+    lastRateStoreCleanup = now;
+  }
+  const cutoff = now - windowMs;
+  const recent = (rateStore.get(key) ?? []).filter(timestamp => timestamp > cutoff);
+  if (recent.length >= maxRequests) {
+    rateStore.set(key, recent);
+    return { allowed: false, resetMs: Math.max(1, recent[0] + windowMs - now) };
+  }
+  recent.push(now);
+  rateStore.set(key, recent);
+  return { allowed: true, resetMs: windowMs };
+}
+function isPrivatePath(pathname: string): boolean {
+  return ['/api/', '/operations', '/admin', '/build', '/bootfile', '/result'].some(prefix => pathname.startsWith(prefix))
+    || (pathname.startsWith('/studio') && !['/studio/sample', '/studio/sample/'].includes(pathname));
+}
 
 // Rate limit configs per route pattern
 const RATE_LIMITS: Record<string, { max: number; windowMs: number }> = {
