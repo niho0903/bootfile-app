@@ -1,0 +1,13 @@
+/* Scope overflow containment to the decorative hero illustration, never the
+   page, forms or exports. Rotated artwork and text must not widen a phone page. */
+.brandHero > *, .brandWorkspace > *, .brandBrandGrid > *, .brandPartnerGrid > * { min-width: 0; }
+@media (max-width: 720px) {
+  .brandApp .brandHeroArt { contain: paint; padding-top: 25px; padding-bottom: 25px; }
+  .brandApp .brandHeroArt::before { inset: 24px; transform: rotate(5deg); }
+  .brandApp .brandHeroCard h2 { font-size: 50px; overflow-wrap: anywhere; }
+}
+@media print {
+  /* The site's screen-only grain was rasterizing into a multi-megabyte PDF.
+     Keep the text-readable public guide clean and avoid this decorative layer. */
+  body:has(.brandApp)::after { content: none !important; display: none !important; }
+}
