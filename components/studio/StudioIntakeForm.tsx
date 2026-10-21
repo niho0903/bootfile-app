@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { STUDIO_PRODUCT, type StudioIntake } from '@/lib/studio/types';
+import { STUDIO_PLATFORMS, STUDIO_PRODUCT, type StudioIntake, type StudioPlatform } from '@/lib/studio/types';
 import { STUDIO_FIELD_LIMITS } from '@/lib/studio/validation';
 import { ArrowIcon, CheckIcon, DocumentIcon, Eyebrow, StudioNotice, studioColors as c, studioContainer } from './StudioChrome';
 import { useStudioBrowserReady } from './useStudioBrowserReady';
@@ -16,6 +16,7 @@ const EMPTY_FORM: FormValues = { businessName: '', businessDescription: '', audi
 const STEP_FIELDS: TextField[][] = [['businessName', 'businessDescription', 'audience'], ['offer', 'goal', 'approvedFacts', 'callToAction'], ['email']];
 const LABELS: Record<TextField, string> = { businessName: 'Business name', businessDescription: 'What you do', audience: 'Who this is for', offer: 'Your offer', goal: 'Your goal', approvedFacts: 'Details we can use', callToAction: 'The next step', voiceSample: 'Your voice', constraints: 'Things to avoid', email: 'Delivery email' };
 const DRAFT_KEY = 'bootfile:studio:draft:v1';
+const PLATFORM_LABELS: Record<StudioPlatform, string> = { chatgpt: 'ChatGPT', claude: 'Claude', gemini: 'Gemini' };
 
 export function StudioIntakeForm() {
   const browserReady = useStudioBrowserReady();
@@ -39,8 +40,24 @@ function readStoredDraft(): FormValues {
   return restored;
 }
 
+function readStoredPlatform(): StudioPlatform {
+  try {
+    const raw = sessionStorage.getItem(DRAFT_KEY);
+    if (!raw) return 'chatgpt';
+    const saved: unknown = JSON.parse(raw);
+    if (saved && typeof saved === 'object' && 'updatedAt' in saved && 'platform' in saved
+      && typeof saved.updatedAt === 'number' && saved.updatedAt <= Date.now()
+      && Date.now() - saved.updatedAt < 86_400_000
+      && STUDIO_PLATFORMS.includes(saved.platform as StudioPlatform)) {
+      return saved.platform as StudioPlatform;
+    }
+  } catch { /* Ignore unavailable or invalid session storage. */ }
+  return 'chatgpt';
+}
+
 function StudioIntakeEditor() {
   const [form, setForm] = useState<FormValues>(readStoredDraft);
+  const [platform, setPlatform] = useState<StudioPlatform>(readStoredPlatform);
   const [step, setStep] = useState(0);
   const [errors, setErrors] = useState<Partial<Record<TextField, string>>>({});
   const [factsConfirmed, setFactsConfirmed] = useState(false);
@@ -67,14 +84,21 @@ function StudioIntakeEditor() {
     try {
       const { email: omittedEmail, ...values } = form;
       void omittedEmail;
-      sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ updatedAt: Date.now(), values }));
+      sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ updatedAt: Date.now(), platform, values }));
     } catch { /* Saving a draft must never block editing it. */ }
-  }, [form]);
+  }, [form, platform]);
 
   function updateField(field: TextField, value: string) {
     setForm(current => ({ ...current, [field]: value }));
     setErrors(current => ({ ...current, [field]: undefined }));
     if (field !== 'email') setFactsConfirmed(false);
+    setSubmitError('');
+    checkoutResponse.current = null;
+    requestKey.current = null;
+  }
+
+  function updatePlatform(value: StudioPlatform) {
+    setPlatform(value);
     setSubmitError('');
     checkoutResponse.current = null;
     requestKey.current = null;
@@ -117,7 +141,7 @@ function StudioIntakeEditor() {
       let result = checkoutResponse.current;
       if (!result) {
         requestKey.current ??= crypto.randomUUID();
-        const intake: StudioIntake = { ...form, platform: 'chatgpt', acceptedTerms: true };
+        const intake: StudioIntake = { ...form, platform, acceptedTerms: true };
         const response = await fetch('/api/studio/orders', {
           method: 'POST', headers: { 'Content-Type': 'application/json', 'Idempotency-Key': requestKey.current }, body: JSON.stringify(intake), signal: AbortSignal.timeout(30_000),
         });
@@ -192,9 +216,19 @@ function StudioIntakeEditor() {
                   {field('email', 'Where should we send your pack?', 'Use an email you can access. Your private order link and finished pack go here.', 'you@example.com')}
                   <p style={{ color: c.muted, fontSize: 11, marginTop: 9 }}>For your purchase and delivery. No newsletter signup.</p>
                 </div>
+                <fieldset style={{ borderTop: `1px solid ${c.line}`, borderBottom: `1px solid ${c.line}`, marginTop: 24, padding: '20px 0' }}>
+                  <legend style={{ fontSize: 14, fontWeight: 550, paddingTop: 10 }}>Which AI assistant will you use?</legend>
+                  <p style={{ fontSize: 12, color: c.muted, lineHeight: 1.75, margin: '9px 0 14px' }}>Choose the assistant you already have. We’ll tailor the setup instructions; you won’t need to connect your account.</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px 22px' }}>
+                    {STUDIO_PLATFORMS.map(value => <label className="studio-choice" key={value} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                      <input type="radio" name="studio-platform" value={value} checked={platform === value} onChange={() => updatePlatform(value)} disabled={submitting} />
+                      <span>{PLATFORM_LABELS[value]}</span>
+                    </label>)}
+                  </div>
+                </fieldset>
                 <div style={{ background: c.wash, borderRadius: 9, padding: '18px 20px', marginTop: 27 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: 20, alignItems: 'baseline' }}><span style={{ fontSize: 13, fontWeight: 550 }}>Marketing Setup</span><span style={{ fontSize: 21, fontWeight: 500 }}>{STUDIO_PRODUCT.formatted}</span></div>
-                  <p style={{ color: c.muted, fontSize: 11, marginTop: 5 }}>USD · one-time purchase · ChatGPT setup included</p>
+                  <p style={{ color: c.muted, fontSize: 11, marginTop: 5 }}>USD · one-time purchase · {PLATFORM_LABELS[platform]} setup included</p>
                   <p style={{ fontSize: 12, color: c.green, marginTop: 12, lineHeight: 1.8 }}>Your brief, one email, three social posts, reusable setup, and review checklist.</p>
                 </div>
                 <div style={{ marginTop: 22 }}><label className="studio-choice"><input type="checkbox" checked={termsAccepted} onChange={event => setTermsAccepted(event.target.checked)} disabled={submitting} /><span>I agree to the <Link href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: c.green, textDecoration: 'underline' }}>Terms</Link> and have read the <Link href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: c.green, textDecoration: 'underline' }}>Privacy Policy</Link>. I have permission to use these business details.</span></label></div>
@@ -214,7 +248,7 @@ function StudioIntakeEditor() {
             <h2 className="font-heading" style={{ fontSize: 25, lineHeight: 1.25, fontWeight: 400, margin: '16px 0 12px' }}>One offer.<br />A useful starting point.</h2>
             <p style={{ fontSize: 12, lineHeight: 1.85, color: c.muted }}>You bring the business details. Your pack connects them to a clear next step for your customers.</p>
             <ul style={{ listStyle: 'none', display: 'grid', gap: 14, margin: '23px 0', padding: '23px 0', borderTop: '1px solid #D6DDCB', borderBottom: '1px solid #D6DDCB' }}>
-              {['Your confirmed business brief', 'A customer email', 'Three social posts', 'A reusable ChatGPT setup', 'A review checklist'].map(item => <li key={item} style={{ display: 'flex', gap: 9, alignItems: 'flex-start', color: c.green, fontSize: 12 }}><CheckIcon size={15} />{item}</li>)}
+              {['Your confirmed business brief', 'A customer email', 'Three social posts', 'A reusable setup for your chosen AI assistant', 'A review checklist'].map(item => <li key={item} style={{ display: 'flex', gap: 9, alignItems: 'flex-start', color: c.green, fontSize: 12 }}><CheckIcon size={15} />{item}</li>)}
             </ul>
             <p style={{ fontSize: 13, fontWeight: 550 }}>{STUDIO_PRODUCT.formatted} once. No subscription.</p>
             <Link href="/studio/sample" target="_blank" className="studio-text-link" style={{ fontSize: 12, marginTop: 19 }}>Open the example <ArrowIcon /></Link>
