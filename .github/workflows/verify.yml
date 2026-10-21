@@ -2,7 +2,7 @@ name: Verify Bootfile
 
 on:
   pull_request:
-    branches: [master]
+    branches: [master, 'rebuild/**']
   push:
     branches: [master, 'rebuild/**']
   workflow_dispatch:
@@ -17,17 +17,19 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     env:
       NEXT_TELEMETRY_DISABLED: '1'
       STUDIO_CHECKOUT_ENABLED: 'false'
       STUDIO_FULFILLMENT_ENABLED: 'false'
       STUDIO_REFUNDS_ENABLED: 'false'
+      GROWTH_REVIEW_ENABLED: 'false'
+      GROWTH_PUBLICATION_ENABLED: 'false'
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           persist-credentials: false
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
         with:
           node-version: '24'
           cache: npm
@@ -45,3 +47,19 @@ jobs:
         run: npm run build
       - name: Smoke test disabled checkout, private routes, and release headers
         run: npm run smoke:prelaunch
+      - name: Install isolated browser QA tooling
+        run: |
+          npm install --prefix "$RUNNER_TEMP/brand-qa" --ignore-scripts --no-audit --no-fund --package-lock=false playwright@1.63.0
+          node "$RUNNER_TEMP/brand-qa/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: Verify quiz, review, exports, privacy and mobile behavior
+        run: node scripts/brand-browser-smoke.mjs
+        env:
+          PLAYWRIGHT_PACKAGE_ROOT: ${{ runner.temp }}/brand-qa
+      - name: Save fictional prototype review evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: brand-kit-preview-${{ github.sha }}
+          path: artifacts/brand-kit/
+          if-no-files-found: ignore
+          retention-days: 7

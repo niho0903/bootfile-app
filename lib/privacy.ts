@@ -6,7 +6,7 @@ export function isPublicAnalyticsPath(pathname: string | null): boolean {
 }
 
 export function isPrivatePath(pathname: string): boolean {
-  return ['/api/', '/operations', '/admin', '/build', '/bootfile', '/result'].some(prefix => pathname.startsWith(prefix))
+  return ['/api/', '/operations', '/admin', '/build', '/bootfile', '/result', '/brand'].some(prefix => pathname.startsWith(prefix))
     || (pathname.startsWith('/studio') && !['/studio/sample', '/studio/sample/'].includes(pathname));
 }
 
