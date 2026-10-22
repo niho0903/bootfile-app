@@ -1,0 +1,15 @@
+{
+  "caption": "Custom instructions are not a personality test. Stop filling them out like one.\n\nEvery AI platform has a \"custom instructions\" or \"system prompt\" box. ChatGPT has two fields. Claude has a system prompt. Gemini has its own version. And most people either leave them blank or write something like \"be concise and helpful.\"\n\nThat does almost nothing.\n\nHere's what actually works — stop describing the vibe you want and start describing how you think.\n\nInstead of: \"Give me short answers\"\nTry: \"I process information by seeing the conclusion first, then the reasoning. Lead with the answer, follow with the why.\"\n\nInstead of: \"Be professional\"\nTry: \"I'm a founder who switches between big-picture strategy and execution details. Flag when you think I'm solving the wrong problem.\"\n\nThe difference? One tells AI how to format. The other tells AI how your brain works.\n\nChatGPT, Claude, and Gemini all respond to context about your thinking style — not just your preferences. The more specific you are about how you process, decide, and communicate, the less you'll rewrite outputs from scratch.\n\nThis is literally what we built BootFile to do — figure out your thinking profile and translate it into custom instructions that actually land.\n\nBut even manually, this shift alone will change your results today.",
+  "hashtags": [
+    "ChatGPT",
+    "ClaudeAI",
+    "AIProductivity",
+    "CustomInstructions",
+    "AITools",
+    "PromptEngineering",
+    "WorkSmarter",
+    "BootFile"
+  ],
+  "hook": "Custom instructions are not a personality test. Stop filling them out like one.",
+  "contentType": "tip"
+}
