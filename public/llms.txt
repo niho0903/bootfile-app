@@ -1,55 +1,32 @@
-# BootFile
+# Bootfile
 
-> BootFile creates personalized AI instruction profiles based on how you think.
+> Bootfile turns an approved business brief into a practical marketing setup and reusable AI instructions.
 
-## What It Is
-BootFile is a web app that helps people discover their AI reasoning style and generates a custom instruction profile they can paste into any major AI platform. It replaces the blank "custom instructions" text box with a structured, tested instruction set tailored to how the user actually thinks.
+## Marketing Setup
+The current product is a $49 one-time Marketing Setup for a solo service business. A customer provides their business, audience, offer, goal, approved facts, call to action, writing example, and constraints; reviews the brief; and purchases when checkout is open.
 
-## How It Works
-1. Take a free quiz (about 3 minutes total).
-2. Discover your AI reasoning archetype.
-3. Answer a few follow-up questions to personalize your BootFile.
-4. Preview your profile, then purchase your full BootFile ($4.99).
-5. Paste it into your AI platform of choice.
-6. Every conversation from that point forward is shaped by your thinking style.
+The deliverable contains one promotional email, three coordinated social posts, the approved brief, reusable AI context and workflow, and a review checklist. The customer reviews facts, claims, links, and tone before publishing. Bootfile does not publish to the customer's channels or promise revenue or marketing results.
 
-## The 8 Archetypes
-- The Surgeon — "Cut the fluff." Direct, convergent reasoning. Wants precision and confidence.
-- The Architect — "Show me the whole board." Systems thinking. Needs the full picture before acting.
-- The Sparring Partner — "Don't agree with me." Adversarial-constructive. Wants pushback and challenge.
-- The Translator — "Make it click." Clarity through analogies and simple language.
-- The Co-Pilot — "Think with me." Collaborative. Riffs on half-formed ideas.
-- The Librarian — "Give me everything." Comprehensive. Wants depth, sources, edge cases.
-- The Closer — "Just tell me what to do." Action-oriented. Wants recommendations, not options.
-- The Maker — "Less talk, more output." Production-focused. Wants drafts, code, and deliverables.
+The workflow can be copied into ChatGPT, Claude, or Gemini. Bootfile does not need to import or replace the AI platform's saved memory. A third-party AI subscription is not included.
 
-## What a BootFile Contains
-- About Me — reasoning profile and thinking style summary
-- How I Think — cognitive patterns and decision-making approach
-- Communication Rules — how the AI should interact with the user
-- Format Preferences — structural preferences for responses
-- Never Do This — explicit boundaries and anti-patterns
-- Quick Commands — trigger phrases for specific AI behaviors
+## Purchasing and access
+- One-time $49 payment in USD; no subscription.
+- Checkout remains closed until payment, generation, delivery, and recovery configuration is verified.
+- Private order links and downloadable output support purchase recovery.
+- Seven-day full refund policy. Eligible customer-requested card refunds can be requested on the private order page when online refund execution is enabled. Other requests go to support@bootfile.ai.
+- The sample is an illustrative fictional example, not a testimonial or evidence of customer results.
 
-## Supported Platforms
-- ChatGPT (two-field Custom Instructions)
-- Claude (single-block Profile instructions)
-- Google Gemini (Gem or Preferences)
-- Grok (two-field Personalization)
-- DeepSeek (conversation primer format)
-- Microsoft Copilot (condensed Personalization)
+## Original product
+The original quiz and $4.99 AI instruction profile remain at /quiz and /build. That separate product uses eight archetypes: Surgeon, Architect, Sparring Partner, Translator, Co-Pilot, Librarian, Closer, and Maker. Existing purchase access remains supported.
 
-## Pricing
-- $4.99 — one-time purchase, all 6 platform formats
-
-## Key URLs
+## URLs
 - Homepage: https://bootfile.ai
-- Quiz: https://bootfile.ai/quiz
-- Simulator: https://bootfile.ai/simulator
+- Marketing Setup: https://bootfile.ai/studio
+- Fictional sample: https://bootfile.ai/studio/sample
+- Private-link help: https://bootfile.ai/studio/recover
+- Original quiz: https://bootfile.ai/quiz
+- Guides: https://bootfile.ai/guides
 - Blog: https://bootfile.ai/blog
-- Platform Guides: https://bootfile.ai/guides
-- Privacy Policy: https://bootfile.ai/privacy
-
-## Contact
-- Website: https://bootfile.ai
+- Terms: https://bootfile.ai/terms
+- Privacy: https://bootfile.ai/privacy
 - Support: support@bootfile.ai

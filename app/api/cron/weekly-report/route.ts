@@ -1,11 +1,11 @@
+import { isCronAuthorized } from '@/lib/operations/auth';
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { getWeeklyReport, SearchAnalyticsRow } from '@/lib/search-console';
 import { getSupabaseAdmin } from '@/lib/supabase';
 
 export async function GET(request: Request) {
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!isCronAuthorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

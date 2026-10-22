@@ -1,569 +1,141 @@
 import Link from 'next/link';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
+import type { Metadata } from 'next';
 import { JsonLd } from '@/components/JsonLd';
-import { ARCHETYPES } from '@/lib/archetypes';
-import { SAMPLE_BOOTFILE_TEXT } from '@/lib/sample-bootfile';
-import {
-  organizationJsonLd,
-  webApplicationJsonLd,
-  faqPageJsonLd,
-  breadcrumbJsonLd,
-} from '@/lib/json-ld';
+import { faqPageJsonLd } from '@/lib/json-ld';
+import { ArrowIcon, CheckIcon, DocumentIcon, Eyebrow, StudioFooter, StudioHeader, studioColors as c, studioContainer } from '@/components/studio/StudioChrome';
 
-const faqs: {
-  question: string;
-  answer: string;
-  link?: { href: string; label: string };
-}[] = [
-  {
-    question: 'What is a BootFile?',
-    answer:
-      'A BootFile is the output of an eight-archetype cognitive assessment — a portable profile that tells any AI how you reason, how you make decisions, and what kind of thinking earns your trust. Same file, works across ChatGPT, Claude, Gemini, and every major AI you use.',
+export const metadata: Metadata = {
+  title: 'Bootfile — Your next promotion, ready to work on',
+  description: 'Turn one business offer into a customer email, three social posts, and a reusable ChatGPT setup. Marketing Setup by Bootfile. $49 once, no subscription.',
+  alternates: { canonical: '/' },
+  openGraph: {
+    title: 'One offer. Your next promotion. A better way to use AI.',
+    description: 'A customer email, three social posts, and a reusable AI setup built around your business. $49 once.',
+    url: '/',
   },
-  {
-    question: 'How long does the quiz take?',
-    answer:
-      'About three minutes. A short assessment identifies your cognitive archetype, then a few follow-up questions personalize the profile to your work and your context.',
-  },
-  {
-    question: 'How does the assessment work?',
-    answer:
-      'Eight questions measure how you prefer to reason — how you process information, how you make decisions, and what kind of answers earn your trust. Your answer pattern maps to one of eight cognitive archetypes. We developed the framework specifically for AI interaction, and we publish exactly how it works.',
-    link: { href: '/methodology', label: 'Read the full methodology' },
-  },
-  {
-    question: 'Which AI platforms does BootFile work with?',
-    answer:
-      'Every major AI: ChatGPT, Claude, Google Gemini, Grok, DeepSeek, and Microsoft Copilot. Your BootFile is formatted for each platform’s custom-instruction system, so it’s the same cognitive profile expressed in the way each tool expects.',
-  },
-  {
-    question: 'How much does it cost?',
-    answer:
-      'The quiz is free. A BootFile is $4.99, one-time. It includes formatted output for all 6 AI platforms.',
-  },
-  {
-    question: 'Is my data private?',
-    answer:
-      'Yes. Your quiz answers are used only to generate your BootFile. We don’t sell your data or share it with third parties. See our Privacy Policy for full details.',
-  },
+};
+
+const faqs = [
+  { question: 'What exactly will I get?', answer: 'Your Marketing Setup includes a business brief based on the facts you confirm, one customer email, three coordinated social posts for one offer, a reusable ChatGPT setup, a prompt for your next promotion, and a review checklist. You can copy the sections individually or download the complete pack.' },
+  { question: 'Who is this for?', answer: 'Solo service-business owners with a real offer to promote: for example, a photographer opening bookings, a tutor introducing a workshop, or a consultant launching a service. You bring the details. Bootfile turns them into a focused starting point for your marketing.' },
+  { question: 'Why use this if ChatGPT already remembers me?', answer: 'Memory can provide background. A promotion still needs a clear offer, accurate details, a call to action, and a consistent voice. Bootfile helps you put those ingredients together, then gives you the first drafts and a reusable brief you can check and update.' },
+  { question: 'Do I need a paid ChatGPT plan?', answer: 'You receive your complete pack from Bootfile. To reuse the setup, you need access to ChatGPT; you can paste it into a conversation. A paid ChatGPT subscription is not included or required by Bootfile. Availability and usage limits are set by OpenAI.' },
+  { question: 'Will it send emails or post for me?', answer: 'You get editable drafts and a checklist. You decide what to use and publish it through your own email and social accounts. Before publishing, check the facts, links, dates, and fit for your audience.' },
+  { question: 'Is this a subscription?', answer: 'No. Marketing Setup is a one-time $49 purchase in USD for one business and one promotion. You keep the downloadable pack and can reuse its setup in your own ChatGPT account. A new Bootfile-generated promotion is a separate purchase.' },
+  { question: 'What if the result isn’t right for me?', answer: 'You can request a full refund within seven days of purchase from your private order page, when available, or by emailing support@bootfile.ai from the address used at checkout. See the Terms for the full refund policy.' },
 ];
 
-export const metadata = {
-  title: 'BootFile | Find Your Cognitive Archetype',
-  description:
-    'Find your cognitive archetype in three minutes. Get a portable AI profile that works the same across ChatGPT, Claude, Gemini, and every tool you use.',
-};
+const deliverables = [
+  { number: '01', title: 'Your business, clearly briefed.', copy: 'The offer, audience, tone, and facts you want AI to work from. Something you can check, keep, and update.', icon: 'page' as const },
+  { number: '02', title: 'Your first promotion, drafted.', copy: 'One customer email and three coordinated social posts. Built around the same offer and next step.', icon: 'email' as const },
+  { number: '03', title: 'A setup you can use again.', copy: 'A ready-to-paste ChatGPT setup, a next-promotion prompt, and a practical checklist for reviewing the work.', icon: 'spark' as const },
+];
 
 export default function LandingPage() {
   return (
     <>
-      <JsonLd
-        data={[
-          organizationJsonLd(),
-          webApplicationJsonLd(),
-          faqPageJsonLd(faqs),
-          breadcrumbJsonLd([{ name: 'Home', href: '/' }]),
-        ]}
-      />
-      <Header />
-      <main>
-        {/* Hero — cream background */}
-        <section className="hero-glow" style={{ padding: '120px 20px 80px', textAlign: 'center', backgroundColor: '#F7F4EF' }}>
-          <div className="hero-animate" style={{ maxWidth: 480, margin: '0 auto' }}>
-            <p
-              className="hero-animate"
-              style={{
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                color: '#7D8B6E',
-                textTransform: 'uppercase' as const,
-                letterSpacing: '0.08em',
-                marginBottom: 16,
-              }}
-            >
-              The first personality test your AI can read
-            </p>
-            <h1
-              className="font-heading hero-animate"
-              style={{
-                fontSize: 'clamp(2.4rem, 6vw, 3rem)',
-                lineHeight: 1.15,
-                color: '#2D2926',
-                letterSpacing: '-0.01em',
-                fontWeight: 400,
-              }}
-            >
-              How do you think?
-            </h1>
-
-            <p
-              className="hero-animate"
-              style={{
-                fontSize: '1.1rem',
-                lineHeight: 1.65,
-                color: '#7A746B',
-                maxWidth: 440,
-                margin: '16px auto 32px',
-                fontWeight: 400,
-              }}
-            >
-              Find your cognitive archetype. Get a profile every AI understands.
-            </p>
-
-            <Link
-              href="/quiz"
-              className="hero-animate"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: '#7D8B6E',
-                color: '#fff',
-                fontWeight: 500,
-                padding: '14px 28px',
-                borderRadius: 8,
-                fontSize: '0.95rem',
-                letterSpacing: '0.01em',
-                textDecoration: 'none',
-                transition: 'background-color 0.2s ease',
-              }}
-            >
-              Take the Quiz
-            </Link>
-          </div>
-        </section>
-
-        {/* Archetype grid — stone background */}
-        <section style={{ padding: '80px 20px', backgroundColor: '#ECEAE4' }}>
-          <div
-            style={{
-              maxWidth: 800,
-              margin: '0 auto',
-              padding: 0,
-              textAlign: 'center',
-            }}
-          >
-            <h2
-              className="font-heading"
-              style={{
-                fontSize: '1.5rem',
-                lineHeight: 1.3,
-                color: '#2D2926',
-                fontWeight: 400,
-                marginBottom: 16,
-              }}
-            >
-              Eight cognitive archetypes. One belongs to you.
-            </h2>
-
-            <p
-              style={{
-                fontSize: '1rem',
-                lineHeight: 1.7,
-                color: '#7A746B',
-                maxWidth: 600,
-                margin: '0 auto 40px',
-              }}
-            >
-              Take the three-minute quiz to find yours. Your BootFile is a portable
-              thinking profile — paste it into any AI you use, and every
-              conversation starts with the AI already understanding how you reason.
-            </p>
-
-            <style>{`
-              .bf-archetype-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-              @media (min-width: 700px) { .bf-archetype-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; } }
-            `}</style>
-            <div className="bf-archetype-grid" style={{ marginBottom: 32 }}>
-              {Object.values(ARCHETYPES).map((archetype) => (
-                <div
-                  key={archetype.name}
-                  style={{
-                    backgroundColor: '#F7F4EF',
-                    borderRadius: 12,
-                    padding: '24px 16px',
-                    textAlign: 'center',
-                  }}
-                >
-                  <div style={{ fontSize: '1.6rem', marginBottom: 10 }} aria-hidden>
-                    {archetype.icon}
-                  </div>
-                  <p
-                    className="font-heading"
-                    style={{
-                      fontSize: '1rem',
-                      color: '#2D2926',
-                      fontWeight: 400,
-                      marginBottom: 6,
-                    }}
-                  >
-                    {archetype.name}
-                  </p>
-                  <p style={{ fontSize: '0.85rem', color: '#7A746B', lineHeight: 1.4 }}>
-                    {archetype.tagline}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <Link
-              href="/quiz"
-              style={{
-                fontSize: '0.95rem',
-                fontWeight: 500,
-                color: '#7D8B6E',
-                textDecoration: 'none',
-                transition: 'color 0.2s',
-              }}
-            >
-              8 ways of thinking. Which one is yours? &rarr;
-            </Link>
-          </div>
-        </section>
-
-        {/* Artifact — cream background */}
-        <section style={{ padding: '80px 20px', backgroundColor: '#F7F4EF' }}>
-          <div style={{ maxWidth: 600, margin: '0 auto' }}>
-            <h2
-              className="font-heading"
-              style={{
-                fontSize: '1.5rem',
-                lineHeight: 1.3,
-                color: '#2D2926',
-                fontWeight: 400,
-                marginBottom: 16,
-                textAlign: 'center',
-              }}
-            >
-              You get a file, not a feeling.
-            </h2>
-            <p
-              style={{
-                fontSize: '1rem',
-                lineHeight: 1.7,
-                color: '#7A746B',
-                textAlign: 'center',
-                maxWidth: 480,
-                margin: '0 auto 32px',
-              }}
-            >
-              Most personality tests end with a label. This one ends with a
-              nine-section instruction file your AI actually reads — paste it
-              once and every conversation starts calibrated to you.
-            </p>
-
-            <div
-              style={{
-                backgroundColor: '#2D2926',
-                borderRadius: 12,
-                overflow: 'hidden',
-              }}
-            >
-              <div
-                style={{
-                  padding: '10px 16px',
-                  backgroundColor: '#3A3633',
-                  fontSize: 12,
-                  color: '#A09B93',
-                  letterSpacing: '0.03em',
-                  fontFamily: 'ui-monospace, monospace',
-                }}
-              >
-                bootfile-architect.txt
+      <JsonLd data={faqPageJsonLd(faqs)} />
+      <StudioHeader />
+      <main id="main-content">
+        <section style={{ ...studioContainer, paddingTop: 76, paddingBottom: 84 }}>
+          <div className="studio-hero-grid">
+            <div style={{ paddingTop: 8 }}>
+              <Eyebrow>Marketing Setup · for solo service businesses</Eyebrow>
+              <h1 className="font-heading" style={{ fontSize: 'clamp(44px, 5.1vw, 68px)', fontWeight: 400, lineHeight: 1.06, letterSpacing: '-.035em', maxWidth: 590 }}>
+                One offer.<br />Your next<br /><span style={{ color: c.green }}>promotion.</span>
+              </h1>
+              <p style={{ fontSize: 17, lineHeight: 1.8, maxWidth: 425, color: c.muted, margin: '26px 0 30px' }}>
+                Turn what you do into a customer email, three social posts, and a ChatGPT setup that knows what matters to your business.
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, alignItems: 'center' }}>
+                <Link href="/studio" className="studio-button">Build my marketing setup <ArrowIcon /></Link>
+                <Link href="/studio/sample" className="studio-text-link" style={{ padding: '10px 0' }}>Explore an example <ArrowIcon /></Link>
               </div>
-              <pre
-                style={{
-                  margin: 0,
-                  padding: '20px 16px 28px',
-                  fontSize: 12.5,
-                  lineHeight: 1.65,
-                  color: '#C4BFB6',
-                  fontFamily: 'ui-monospace, monospace',
-                  whiteSpace: 'pre-wrap',
-                  maskImage: 'linear-gradient(to bottom, black 60%, transparent)',
-                  WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent)',
-                }}
-              >
-                {SAMPLE_BOOTFILE_TEXT.split('\n').slice(0, 14).join('\n')}
-              </pre>
+              <p style={{ color: c.muted, fontSize: 12, marginTop: 18 }}><strong style={{ color: c.ink, fontWeight: 550 }}>$49 once.</strong> No subscription. Review your brief before payment.</p>
             </div>
-
-            <p style={{ textAlign: 'center', marginTop: 20, fontSize: 14 }}>
-              <Link
-                href="/sample"
-                style={{
-                  color: '#7D8B6E',
-                  fontWeight: 500,
-                  textDecoration: 'none',
-                }}
-              >
-                See the complete sample BootFile &rarr;
-              </Link>
-            </p>
+            <HeroExample />
           </div>
         </section>
 
-        {/* Before/After Comparison — dark background */}
-        <section style={{ padding: '80px 20px', backgroundColor: '#2D2926' }}>
-          <div style={{ maxWidth: 800, margin: '0 auto' }}>
-            <h2
-              className="font-heading"
-              style={{
-                fontSize: '1.5rem',
-                lineHeight: 1.3,
-                color: '#F7F4EF',
-                fontWeight: 400,
-                marginBottom: 12,
-                textAlign: 'center',
-              }}
-            >
-              Same AI. Different results.
-            </h2>
-            <p
-              style={{
-                fontSize: '0.95rem',
-                color: '#A09B93',
-                textAlign: 'center',
-                marginBottom: 32,
-              }}
-            >
-              &ldquo;Should I ask for a raise now or wait until my next review?&rdquo;
-            </p>
+        <section style={{ borderTop: `1px solid ${c.line}`, borderBottom: `1px solid ${c.line}`, background: c.wash }} aria-label="Your marketing setup includes">
+          <div className="studio-summary-grid" style={{ ...studioContainer, paddingTop: 23, paddingBottom: 23 }}>
+            {['One real offer', 'An email + 3 social posts', 'A reusable ChatGPT setup'].map((text) => <p key={text} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontSize: 13, fontWeight: 500, color: c.green }}><CheckIcon size={16} />{text}</p>)}
+          </div>
+        </section>
 
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 16,
-              }}
-            >
-              <style>{`@media (min-width: 700px) { .bf-compare-row { flex-direction: row !important; } }`}</style>
-              <div className="bf-compare-row" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {/* Without BootFile */}
-                <div
-                  style={{
-                    flex: 1,
-                    backgroundColor: '#3A3633',
-                    borderRadius: 12,
-                    padding: 24,
-                  }}
-                >
-                  <p
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 600,
-                      color: '#A09B93',
-                      textTransform: 'uppercase' as const,
-                      letterSpacing: '0.05em',
-                      marginBottom: 16,
-                    }}
-                  >
-                    Without BootFile
-                  </p>
-                  <p
-                    style={{
-                      fontSize: 14,
-                      lineHeight: 1.7,
-                      color: '#C4BFB6',
-                    }}
-                  >
-                    &ldquo;There are several factors to consider when deciding whether to ask for a raise. Let&apos;s break this down:
-                    <br /><br />
-                    Timing considerations:
-                    <br />
-                    - Performance reviews are typically...
-                    <br />
-                    - Market conditions may affect...
-                    <br /><br />
-                    Preparation steps:
-                    <br />
-                    - Document your accomplishments...
-                    <br /><br />
-                    It depends on your specific situation...&rdquo;
-                  </p>
-                </div>
+        <section style={{ ...studioContainer, paddingTop: 88, paddingBottom: 88 }}>
+          <div className="studio-section-heading">
+            <div><Eyebrow>A useful first result. A repeatable way forward.</Eyebrow><h2 className="font-heading" style={{ fontSize: 'clamp(32px, 3.8vw, 44px)', fontWeight: 400, lineHeight: 1.18, letterSpacing: '-.02em', maxWidth: 480 }}>Less blank-page time.<br />More of your business in the work.</h2></div>
+            <p style={{ color: c.muted, fontSize: 15, maxWidth: 350, lineHeight: 1.85 }}>You shouldn’t need to become a prompt expert to tell people about your work. Start with a real promotion and leave with something concrete.</p>
+          </div>
+          <div className="studio-three-grid" style={{ marginTop: 42 }}>
+            {deliverables.map((item) => <article key={item.number} style={{ padding: '28px 27px 32px', background: c.paper, border: `1px solid ${c.line}`, borderRadius: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: c.green, marginBottom: 42 }}><DocumentIcon kind={item.icon} /><span style={{ color: c.muted, fontSize: 11, letterSpacing: '.08em' }}>{item.number}</span></div>
+              <h3 className="font-heading" style={{ fontSize: 25, fontWeight: 400, lineHeight: 1.22, marginBottom: 13 }}>{item.title}</h3>
+              <p style={{ fontSize: 14, lineHeight: 1.8, color: c.muted }}>{item.copy}</p>
+            </article>)}
+          </div>
+        </section>
 
-                {/* With BootFile */}
-                <div
-                  style={{
-                    flex: 1,
-                    backgroundColor: '#3A3633',
-                    borderRadius: 12,
-                    padding: 24,
-                    borderLeft: '3px solid #7D8B6E',
-                  }}
-                >
-                  <p
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 600,
-                      color: '#7D8B6E',
-                      textTransform: 'uppercase' as const,
-                      letterSpacing: '0.05em',
-                      marginBottom: 16,
-                    }}
-                  >
-                    With BootFile
-                  </p>
-                  <p
-                    style={{
-                      fontSize: 14,
-                      lineHeight: 1.7,
-                      color: '#F7F4EF',
-                    }}
-                  >
-                    &ldquo;Ask now. Here&apos;s why:
-                    <br /><br />
-                    You closed $340K in new business last quarter — 40% above target. Your review isn&apos;t for 5 months, and waiting signals you don&apos;t know your leverage. Market rate for your role in your city is $115-130K. You&apos;re at $98K.
-                    <br /><br />
-                    One risk: if layoffs are actively being discussed, wait. Are they?&rdquo;
-                  </p>
-                </div>
-              </div>
+        <section id="how-it-works" style={{ background: c.ink, color: c.cream, padding: '80px 0', scrollMarginTop: 24 }}>
+          <div style={studioContainer} className="studio-how-grid">
+            <div><Eyebrow light>From business idea to usable drafts</Eyebrow><h2 className="font-heading" style={{ fontSize: 'clamp(34px, 4vw, 47px)', fontWeight: 400, lineHeight: 1.15, letterSpacing: '-.02em', maxWidth: 350 }}>Bring the offer.<br />We’ll bring<br />the structure.</h2><Link href="/studio/sample" className="studio-text-link" style={{ color: '#C3CEB6', marginTop: 28 }}>See the complete example <ArrowIcon /></Link></div>
+            <ol style={{ listStyle: 'none', display: 'grid', gap: 29 }}>
+              {[
+                ['Tell us what you’re promoting.', 'Your service, who it helps, the details of your offer, and what someone should do next. Plain language is perfect.'],
+                ['Check the brief. Make it yours.', 'Review the facts, add the tone you want, and correct anything missing. Then purchase your setup for $49.'],
+                ['Use your pack. Keep your setup.', 'Review your email and posts, copy what you need, and download everything. Reuse the setup when your next offer is ready.'],
+              ].map(([title, copy], i) => <li key={title} style={{ display: 'grid', gridTemplateColumns: '36px 1fr', gap: 22, paddingBottom: i < 2 ? 29 : 0, borderBottom: i < 2 ? '1px solid #49463E' : undefined }}><span style={{ fontSize: 12, color: '#B7C2AA', paddingTop: 4 }}>0{i + 1}</span><div><h3 style={{ fontSize: 18, fontWeight: 500, marginBottom: 8 }}>{title}</h3><p style={{ fontSize: 14, lineHeight: 1.8, color: '#BEB9AF', maxWidth: 440 }}>{copy}</p></div></li>)}
+            </ol>
+          </div>
+        </section>
+
+        <section style={{ ...studioContainer, paddingTop: 88, paddingBottom: 88 }}>
+          <div className="studio-offer-grid" style={{ border: `1px solid ${c.line}`, borderRadius: 18, overflow: 'hidden', background: c.paper }}>
+            <div style={{ padding: 'clamp(26px, 5vw, 52px)' }}>
+              <Eyebrow>Your first Marketing Setup</Eyebrow>
+              <h2 className="font-heading" style={{ fontSize: 'clamp(32px, 3.8vw, 44px)', lineHeight: 1.15, fontWeight: 400, letterSpacing: '-.02em', maxWidth: 400 }}>A small, useful start<br />with AI for your business.</h2>
+              <p style={{ color: c.muted, fontSize: 14, lineHeight: 1.85, marginTop: 20, maxWidth: 390 }}>For the photographer opening bookings. The tutor running a workshop. The consultant with a new service. One promotion, grounded in your details.</p>
+              <Link href="/studio/sample" className="studio-text-link" style={{ marginTop: 28 }}>Take a look inside <ArrowIcon /></Link>
             </div>
-
-            <p
-              style={{
-                fontSize: 14,
-                color: '#7D8B6E',
-                textAlign: 'center',
-                marginTop: 24,
-                marginBottom: 24,
-              }}
-            >
-              Same question. Same AI. The only difference is a BootFile.
-            </p>
-            <div style={{ textAlign: 'center' }}>
-              <Link
-                href="/simulator"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: '#7D8B6E',
-                  color: '#fff',
-                  fontWeight: 500,
-                  padding: '12px 24px',
-                  borderRadius: 8,
-                  fontSize: '0.95rem',
-                  textDecoration: 'none',
-                  transition: 'background-color 0.2s ease',
-                }}
-              >
-                Try It
-              </Link>
+            <div style={{ padding: 'clamp(26px, 5vw, 48px)', background: c.wash }}>
+              <p style={{ fontSize: 13, fontWeight: 550 }}>Marketing Setup</p>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 9, marginTop: 5, marginBottom: 18 }}><span className="font-heading" style={{ fontSize: 65, lineHeight: 1.2, letterSpacing: '-.04em' }}>$49</span><span style={{ fontSize: 12, color: c.muted }}>USD · one time</span></div>
+              <ul style={{ listStyle: 'none', display: 'grid', gap: 11, marginBottom: 29 }}>
+                {['Your confirmed business brief', 'One customer email + three social posts', 'Reusable ChatGPT setup + next-use prompt', 'Review checklist + downloadable pack'].map((item) => <li key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 13 }}><span style={{ color: c.green, paddingTop: 2 }}><CheckIcon size={16} /></span>{item}</li>)}
+              </ul>
+              <Link href="/studio" className="studio-button" style={{ width: '100%' }}>Build my marketing setup <ArrowIcon /></Link>
+              <p style={{ textAlign: 'center', fontSize: 11, color: c.muted, marginTop: 13 }}>No recurring charge. 7-day refund policy.</p>
             </div>
           </div>
         </section>
 
-        {/* FAQ — cream background */}
-        <section style={{ padding: '80px 20px', backgroundColor: '#F7F4EF' }}>
-          <div style={{ maxWidth: 600, margin: '0 auto' }}>
-            <h2
-              className="font-heading"
-              style={{
-                fontSize: '1.5rem',
-                color: '#2D2926',
-                fontWeight: 400,
-                marginBottom: 32,
-                textAlign: 'center',
-              }}
-            >
-              Frequently Asked Questions
-            </h2>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-              {faqs.map((faq, i) => (
-                <div key={i}>
-                  <h3
-                    className="font-heading"
-                    style={{
-                      fontSize: '1.1rem',
-                      fontWeight: 400,
-                      color: '#2D2926',
-                      marginBottom: 8,
-                    }}
-                  >
-                    {faq.question}
-                  </h3>
-                  <p
-                    style={{
-                      fontSize: '0.95rem',
-                      lineHeight: 1.65,
-                      color: '#7A746B',
-                    }}
-                  >
-                    {faq.answer}
-                  </p>
-                  {faq.link && (
-                    <p style={{ marginTop: 8, fontSize: '0.95rem' }}>
-                      <Link
-                        href={faq.link.href}
-                        style={{
-                          color: '#7D8B6E',
-                          fontWeight: 500,
-                          textDecoration: 'none',
-                        }}
-                      >
-                        {faq.link.label} &rarr;
-                      </Link>
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Bottom CTA — stone background */}
-        <section style={{ padding: '80px 20px', textAlign: 'center', backgroundColor: '#ECEAE4' }}>
-          <h2
-            className="font-heading"
-            style={{
-              fontSize: 'clamp(1.5rem, 4vw, 2rem)',
-              color: '#2D2926',
-              fontWeight: 400,
-              marginBottom: 24,
-            }}
-          >
-            Three minutes. One profile. Every AI you use, finally on the same page about you.
-          </h2>
-
-          <Link
-            href="/quiz"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: '#7D8B6E',
-              color: '#fff',
-              fontWeight: 500,
-              padding: '14px 28px',
-              borderRadius: 8,
-              fontSize: '0.95rem',
-              letterSpacing: '0.01em',
-              textDecoration: 'none',
-              transition: 'background-color 0.2s ease',
-            }}
-          >
-            Take the Quiz
-          </Link>
-          <p style={{ marginTop: 16, fontSize: 14 }}>
-            <Link
-              href="/sample"
-              style={{
-                color: '#7A746B',
-                textDecoration: 'underline',
-                textUnderlineOffset: 3,
-              }}
-            >
-              Or see a complete sample BootFile first &rarr;
-            </Link>
-          </p>
+        <section style={{ ...studioContainer, paddingBottom: 90, maxWidth: 820 }}>
+          <div style={{ textAlign: 'center', marginBottom: 34 }}><Eyebrow>Before you begin</Eyebrow><h2 className="font-heading" style={{ fontSize: 'clamp(30px, 4vw, 40px)', fontWeight: 400 }}>A few good questions.</h2></div>
+          {faqs.map((faq) => <details key={faq.question} className="studio-faq" style={{ borderBottom: `1px solid ${c.line}`, padding: '21px 0' }}><summary style={{ cursor: 'pointer', fontSize: 15, fontWeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>{faq.question}<span className="studio-faq-plus" aria-hidden="true">+</span></summary><p style={{ fontSize: 14, lineHeight: 1.85, color: c.muted, marginTop: 15, paddingRight: 30 }}>{faq.answer}</p></details>)}
         </section>
       </main>
-      <Footer />
+      <StudioFooter />
     </>
+  );
+}
+
+function HeroExample() {
+  return (
+    <div className="studio-hero-example" style={{ position: 'relative', background: '#E8E9E0', borderRadius: 20, padding: '28px 24px 24px', border: '1px solid #D9DDD0' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginBottom: 18 }}><span style={{ fontSize: 10, letterSpacing: '.1em', fontWeight: 600, color: c.green, textTransform: 'uppercase' }}>Inside a Marketing Setup</span><span style={{ fontSize: 10, color: c.muted }}>Illustrative example</span></div>
+      <div style={{ display: 'flex', gap: 13, padding: '19px 18px', background: 'rgba(253,252,250,.66)', borderRadius: 11, border: '1px solid #D9DDD0' }}>
+        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 33, height: 33, background: '#DEE3D5', color: c.green, borderRadius: 7, flexShrink: 0 }}><DocumentIcon /></span>
+        <div><p style={{ fontSize: 10, color: c.muted, textTransform: 'uppercase', letterSpacing: '.08em', marginBottom: 5 }}>The offer · Juniper Home Organizing</p><p style={{ fontSize: 13, lineHeight: 1.6 }}>“A kitchen reset for busy households. Practical systems, using the storage you already have.”</p></div>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', color: c.green, fontSize: 10, padding: '13px 0' }}><ArrowIcon direction="down" />Your facts. A clearer starting point.</div>
+      <div style={{ background: c.paper, borderRadius: 12, border: `1px solid ${c.line}`, boxShadow: '0 12px 30px rgba(45,41,38,.06)', overflow: 'hidden' }}>
+        <div style={{ padding: '12px 19px', borderBottom: `1px solid ${c.line}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}><span style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, fontWeight: 550 }}><DocumentIcon kind="email" />Customer email</span><span style={{ fontSize: 9, color: c.green, background: c.wash, padding: '3px 7px', borderRadius: 4 }}>READY TO REVIEW</span></div>
+        <div style={{ padding: '21px 23px 24px' }}><p style={{ fontSize: 10, color: c.muted, marginBottom: 6 }}>Subject</p><h3 className="font-heading" style={{ fontSize: 25, lineHeight: 1.24, fontWeight: 400, marginBottom: 18 }}>Could your kitchen work a little better for you?</h3><div style={{ color: '#635F57', fontSize: 12, lineHeight: 1.85 }}><p style={{ marginBottom: 11 }}>Hello,</p><p style={{ marginBottom: 11 }}>If your kitchen feels harder to use than it needs to, we can start with the items you reach for every day.</p><p>There is no need to aim for a showroom. The starting point is your household and how you use the space.</p></div><p style={{ fontSize: 11, color: c.green, marginTop: 17, display: 'flex', alignItems: 'center', gap: 7 }}>Reply KITCHEN to ask about a kitchen reset. <ArrowIcon /></p></div>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 8, marginTop: 13 }}>
+        {['Introduce', 'Explain', 'Invite'].map((title, i) => <div key={title} style={{ padding: '11px 8px', background: 'rgba(253,252,250,.75)', border: '1px solid #D9DDD0', borderRadius: 8 }}><p style={{ fontSize: 9, color: c.muted, marginBottom: 5 }}>SOCIAL 0{i + 1}</p><p style={{ fontSize: 11, fontWeight: 500, lineHeight: 1.4 }}>{title}</p></div>)}
+      </div>
+    </div>
   );
 }

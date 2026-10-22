@@ -24,8 +24,12 @@ export function Footer() {
           Methodology
         </Link>
         <span style={{ margin: '0 8px', color: '#DDD6CC' }}>&middot;</span>
-        <Link href="/sample" style={{ color: '#7A746B', textDecoration: 'none' }}>
+        <Link href="/studio/sample" style={{ color: '#7A746B', textDecoration: 'none' }}>
           Sample
+        </Link>
+        <span style={{ margin: '0 8px', color: '#DDD6CC' }}>&middot;</span>
+        <Link href="/quiz" style={{ color: '#7A746B', textDecoration: 'none' }}>
+          Original quiz
         </Link>
         <span style={{ margin: '0 8px', color: '#DDD6CC' }}>&middot;</span>
         <Link href="/terms" style={{ color: '#7A746B', textDecoration: 'none' }}>

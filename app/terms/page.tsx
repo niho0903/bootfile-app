@@ -24,7 +24,7 @@ export default function TermsPage() {
             Terms of Service
           </h1>
           <p style={{ fontSize: '0.85rem', color: '#7A746B', marginBottom: 32 }}>
-            Effective date: June 1, 2025 &middot; Last updated: June 9, 2026
+            Effective date: June 1, 2025 &middot; Last updated: October 20, 2026
           </p>
 
           <div style={{ fontSize: '0.95rem', color: '#2D2926', lineHeight: 1.8 }}>
@@ -40,11 +40,11 @@ export default function TermsPage() {
 
             <Section title="2. Description of Service">
               <p>
-                BootFile provides a quiz-based tool that identifies your AI reasoning style and
-                generates a personalized instruction profile (&ldquo;BootFile&rdquo;) for use with
-                third-party AI platforms. The Service includes the quiz, the generated BootFile
-                content, platform-specific formatting, and related educational content (blog posts,
-                guides).
+                BootFile Studio creates a marketing setup from a business brief that you review
+                before payment. The setup includes a promotional email, three coordinated social
+                posts, an approved brief, reusable AI instructions, a workflow, and a review checklist.
+                The original BootFile quiz and personalized AI instruction profiles remain available
+                as a separate product. The Service also includes related examples, blog posts, and guides.
               </p>
             </Section>
 
@@ -59,8 +59,14 @@ export default function TermsPage() {
             <Section title="4. Purchases and Payment">
               <ul style={{ paddingLeft: 20, margin: '8px 0' }}>
                 <li>
+                  Purchases are one-time payments for the deliverables described at checkout.
+                  A purchase does not create a subscription or include a third-party AI subscription,
+                  unlimited new generations, advertising, or automatic publication of your marketing.
+                </li>
+                <li>
                   <strong>7-day refund.</strong> If you&apos;re not satisfied with your BootFile, you
-                  may request a full refund within 7 days of purchase by emailing{' '}
+                  may request a full refund within 7 days of purchase from your private Studio order
+                  page, when available, or by emailing{' '}
                   <strong>support@bootfile.ai</strong> from the address used at checkout. Refunds are
                   processed through Stripe and typically appear on your statement within 5–10
                   business days. We do not guarantee a specific response time. After 7 days, purchases
@@ -83,24 +89,26 @@ export default function TermsPage() {
 
             <Section title="5. What You Get">
               <p>
-                When you purchase a BootFile, you receive a <strong>personal, non-exclusive,
-                non-transferable license</strong> to use the generated content for your own private,
-                individual use. Specifically:
+                You may use, copy, edit, and store the content generated for your purchase.
+                For Studio, this includes publishing the promotional email and social posts to
+                market your own business, and reusing your brief and AI instructions in your own
+                work. To the extent we hold rights in that generated content, we grant you a
+                non-exclusive license for those personal and commercial uses.
               </p>
               <ul style={{ paddingLeft: 20, margin: '8px 0' }}>
-                <li>You may paste your BootFile into AI platforms for your personal use.</li>
-                <li>You may copy and store your BootFile for your own records.</li>
+                <li>You retain your rights in the business materials you submit.</li>
+                <li>You may paste your purchased setup into your chosen AI platform.</li>
                 <li>
-                  You may <strong>not</strong> resell, redistribute, sublicense, or commercially
-                  exploit your BootFile or any part of it.
+                  You must have permission to use the materials you submit and review the output
+                  for accuracy and suitability before sending or publishing it.
                 </li>
                 <li>
-                  You may <strong>not</strong> use your BootFile to build a competing product or
-                  service.
+                  This permission does not transfer ownership of BootFile&apos;s software, branding,
+                  quiz system, or underlying generation tools, or permit their resale as your product.
                 </li>
                 <li>
-                  You may <strong>not</strong> present BootFile-generated content as your own
-                  original methodology, framework, or system for commercial purposes.
+                  AI output may be similar to other output. We do not promise that generated content
+                  is unique or that any particular intellectual property protection applies to it.
                 </li>
               </ul>
             </Section>
@@ -138,16 +146,17 @@ export default function TermsPage() {
                   systems.
                 </li>
                 <li>
-                  Use automated tools, bots, scrapers, or scripts to access or interact with the
-                  Service.
+                  Use unauthorized automated tools, bots, scrapers, or scripts to extract the Service,
+                  evade its limits, or access another customer&apos;s data.
                 </li>
                 <li>
                   Interfere with or disrupt the Service, including through denial-of-service attacks
                   or introduction of malware.
                 </li>
                 <li>
-                  Share, resell, or distribute purchased BootFiles, or create derivative products
-                  based on our methodology.
+                  Resell the Service or its underlying tools, or share private order access links
+                  with people you have not authorized. Publishing your Studio marketing output as
+                  permitted in Section 5 is allowed.
                 </li>
                 <li>
                   Circumvent or attempt to circumvent any payment, access, or security mechanisms.
@@ -175,8 +184,9 @@ export default function TermsPage() {
                 </li>
               </ul>
               <p>
-                Your BootFile is a set of suggested instructions, not professional advice. You use it
-                at your own discretion.
+                Your setup contains suggested instructions and draft content. It is not professional
+                advice. We do not guarantee marketing results, sales, or revenue. You remain responsible
+                for the claims you approve and the material you choose to publish.
               </p>
             </Section>
 
@@ -200,18 +210,20 @@ export default function TermsPage() {
               </p>
               <ul style={{ paddingLeft: 20, margin: '8px 0' }}>
                 <li>
-                  Your BootFile is stored securely in our database so we can provide customer
-                  support and resend your BootFile if needed. It is also emailed to the address
-                  you provide during checkout.
+                  We store your submitted brief, purchase record, and generated setup to fulfill your
+                  order, recover delivery, and provide support. A private Studio access link is sent
+                  to the delivery email address you provide.
                 </li>
                 <li>
                   We collect your email address during checkout for purchase fulfillment and
-                  support purposes. We do not send marketing emails or share your email with
-                  third parties.
+                  support purposes. Service providers process the information needed for generation,
+                  payment, storage, hosting, and delivery as described in our Privacy Policy.
+                  A purchase does not enroll you in promotional email campaigns.
                 </li>
                 <li>
-                  We collect anonymous, aggregate data about quiz completions and product usage
-                  to improve the Service.
+                  We collect operational records and aggregate metrics to monitor fulfillment and
+                  improve the Service. We do not include private Studio briefs or order access links
+                  in advertising analytics.
                 </li>
               </ul>
             </Section>

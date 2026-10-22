@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { DM_Serif_Display, DM_Sans } from 'next/font/google';
-import { Analytics } from '@vercel/analytics/next';
+import { PublicAnalytics } from '@/components/PublicAnalytics';
 import './globals.css';
 
 const dmSerifDisplay = DM_Serif_Display({
@@ -25,11 +25,11 @@ export const metadata: Metadata = {
   creator: 'BootFile',
   publisher: 'BootFile',
   title: {
-    default: 'BootFile | Know Your AI Style',
+    default: 'BootFile | Your next marketing task, ready to use',
     template: '%s | BootFile',
   },
   description:
-    'Take the free quiz. Get a personalized AI instruction profile that tells your AI how to reason with you, not just how to talk.',
+    'Turn your business brief into a promotional email, three coordinated social posts, and a reusable AI setup. One task, one payment, a clear place to start.',
   alternates: {
     canonical: baseUrl,
   },
@@ -38,23 +38,23 @@ export const metadata: Metadata = {
     type: 'website',
     url: baseUrl,
     locale: 'en_US',
-    title: 'BootFile | Know Your AI Style',
+    title: 'BootFile | Your next marketing task, ready to use',
     description:
-      'Take the free quiz. Get a personalized AI instruction profile that tells your AI how to reason with you, not just how to talk.',
+      'A marketing setup for solo service businesses: one promotional email, three social posts, and a reusable workflow built from your approved brief.',
     images: [
       {
         url: `${baseUrl}/api/og`,
         width: 1200,
         height: 630,
-        alt: 'BootFile | Know Your AI Style',
+        alt: 'BootFile | Your next marketing task, ready to use',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'BootFile | Know Your AI Style',
+    title: 'BootFile | Your next marketing task, ready to use',
     description:
-      'Take the free quiz. Get a personalized AI instruction profile that tells your AI how to reason with you, not just how to talk.',
+      'A marketing setup for solo service businesses: one promotional email, three social posts, and a reusable workflow built from your approved brief.',
     images: [`${baseUrl}/api/og`],
   },
 };
@@ -66,24 +66,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${dmSerifDisplay.variable} ${dmSans.variable}`}>
-      <head>
-        {/* Google Ads gtag */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18052246616" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','AW-18052246616');gtag('config','G-HXXZBPSMGN');`,
-          }}
-        />
-        {/* Reddit Pixel */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `!function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js?pixel_id=a2_io9m8gl1e3jf",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);rdt('init','a2_io9m8gl1e3jf');rdt('track','PageVisit');`,
-          }}
-        />
-      </head>
       <body className="antialiased">
         {children}
-        <Analytics />
+        <PublicAnalytics />
       </body>
     </html>
   );

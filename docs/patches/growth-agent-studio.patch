@@ -1,0 +1,1554 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+new file mode 100644
+index 0000000..4c6324e
+--- /dev/null
++++ b/.github/workflows/ci.yml
+@@ -0,0 +1,20 @@
++name: Verify operating service
++on:
++  pull_request:
++  push:
++    branches: [master]
++permissions:
++  contents: read
++jobs:
++  verify:
++    runs-on: ubuntu-latest
++    steps:
++      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
++        with:
++          persist-credentials: false
++      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
++        with:
++          node-version: 22
++          cache: npm
++      - run: npm ci --ignore-scripts
++      - run: npm test
+diff --git a/AGENTS.md b/AGENTS.md
+new file mode 100644
+index 0000000..7814a5a
+--- /dev/null
++++ b/AGENTS.md
+@@ -0,0 +1,13 @@
++# Bootfile Studio service instructions
++
++The owner wants routine operations to run without daily supervision. Prepare and test ordinary reversible maintenance autonomously. Once release access is authorized, deploy under the documented release process and verify the deployed result and rollback path. Bring only material product, price, security, spending, or policy exceptions to the owner as concrete decisions.
++
++The current offer is $49 once for a solo service-business owner's Marketing Setup. Read `src/product.ts` and `README.md` before editing. Do not reintroduce the legacy personality-quiz proposition as the new offer, subscription pricing, invented business results, or a guarantee of income.
++
++All runtime capabilities default off until an explicitly configured app endpoint and scoped credential are verified. Keep secrets out of repository files, tool output, log records, and URLs. Do not retrieve credentials through a different provider to evade a hosting scope block.
++
++The service can persist pending drafts, invoke bounded paid operations, and trigger the app’s independent owned-blog review/publisher. Authorship never grants publication approval. The application owns the fixed facts/source policy, exact hashes, mandatory independent checks, two-review/two-publication rolling weekly caps, and separate enable flags. Routine compliant owned-blog publication proceeds under the verified operating charter without daily owner approval. Social publishing, GitHub push, ad spend, and outbound prospecting are absent.
++
++Never add startup generation, unbounded recursion, model-selected tool execution, dynamic credential destinations from content, or fail-open validation. Draft persistence must be confirmed; local files or a provider response do not count as a published article or a customer result.
++
++Run `npm test` before a release. Preserve meaningful boundary tests. Record the exact source SHA, Railway deployment, enabled capabilities, two unattended app run records, and any unresolved access limitation. Do not claim a prepared or committed change is active in production without that evidence.
+diff --git a/Dockerfile b/Dockerfile
+index 59a6d75..afa8eb0 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -1,11 +1,9 @@
+ FROM node:22-slim
+ 
+-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+-
+ WORKDIR /app
+ 
+ COPY package.json package-lock.json* ./
+-RUN npm ci --production=false
++RUN npm ci --include=dev --ignore-scripts
+ 
+ COPY tsconfig.json ./
+ COPY src ./src
+@@ -13,7 +11,7 @@ COPY src ./src
+ RUN npm run build
+ 
+ # Clean dev deps
+-RUN npm prune --production
++RUN npm prune --omit=dev --ignore-scripts
+ 
+ CMD ["node", "dist/index.js"]
+ 
+diff --git a/README.md b/README.md
+new file mode 100644
+index 0000000..77dda8c
+--- /dev/null
++++ b/README.md
+@@ -0,0 +1,85 @@
++# Bootfile Studio operating service
++
++This service prepares Bootfile Marketing Setup drafts and can provide a five-minute heartbeat to the application's bounded paid-order runner. A third capability triggers the application’s independent owned-blog review and limited publisher. All three capabilities are **off by default**. Social publication, repository writes, ad spending, and outbound prospecting are outside this service.
++
++The application is the durable source of draft and paid-order state. Generation stops when its draft ledger cannot be checked. A completed draft is pending review, never implicitly approved or published.
++
++## Product contract
++
++The offer is **$49 once** for a solo service-business owner: one promotion becomes a customer email and three coordinated social posts, accompanied by a saved business brief, a reusable task setup, and a quality checklist. `/studio` is the entry point. `src/product.ts` contains the shared brief used by every generation task. Legacy profile copy, quiz links, invented outcomes, and guaranteed revenue are outside that brief.
++
++## Configuration
++
++| Variable | Purpose |
++| --- | --- |
++| `GROWTH_DRAFTS_ENABLED=true` | Explicitly enable draft schedules after the application ingress is verified |
++| `BOOTFILE_APP_URL` | Exact reviewed HTTPS application origin, without a path/query/fragment |
++| `GROWTH_AGENT_SECRET` | Newly configured dedicated draft-ingress credential, matching the application |
++| `ANTHROPIC_API_KEY` | Existing approved generation account |
++| `PERPLEXITY_API_KEY` | Existing approved research account |
++| `GROWTH_MODEL` | Optional generation model, existing default `claude-sonnet-4-6` |
++| `BLOG_CRON` | UTC blog draft cadence; default Monday/Thursday 09:00 |
++| `INSTAGRAM_CRON` | UTC caption draft cadence; default Tuesday/Friday 12:00 |
++| `RESEARCH_CRON` | UTC research-note cadence; default Monday 06:00 |
++| `OPERATIONS_SCHEDULER_ENABLED=true` | Explicitly enable the separate paid-operations heartbeat |
++| `BOOTFILE_OPERATIONS_URL` | Exact reviewed HTTPS `/api/operations/run` endpoint |
++| `BOOTFILE_CRON_SECRET` | Newly configured dedicated credential matching the app's `CRON_SECRET` |
++| `GROWTH_PUBLISHER_ENABLED=true` | Enable the separate owned-blog operating trigger after release validation |
++| `BOOTFILE_PUBLISHER_URL` | Exact reviewed HTTPS `/api/operations/publish` endpoint |
++| `GROWTH_PUBLISHER_SECRET` | Dedicated publisher credential, separate from draft/admin/cron credentials |
++| `PUBLISHER_CRON` | UTC check cadence, default `15 */6 * * *`; database review/publication caps apply |
++
++No GitHub token or Meta credential is required by this implementation. Remove unused write credentials only through the normal credential-management process after this version is verified. Do not retrieve old credentials from another platform to work around missing hosting access.
++
++`BOOTFILE_OPERATIONS_URL` is trusted deployment configuration, never generated content. Redirects are refused so credentials cannot be forwarded to a different endpoint. A hostname change is a reviewed deployment change.
++
++## What runs
++
++Content tasks share one execution lane, so this single service instance does not run multiple content jobs at once. Each blog/caption is limited to one persisted draft per UTC day; research is limited to one persisted note per UTC week. The application checks the deterministic key before the service calls a model, then persists the result with a unique key. Restarting the service does not trigger a content burst.
++
++The default cadence creates up to two blog drafts, two caption drafts, and one research note per week. Existing Railway schedule variables override defaults; set them deliberately during activation. A provider call has a timeout and token ceiling. A failed response or invalid structured output stops the task. There is no recursive research fallback and no fail-open editorial decision.
++
++The optional operations heartbeat runs every five minutes in its own guarded lane. It calls the app's existing authenticated routine endpoint and records the returned status. The app enforces batch limits, durable leases, refunds, and run deduplication. The service never receives customer intake or payment credentials through this response.
++
++Application-level idempotency prevents duplicate drafts and duplicate paid work. Keep this service at one replica unless a distributed scheduling/claim mechanism is introduced; a read-before-generate draft check is not a distributed model-spend lock.
++
++## Implemented owned-blog policy and owner involvement
++
++During release validation, keep application publication disabled. The application can independently review drafts with `GROWTH_REVIEW_ENABLED=true` while `GROWTH_PUBLICATION_ENABLED=false`; approved articles remain private. Once the concrete release checks pass, routine publication follows the operating charter without a daily owner queue. Material policy, product, security, or spending changes remain owner decisions.
++
++The application implements these boundaries:
++
++- Its `/api/operations/publish` route accepts only a trigger authenticated with the dedicated publisher secret. The service cannot submit an approval, arbitrary public body, or target URL. The author’s draft credential cannot authorize this route.
++- A private database claim reserves an exact draft hash and a four-minute lease before a paid review. There are at most **two review claims per rolling seven days**, including failed or unknown attempts. No recursive repair or model retry loop exists.
++- Deterministic checks allow only current-product article drafts with a fixed source link, bounded content, clearly fictional examples, and the current $49 price. Raw HTML, images, unapproved links, old quiz/pricing language, and unsupported guarantees are rejected before public rendering.
++- The application checks the current `https://bootfile.ai/studio` page, without credentials or redirects. A fresh reviewer call receives server-owned product facts, the source excerpt, the proposed public fields, and recent articles. It has no author conversation history or action tools. Every mandatory check must pass, including useful new substance, supported facts, safe guidance, and no unconsented marketing.
++- Review approval binds the exact source hash and stores the exact normalized article with its own database hash. Changed source content, a changed approved article, an expired approval, or an existing public slug prevents publication.
++- A separate transaction can publish only the stored approved article to the owned `blog_posts` table. It never overwrites an existing slug. A durable cap allows at most **two publication events per rolling seven days**, including subsequently withdrawn articles.
++- Completed approvals can resume publication without another model call. Ordinary editorial rejections remain unpublished. Provider failures, unknown reviews, and other operating exceptions enter the private ledger for agent investigation; they are not instructions for Nick to review every draft.
++- An authenticated operator may withdraw only the exact article published by this pipeline, preserving its private audit and original body. Withdrawal refuses an article subsequently changed by another editor. The growth credential cannot perform withdrawals.
++
++The app’s required publication configuration is `GROWTH_PUBLISHER_SECRET`, `GROWTH_REVIEW_ENABLED=false`, `GROWTH_PUBLICATION_ENABLED=false`, the existing `ANTHROPIC_API_KEY`, and optional `GROWTH_REVIEW_MODEL` (default `claude-sonnet-4-6`). The separate publisher migration and its rollback-only smoke live in the application repository. No enabling flag or committed code is evidence of a live deployed publisher.
++
++## Activation and proof
++
++1. Deploy the application branch, apply its reviewed migrations, and verify `/api/operations/drafts` and `/api/operations/run` with the intended production configuration.
++2. Configure new scoped credentials on both sides using the authorized provider surfaces. Keep all enable flags false while checking configuration.
++3. Run `npm ci`, `npm run build`, and `npm test`. Verify no credentialless call or startup can dispatch work.
++4. Configure the selected schedules and enable the required capability. Do not enable both native Vercel five-minute cron and Railway heartbeat without understanding that the shared run key will skip duplicates.
++5. Observe two unattended paid-operation invocations in `operations_runs`. Test draft persistence and ensure it appears pending in `/admin` without a repository push or public article.
++6. Validate the publication failure gates and separate credentials. Observe an independent review with public writes disabled, then verify one controlled publication and exact withdrawal through the application’s reviewed release process. Enable routine owned-blog publication only after these checks pass.
++7. Record the Railway deployment ID/source SHA, enabled capabilities, schedule evidence, and the app deployment SHA. Only then describe the service as active.
++
++If the host's plan supports only daily native cron, this optional Railway heartbeat provides the required five-minute trigger after explicit endpoint/credential configuration. Check the actual hosting plan and provider docs; do not assume that a schedule file proves a supported or running cadence.
++
++## Build and rollback
++
++The release dependency review found no high/critical production advisory; a moderate `node-cron` 3 / `uuid` dependency issue remains. Cron expressions are trusted deployment configuration. A breaking scheduler upgrade needs its own focused validation; no forced audit rewrite is part of this change.
++
++`npm run build` compiles TypeScript. `npm test` runs deterministic URL, cadence-key, and credential-forwarding boundary checks without calling any external provider.
++
++Pause the affected capability with its enable flag. Set the app’s `GROWTH_PUBLICATION_ENABLED=false` to stop public writes independently of the Railway trigger. If paid operations need to stop, also consider the app's `BOOTFILE_OPERATIONS_PAUSED` and checkout controls. Do not roll back to the old auto-publishing service while leaving its write credentials active; that version had a direct-to-master publication path.
++
++## Baseline inspected
++
++This rebuild was prepared from the connected repository's `master` ref `f92b48de0da38522ff80bc7728e90f92454ad7d7`, inspected 2026-10-20. CLI clone lacked repository credentials, so the local source was hydrated through the authorized GitHub connection. No live Railway configuration or publication was changed while preparing it.
+diff --git a/package-lock.json b/package-lock.json
+index 3179885..798641b 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -8,9 +8,7 @@
+       "name": "bootfile-growth-agent",
+       "version": "1.0.0",
+       "dependencies": {
+-        "@anthropic-ai/sdk": "^0.52.0",
+-        "node-cron": "^3.0.3",
+-        "simple-git": "^3.27.0"
++        "node-cron": "^3.0.3"
+       },
+       "devDependencies": {
+         "@types/node": "^22.0.0",
+@@ -19,15 +17,6 @@
+         "typescript": "^5.7.0"
+       }
+     },
+-    "node_modules/@anthropic-ai/sdk": {
+-      "version": "0.52.0",
+-      "resolved": "https://registry.npmjs.org/@anthropic-ai/sdk/-/sdk-0.52.0.tgz",
+-      "integrity": "sha512-d4c+fg+xy9e46c8+YnrrgIQR45CZlAi7PwdzIfDXDM6ACxEZli1/fxhURsq30ZpMZy6LvSkr41jGq5aF5TD7rQ==",
+-      "license": "MIT",
+-      "bin": {
+-        "anthropic-ai-sdk": "bin/cli"
+-      }
+-    },
+     "node_modules/@esbuild/aix-ppc64": {
+       "version": "0.27.4",
+       "resolved": "https://registry.npmjs.org/@esbuild/aix-ppc64/-/aix-ppc64-0.27.4.tgz",
+@@ -470,21 +459,6 @@
+         "node": ">=18"
+       }
+     },
+-    "node_modules/@kwsites/file-exists": {
+-      "version": "1.1.1",
+-      "resolved": "https://registry.npmjs.org/@kwsites/file-exists/-/file-exists-1.1.1.tgz",
+-      "integrity": "sha512-m9/5YGR18lIwxSFDwfE3oA7bWuq9kdau6ugN4H2rJeyhFQZcG9AgSHkQtSD15a8WvTgfz9aikZMrKPHvbpqFiw==",
+-      "license": "MIT",
+-      "dependencies": {
+-        "debug": "^4.1.1"
+-      }
+-    },
+-    "node_modules/@kwsites/promise-deferred": {
+-      "version": "1.1.1",
+-      "resolved": "https://registry.npmjs.org/@kwsites/promise-deferred/-/promise-deferred-1.1.1.tgz",
+-      "integrity": "sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==",
+-      "license": "MIT"
+-    },
+     "node_modules/@types/node": {
+       "version": "22.19.15",
+       "resolved": "https://registry.npmjs.org/@types/node/-/node-22.19.15.tgz",
+@@ -502,23 +476,6 @@
+       "dev": true,
+       "license": "MIT"
+     },
+-    "node_modules/debug": {
+-      "version": "4.4.3",
+-      "resolved": "https://registry.npmjs.org/debug/-/debug-4.4.3.tgz",
+-      "integrity": "sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==",
+-      "license": "MIT",
+-      "dependencies": {
+-        "ms": "^2.1.3"
+-      },
+-      "engines": {
+-        "node": ">=6.0"
+-      },
+-      "peerDependenciesMeta": {
+-        "supports-color": {
+-          "optional": true
+-        }
+-      }
+-    },
+     "node_modules/esbuild": {
+       "version": "0.27.4",
+       "resolved": "https://registry.npmjs.org/esbuild/-/esbuild-0.27.4.tgz",
+@@ -589,12 +546,6 @@
+         "url": "https://github.com/privatenumber/get-tsconfig?sponsor=1"
+       }
+     },
+-    "node_modules/ms": {
+-      "version": "2.1.3",
+-      "resolved": "https://registry.npmjs.org/ms/-/ms-2.1.3.tgz",
+-      "integrity": "sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==",
+-      "license": "MIT"
+-    },
+     "node_modules/node-cron": {
+       "version": "3.0.3",
+       "resolved": "https://registry.npmjs.org/node-cron/-/node-cron-3.0.3.tgz",
+@@ -617,21 +568,6 @@
+         "url": "https://github.com/privatenumber/resolve-pkg-maps?sponsor=1"
+       }
+     },
+-    "node_modules/simple-git": {
+-      "version": "3.33.0",
+-      "resolved": "https://registry.npmjs.org/simple-git/-/simple-git-3.33.0.tgz",
+-      "integrity": "sha512-D4V/tGC2sjsoNhoMybKyGoE+v8A60hRawKQ1iFRA1zwuDgGZCBJ4ByOzZ5J8joBbi4Oam0qiPH+GhzmSBwbJng==",
+-      "license": "MIT",
+-      "dependencies": {
+-        "@kwsites/file-exists": "^1.1.1",
+-        "@kwsites/promise-deferred": "^1.1.1",
+-        "debug": "^4.4.0"
+-      },
+-      "funding": {
+-        "type": "github",
+-        "url": "https://github.com/steveukx/git-js?sponsor=1"
+-      }
+-    },
+     "node_modules/tsx": {
+       "version": "4.21.0",
+       "resolved": "https://registry.npmjs.org/tsx/-/tsx-4.21.0.tgz",
+@@ -684,4 +620,3 @@
+     }
+   }
+ }
+-
+diff --git a/package.json b/package.json
+index 27018c2..24cc971 100644
+--- a/package.json
++++ b/package.json
+@@ -6,12 +6,11 @@
+   "scripts": {
+     "build": "tsc",
+     "start": "node dist/index.js",
+-    "dev": "tsx src/index.ts"
++    "dev": "tsx src/index.ts",
++    "test": "npm run build && node dist/policy.test.js"
+   },
+   "dependencies": {
+-    "@anthropic-ai/sdk": "^0.52.0",
+-    "node-cron": "^3.0.3",
+-    "simple-git": "^3.27.0"
++    "node-cron": "^3.0.3"
+   },
+   "devDependencies": {
+     "@types/node": "^22.0.0",
+@@ -20,4 +19,3 @@
+     "typescript": "^5.7.0"
+   }
+ }
+-
+diff --git a/src/agent.ts b/src/agent.ts
+index 8e9d5c1..bb5e6b5 100644
+--- a/src/agent.ts
++++ b/src/agent.ts
+@@ -1,231 +1,31 @@
+-import fs from 'fs';
+-import { config } from './config.js';
+-import { log, logAction, logError } from './logger.js';
+-import { researchKeywords, ResearchResult } from './tools/research.js';
+-import { writeBlogPost, getExistingSlugs } from './tools/blog.js';
++import { writeBlogPost, type BlogPostPlan } from './tools/blog.js';
+ import { generateInstagramPost } from './tools/instagram.js';
+-import { getWorkspacePath, ensureRepo } from './git.js';
+-
+-// In-memory keyword queue (persisted to disk between runs)
+-const QUEUE_PATH = () => getWorkspacePath('content', 'keyword-queue.json');
+-
+-interface QueuedKeyword {
+-  keyword: string;
+-  title: string;
+-  slug: string;
+-  description: string;
+-  pillar: string;
+-  difficulty: string;
+-  addedAt: string;
+-  published: boolean;
++import { researchKeywords } from './tools/research.js';
++import { dailyJobKey } from './product.js';
++
++const PLANS: BlogPostPlan[] = [
++  { title: 'Turn one promotion into an email and three coordinated posts', slug: 'one-promotion-email-social-posts', targetKeyword: 'write a promotion email and social posts', description: 'Build one brief with an offer, audience, verified facts, and a call to action. Work through a clearly fictional solo service-business example.', pillar: 'task-guide' },
++  { title: 'What to tell AI before it writes about your service business', slug: 'business-brief-for-ai-marketing', targetKeyword: 'business brief for AI marketing', description: 'Separate business facts, offer details, tone, constraints, and placeholders. Explain how to avoid invented prices or claims.', pillar: 'task-guide' },
++  { title: 'A practical check before sending an AI-written customer email', slug: 'check-ai-written-customer-email', targetKeyword: 'check AI customer email', description: 'Check names, offer details, dates, permissions, links, tone, and a concrete next step. Distinguish a review checklist from a promise of results.', pillar: 'quality' },
++  { title: 'Reuse your marketing setup when the offer changes', slug: 'reuse-marketing-setup-new-offer', targetKeyword: 'reuse AI marketing setup', description: 'Show which business facts persist and which campaign inputs must be updated. Explain why remembering a user does not verify a new offer.', pillar: 'reuse' },
++];
++
++function planFor(now: Date): BlogPostPlan {
++  return PLANS[Math.floor(now.getTime() / 86_400_000) % PLANS.length];
+ }
+ 
+-function loadQueue(): QueuedKeyword[] {
+-  try {
+-    const queuePath = QUEUE_PATH();
+-    if (fs.existsSync(queuePath)) {
+-      return JSON.parse(fs.readFileSync(queuePath, 'utf-8'));
+-    }
+-  } catch { /* */ }
+-  return [];
+-}
+-
+-function saveQueue(queue: QueuedKeyword[]): void {
+-  try {
+-    const queuePath = QUEUE_PATH();
+-    fs.writeFileSync(queuePath, JSON.stringify(queue, null, 2), 'utf-8');
+-  } catch (err) {
+-    logError('Failed to save keyword queue', err);
+-  }
+-}
+-
+-/**
+- * Research task: find new keyword opportunities and add to queue.
+- */
+ export async function runResearch(): Promise<void> {
+-  log('INFO', '=== RESEARCH CYCLE START ===');
+-
+-  try {
+-    await ensureRepo();
+-    const result = await researchKeywords();
+-
+-    if (result.keywords.length === 0) {
+-      log('WARN', 'Research returned no keywords');
+-      return;
+-    }
+-
+-    const existingSlugs = await getExistingSlugs();
+-    const queue = loadQueue();
+-    const existingQueueSlugs = new Set(queue.map(q => q.slug));
+-    const existingAll = new Set([...existingSlugs, ...existingQueueSlugs]);
+-
+-    let added = 0;
+-    for (const kw of result.keywords) {
+-      if (existingAll.has(kw.suggestedSlug)) continue;
+-      queue.push({
+-        keyword: kw.keyword,
+-        title: kw.suggestedTitle,
+-        slug: kw.suggestedSlug,
+-        description: kw.relevance,
+-        pillar: kw.searchIntent === 'informational' ? 'education' : 'comparison',
+-        difficulty: kw.difficulty,
+-        addedAt: new Date().toISOString(),
+-        published: false,
+-      });
+-      added++;
+-    }
+-
+-    saveQueue(queue);
+-    logAction('Research complete', {
+-      keywordsFound: result.keywords.length,
+-      newAdded: added,
+-      queueSize: queue.filter(q => !q.published).length,
+-      trendingTopics: result.trendingTopics.slice(0, 3),
+-    });
+-  } catch (err) {
+-    logError('Research cycle failed', err);
+-  }
+-
+-  log('INFO', '=== RESEARCH CYCLE END ===');
++  await researchKeywords();
+ }
+ 
+-/**
+- * Blog task: pick the best keyword from queue and write a post.
+- */
+ export async function runBlogPost(): Promise<void> {
+-  log('INFO', '=== BLOG CYCLE START ===');
+-
+-  try {
+-    await ensureRepo();
+-    const queue = loadQueue();
+-    const unpublished = queue.filter(q => !q.published);
+-
+-    if (unpublished.length === 0) {
+-      log('INFO', 'No keywords in queue — triggering research first');
+-      await runResearch();
+-      return runBlogPost();
+-    }
+-
+-    // Prioritize: low difficulty first, then by date added
+-    const sorted = unpublished.sort((a, b) => {
+-      const diffOrder = { low: 0, medium: 1, high: 2 };
+-      const aDiff = diffOrder[a.difficulty as keyof typeof diffOrder] ?? 1;
+-      const bDiff = diffOrder[b.difficulty as keyof typeof diffOrder] ?? 1;
+-      if (aDiff !== bDiff) return aDiff - bDiff;
+-      return new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime();
+-    });
+-
+-    const pick = sorted[0];
+-    log('INFO', `Selected keyword: "${pick.keyword}" → ${pick.title}`);
+-
+-    // Use Claude to decide if this is actually a good post to write right now
+-    const shouldWrite = await evaluatePost(pick, queue);
+-    if (!shouldWrite) {
+-      log('INFO', 'Agent decided to skip this keyword for now');
+-      return;
+-    }
+-
+-    const success = await writeBlogPost({
+-      title: pick.title,
+-      slug: pick.slug,
+-      targetKeyword: pick.keyword,
+-      description: pick.description,
+-      pillar: pick.pillar,
+-    });
+-
+-    if (success) {
+-      pick.published = true;
+-      saveQueue(queue);
+-    }
+-  } catch (err) {
+-    logError('Blog cycle failed', err);
+-  }
+-
+-  log('INFO', '=== BLOG CYCLE END ===');
++  const now = new Date();
++  const plan = planFor(now);
++  const scenarios = ['an independent window cleaner', 'a freelance event photographer', 'a local garden-maintenance business', 'an independent dog walker'];
++  const scenario = scenarios[Math.floor(now.getTime() / (4 * 86_400_000)) % scenarios.length];
++  await writeBlogPost({ ...plan, description: `${plan.description} Use a clearly fictional example of ${scenario}; focus on the exact decisions the business must make before sending one offer.` }, dailyJobKey('blog', now));
+ }
+ 
+-/**
+- * Instagram task: generate a post.
+- */
+ export async function runInstagramPost(): Promise<void> {
+-  log('INFO', '=== INSTAGRAM CYCLE START ===');
+-
+-  try {
+-    // Pick a topic from recent blog posts or queue for coherent content
+-    await ensureRepo();
+-    const queue = loadQueue();
+-    const published = queue.filter(q => q.published).slice(-3);
+-    const topic = published.length > 0
+-      ? `Related to: ${published[published.length - 1].keyword}`
+-      : undefined;
+-
+-    await generateInstagramPost(topic);
+-  } catch (err) {
+-    logError('Instagram cycle failed', err);
+-  }
+-
+-  log('INFO', '=== INSTAGRAM CYCLE END ===');
++  await generateInstagramPost(planFor(new Date()).description);
+ }
+-
+-/**
+- * Use Claude to evaluate whether a post is worth writing now.
+- * This is the "judgment" layer — the agent deciding, not just executing.
+- */
+-async function evaluatePost(
+-  candidate: QueuedKeyword,
+-  fullQueue: QueuedKeyword[],
+-): Promise<boolean> {
+-  const apiKey = config.anthropicApiKey();
+-  const recentlyPublished = fullQueue
+-    .filter(q => q.published)
+-    .sort((a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime())
+-    .slice(0, 5);
+-
+-  const prompt = `You are a growth strategist for bootfile.ai. Should we publish this blog post next?
+-
+-Candidate:
+-- Title: ${candidate.title}
+-- Keyword: ${candidate.keyword}
+-- Difficulty: ${candidate.difficulty}
+-- Description: ${candidate.description}
+-
+-Recently published:
+-${recentlyPublished.map(p => `- "${p.title}" (${p.keyword})`).join('\n') || '(none yet)'}
+-
+-Queue (unpublished):
+-${fullQueue.filter(q => !q.published).slice(0, 5).map(p => `- "${p.title}" (${p.keyword}, ${p.difficulty})`).join('\n')}
+-
+-Rules:
+-- Don't publish two posts on very similar topics back to back
+-- Prefer low-difficulty keywords when the blog is new
+-- Maintain topical diversity (mix of education, comparison, how-to)
+-- bootfile.ai is a new site — we need foundational content first
+-
+-Answer YES or NO, followed by one sentence explaining why.`;
+-
+-  try {
+-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+-      method: 'POST',
+-      headers: {
+-        'x-api-key': apiKey,
+-        'anthropic-version': '2023-06-01',
+-        'Content-Type': 'application/json',
+-      },
+-      body: JSON.stringify({
+-        model: 'claude-haiku-4-5-20251001',
+-        max_tokens: 100,
+-        messages: [{ role: 'user', content: prompt }],
+-      }),
+-    });
+-
+-    const data = await res.json();
+-    const answer = data.content?.[0]?.text || '';
+-    const decision = answer.trim().toUpperCase().startsWith('YES');
+-    log('INFO', `Evaluation: ${answer.trim()}`);
+-    return decision;
+-  } catch {
+-    // If evaluation fails, just go ahead and write
+-    return true;
+-  }
+-}
+-
+diff --git a/src/config.ts b/src/config.ts
+index 722da0e..76433c1 100644
+--- a/src/config.ts
++++ b/src/config.ts
+@@ -1,22 +1,32 @@
+ function required(name: string): string {
+-  const val = process.env[name];
+-  if (!val) throw new Error(`Missing required env var: ${name}`);
+-  return val;
++  const value = process.env[name];
++  if (!value) throw new Error(`Missing required configuration: ${name}`);
++  return value;
++}
++
++export function validatedServiceUrl(value: string, path: string): URL {
++  const url = new URL(value);
++  if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash || url.pathname !== (path || '/')) {
++    throw new Error('Service URL must use HTTPS and the exact configured path, without credentials, query, or fragment');
++  }
++  return url;
+ }
+ 
+ export const config = {
+   anthropicApiKey: () => required('ANTHROPIC_API_KEY'),
+   perplexityApiKey: () => required('PERPLEXITY_API_KEY'),
+-  githubToken: () => required('GITHUB_TOKEN'),
+-  githubRepo: () => process.env.GITHUB_REPO || 'niho0903/bootfile-app',
+-
+-  // Optional
+-  metaAccessToken: () => process.env.META_ACCESS_TOKEN || '',
+-  instagramUserId: () => process.env.INSTAGRAM_USER_ID || '',
+-
+-  // Schedules (cron expressions)
+-  blogCron: process.env.BLOG_CRON || '0 9,15 * * *',        // 9am & 3pm UTC daily
+-  instagramCron: process.env.INSTAGRAM_CRON || '0 12 * * *', // noon UTC daily
+-  researchCron: process.env.RESEARCH_CRON || '0 6 * * 1',    // 6am UTC Mondays
++  model: () => process.env.GROWTH_MODEL || 'claude-sonnet-4-6',
++  appUrl: () => validatedServiceUrl(required('BOOTFILE_APP_URL'), '').origin,
++  growthSecret: () => required('GROWTH_AGENT_SECRET'),
++  draftsEnabled: () => process.env.GROWTH_DRAFTS_ENABLED === 'true',
++  operationsEnabled: () => process.env.OPERATIONS_SCHEDULER_ENABLED === 'true',
++  operationsUrl: () => validatedServiceUrl(required('BOOTFILE_OPERATIONS_URL'), '/api/operations/run').toString(),
++  operationsSecret: () => required('BOOTFILE_CRON_SECRET'),
++  publisherEnabled: () => process.env.GROWTH_PUBLISHER_ENABLED === 'true',
++  publisherUrl: () => validatedServiceUrl(required('BOOTFILE_PUBLISHER_URL'), '/api/operations/publish').toString(),
++  publisherSecret: () => required('GROWTH_PUBLISHER_SECRET'),
++  publisherCron: process.env.PUBLISHER_CRON || '15 */6 * * *',
++  blogCron: process.env.BLOG_CRON || '0 9 * * 1,4',
++  instagramCron: process.env.INSTAGRAM_CRON || '0 12 * * 2,5',
++  researchCron: process.env.RESEARCH_CRON || '0 6 * * 1',
+ };
+-
+diff --git a/src/drafts.ts b/src/drafts.ts
+new file mode 100644
+index 0000000..5945dee
+--- /dev/null
++++ b/src/drafts.ts
+@@ -0,0 +1,35 @@
++import { config } from './config.js';
++import { PRODUCT_VERSION } from './product.js';
++
++export type DraftChannel = 'blog' | 'instagram';
++
++function endpoint(): URL {
++  return new URL('/api/operations/drafts', config.appUrl());
++}
++
++export async function draftExists(channel: DraftChannel, jobKey: string): Promise<boolean> {
++  const url = endpoint();
++  url.searchParams.set('channel', channel);
++  url.searchParams.set('jobKey', jobKey);
++  const response = await fetch(url, {
++    headers: { Authorization: `Bearer ${config.growthSecret()}` },
++    signal: AbortSignal.timeout(15_000), redirect: 'error',
++  });
++  if (!response.ok) throw new Error(`Draft ledger check failed with HTTP ${response.status}`);
++  const data = await response.json() as { exists?: unknown };
++  if (typeof data.exists !== 'boolean') throw new Error('Draft ledger returned an invalid response');
++  return data.exists;
++}
++
++export async function saveDraft(channel: DraftChannel, jobKey: string, content: string, metadata: Record<string, unknown>): Promise<string> {
++  const response = await fetch(endpoint(), {
++    method: 'POST',
++    headers: { Authorization: `Bearer ${config.growthSecret()}`, 'Content-Type': 'application/json', Origin: config.appUrl() },
++    body: JSON.stringify({ channel, jobKey, content, metadata, productVersion: PRODUCT_VERSION }),
++    signal: AbortSignal.timeout(20_000), redirect: 'error',
++  });
++  if (!response.ok) throw new Error(`Draft persistence failed with HTTP ${response.status}`);
++  const data = await response.json() as { persisted?: unknown; id?: unknown };
++  if (data.persisted !== true || typeof data.id !== 'string') throw new Error('Draft persistence was not confirmed');
++  return data.id;
++}
+diff --git a/src/git.ts b/src/git.ts
+deleted file mode 100644
+index 88ec223..0000000
+--- a/src/git.ts
++++ /dev/null
+@@ -1,61 +0,0 @@
+-import { simpleGit, SimpleGit } from 'simple-git';
+-import fs from 'fs';
+-import path from 'path';
+-import { config } from './config.js';
+-import { log, logError } from './logger.js';
+-
+-const WORKSPACE = path.join(process.cwd(), 'workspace');
+-
+-function getRepoUrl(): string {
+-  const token = config.githubToken();
+-  const repo = config.githubRepo();
+-  return `https://${token}@github.com/${repo}.git`;
+-}
+-
+-export async function ensureRepo(): Promise<SimpleGit> {
+-  if (!fs.existsSync(WORKSPACE)) {
+-    log('INFO', 'Cloning repository...');
+-    fs.mkdirSync(WORKSPACE, { recursive: true });
+-    const git = simpleGit();
+-    await git.clone(getRepoUrl(), WORKSPACE, ['--depth', '1']);
+-    const repoGit = simpleGit(WORKSPACE);
+-    await repoGit.addConfig('user.email', 'growth-agent@bootfile.ai');
+-    await repoGit.addConfig('user.name', 'BootFile Growth Agent');
+-    return repoGit;
+-  }
+-
+-  const git = simpleGit(WORKSPACE);
+-  try {
+-    await git.fetch('origin', 'master');
+-    await git.reset(['--hard', 'origin/master']);
+-    log('INFO', 'Repository updated to latest');
+-  } catch (err) {
+-    logError('Failed to update repo, re-cloning', err);
+-    fs.rmSync(WORKSPACE, { recursive: true, force: true });
+-    return ensureRepo();
+-  }
+-  return git;
+-}
+-
+-export async function commitAndPush(git: SimpleGit, filePath: string, message: string): Promise<boolean> {
+-  try {
+-    await git.add(filePath);
+-    const status = await git.status();
+-    if (status.staged.length === 0) {
+-      log('WARN', 'No changes to commit');
+-      return false;
+-    }
+-    await git.commit(message);
+-    await git.push('origin', 'master');
+-    log('ACTION', `Pushed: ${message}`, { file: filePath });
+-    return true;
+-  } catch (err) {
+-    logError('Git push failed', err);
+-    return false;
+-  }
+-}
+-
+-export function getWorkspacePath(...segments: string[]): string {
+-  return path.join(WORKSPACE, ...segments);
+-}
+-
+diff --git a/src/index.ts b/src/index.ts
+index c987c5a..ab5040c 100644
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -2,72 +2,59 @@ import cron from 'node-cron';
+ import { config } from './config.js';
+ import { log, logError } from './logger.js';
+ import { runResearch, runBlogPost, runInstagramPost } from './agent.js';
+-
+-// Prevent overlapping runs
+-let blogRunning = false;
+-let researchRunning = false;
+-let instagramRunning = false;
++import { runBootfileOperations } from './operations.js';
++import { runOwnedBlogPublisher } from './publishing.js';
+ 
+ function wrapTask(name: string, fn: () => Promise<void>, guard: { running: boolean }): () => void {
+   return () => {
+     if (guard.running) {
+-      log('WARN', `${name} is already running, skipping`);
++      log('WARN', `${name} skipped: a job in this lane is already running`);
+       return;
+     }
+     guard.running = true;
+-    fn()
+-      .catch(err => logError(`${name} crashed`, err))
++    log('INFO', `${name} started`);
++    fn().then(() => log('INFO', `${name} completed`))
++      .catch(error => logError(`${name} failed`, error))
+       .finally(() => { guard.running = false; });
+   };
+ }
+ 
+-async function main() {
+-  log('INFO', '🚀 BootFile Growth Agent starting...');
+-  log('INFO', `Blog schedule: ${config.blogCron}`);
+-  log('INFO', `Instagram schedule: ${config.instagramCron}`);
+-  log('INFO', `Research schedule: ${config.researchCron}`);
++function schedule(expression: string, task: () => void): void {
++  if (!cron.validate(expression)) throw new Error('Invalid cron expression in configured schedule');
++  cron.schedule(expression, task, { timezone: 'UTC' });
++}
+ 
+-  // Validate required env vars early
+-  try {
+-    config.anthropicApiKey();
+-    config.perplexityApiKey();
+-    config.githubToken();
+-    log('INFO', 'All required env vars present');
+-  } catch (err) {
+-    logError('Missing required configuration', err);
+-    process.exit(1);
++function main(): void {
++  log('INFO', 'Bootfile Studio operating service starting');
++  const draftsEnabled = config.draftsEnabled();
++  const operationsEnabled = config.operationsEnabled();
++  const publisherEnabled = config.publisherEnabled();
++  if (draftsEnabled) {
++    config.appUrl(); config.growthSecret(); config.anthropicApiKey(); config.perplexityApiKey();
++    const contentLane = { running: false };
++    schedule(config.researchCron, wrapTask('Research notes', runResearch, contentLane));
++    schedule(config.blogCron, wrapTask('Blog draft', runBlogPost, contentLane));
++    schedule(config.instagramCron, wrapTask('Instagram draft', runInstagramPost, contentLane));
++    log('INFO', 'Draft schedules registered. Drafts do not grant publication authority; outreach is disabled.');
++  } else {
++    log('INFO', 'Draft generation is disabled. Set explicit endpoint, credential, and GROWTH_DRAFTS_ENABLED only after verification.');
+   }
+-
+-  // Schedule tasks
+-  const blogGuard = { running: false };
+-  const researchGuard = { running: false };
+-  const instagramGuard = { running: false };
+-
+-  cron.schedule(config.researchCron, wrapTask('Research', runResearch, researchGuard));
+-  cron.schedule(config.blogCron, wrapTask('Blog', runBlogPost, blogGuard));
+-  cron.schedule(config.instagramCron, wrapTask('Instagram', runInstagramPost, instagramGuard));
+-
+-  log('INFO', 'Schedules registered. Agent is running.');
+-
+-  // Run initial research + first blog post on startup
+-  log('INFO', 'Running initial cycle...');
+-  try {
+-    await runResearch();
+-    await runBlogPost();
+-    await runInstagramPost();
+-    log('INFO', 'Initial cycle complete. Waiting for next scheduled run.');
+-  } catch (err) {
+-    logError('Initial cycle failed', err);
++  if (publisherEnabled) {
++    config.publisherUrl(); config.publisherSecret();
++    schedule(config.publisherCron, wrapTask('Owned-blog review/publication', runOwnedBlogPublisher, { running: false }));
++    log('INFO', 'Owned-blog trigger registered. The application enforces independent review, publication flags and durable caps.');
++  } else {
++    log('INFO', 'Owned-blog trigger is disabled until its endpoint and separate credential are configured.');
+   }
+-
+-  // Keep the process alive
+-  setInterval(() => {
+-    log('INFO', 'Heartbeat — agent is alive');
+-  }, 6 * 60 * 60 * 1000); // Every 6 hours
++  if (operationsEnabled) {
++    config.operationsUrl(); config.operationsSecret();
++    schedule('*/5 * * * *', wrapTask('Paid operations', runBootfileOperations, { running: false }));
++    log('INFO', 'Five-minute paid-operations schedule registered. Verify responses in the app run ledger.');
++  } else {
++    log('INFO', 'Paid-operations heartbeat is disabled until its endpoint and dedicated credential are configured.');
++  }
++  // No work is generated on startup/redeploy. Schedule-level idempotency lives in the app database.
++  setInterval(() => log('INFO', 'Process heartbeat', { draftsEnabled, operationsEnabled, publisherEnabled }), 5 * 60_000);
+ }
+ 
+-main().catch(err => {
+-  logError('Fatal error', err);
+-  process.exit(1);
+-});
+-
++try { main(); } catch (error) { logError('Startup configuration failed', error); process.exitCode = 1; }
+diff --git a/src/logger.ts b/src/logger.ts
+index c6a1c01..578a104 100644
+--- a/src/logger.ts
++++ b/src/logger.ts
+@@ -1,43 +1,13 @@
+-import fs from 'fs';
+-import path from 'path';
+-
+-const LOG_DIR = path.join(process.cwd(), 'logs');
+-
+-function ensureLogDir() {
+-  if (!fs.existsSync(LOG_DIR)) {
+-    fs.mkdirSync(LOG_DIR, { recursive: true });
+-  }
+-}
+-
+-function timestamp(): string {
+-  return new Date().toISOString();
+-}
+-
+-function logFile(): string {
+-  const date = new Date().toISOString().split('T')[0];
+-  return path.join(LOG_DIR, `${date}.log`);
++// Structured stdout is collected by the deployment provider. No ephemeral local log volume.
++export function log(level: 'INFO' | 'WARN' | 'ERROR' | 'ACTION', message: string, data?: Record<string, unknown>): void {
++  console.log(JSON.stringify({ timestamp: new Date().toISOString(), level, message, ...(data ? { data } : {}) }));
+ }
+ 
+-export function log(level: 'INFO' | 'WARN' | 'ERROR' | 'ACTION', message: string, data?: Record<string, unknown>) {
+-  ensureLogDir();
+-  const entry = {
+-    timestamp: timestamp(),
+-    level,
+-    message,
+-    ...(data && { data }),
+-  };
+-
+-  const line = JSON.stringify(entry);
+-  console.log(`[${level}] ${message}`);
+-  fs.appendFileSync(logFile(), line + '\n');
++export function logAction(message: string, data: Record<string, unknown>): void {
++  log('ACTION', message, data);
+ }
+ 
+-export function logAction(action: string, details: Record<string, unknown>) {
+-  log('ACTION', action, details);
++export function logError(message: string, error: unknown): void {
++  // Callers throw safe codes/status messages, never provider bodies, credentials, or customer content.
++  log('ERROR', message, { error: error instanceof Error ? error.message : 'unknown_error' });
+ }
+-
+-export function logError(message: string, error: unknown) {
+-  const errorMsg = error instanceof Error ? error.message : String(error);
+-  log('ERROR', message, { error: errorMsg });
+-}
+-
+diff --git a/src/model.ts b/src/model.ts
+new file mode 100644
+index 0000000..95d852d
+--- /dev/null
++++ b/src/model.ts
+@@ -0,0 +1,16 @@
++import { config } from './config.js';
++
++export async function generateText(system: string, prompt: string, maxTokens: number): Promise<string> {
++  const response = await fetch('https://api.anthropic.com/v1/messages', {
++    method: 'POST',
++    headers: { 'x-api-key': config.anthropicApiKey(), 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json' },
++    body: JSON.stringify({ model: config.model(), max_tokens: Math.min(maxTokens, 3_000), system, messages: [{ role: 'user', content: prompt }] }),
++    signal: AbortSignal.timeout(65_000), redirect: 'error',
++  });
++  if (!response.ok) throw new Error(`Model request failed with HTTP ${response.status}`);
++  const data = await response.json() as { content?: Array<{ type: string; text?: string }>; stop_reason?: string };
++  if (data.stop_reason === 'max_tokens') throw new Error('Model output was truncated');
++  const text = data.content?.filter(block => block.type === 'text').map(block => block.text || '').join('\n').trim();
++  if (!text) throw new Error('Model returned no text');
++  return text;
++}
+diff --git a/src/operations.ts b/src/operations.ts
+new file mode 100644
+index 0000000..8bea8d7
+--- /dev/null
++++ b/src/operations.ts
+@@ -0,0 +1,17 @@
++import { config } from './config.js';
++import { logAction } from './logger.js';
++
++/** Optional Railway heartbeat for hosts whose native cron tier cannot run every five minutes. */
++export async function runBootfileOperations(): Promise<void> {
++  const response = await fetch(config.operationsUrl(), {
++    headers: { Authorization: `Bearer ${config.operationsSecret()}` },
++    signal: AbortSignal.timeout(290_000), redirect: 'error',
++  });
++  if (!response.ok) throw new Error(`Bootfile operations returned HTTP ${response.status}; inspect the app run ledger before retrying`);
++  const data = await response.json() as { status?: unknown; runId?: unknown; reason?: unknown };
++  if (!['completed', 'partial', 'paused', 'skipped'].includes(String(data.status))) throw new Error('Bootfile operations returned an unrecognized outcome');
++  logAction('Bootfile operations response observed', {
++    status: String(data.status), runId: typeof data.runId === 'string' ? data.runId : null,
++    reason: typeof data.reason === 'string' ? data.reason : null,
++  });
++}
+diff --git a/src/policy.test.ts b/src/policy.test.ts
+new file mode 100644
+index 0000000..e8a913d
+--- /dev/null
++++ b/src/policy.test.ts
+@@ -0,0 +1,69 @@
++import { afterEach, test } from 'node:test';
++import assert from 'node:assert/strict';
++import { config, validatedServiceUrl } from './config.js';
++import { dailyJobKey, weekJobKey } from './product.js';
++import { runBootfileOperations } from './operations.js';
++import { draftExists } from './drafts.js';
++import { runOwnedBlogPublisher } from './publishing.js';
++
++const originalFetch = globalThis.fetch;
++const previousEnvironment = { ...process.env };
++afterEach(() => { globalThis.fetch = originalFetch; process.env = { ...previousEnvironment }; });
++
++test('capabilities fail closed until explicitly enabled', () => {
++  delete process.env.GROWTH_DRAFTS_ENABLED;
++  delete process.env.OPERATIONS_SCHEDULER_ENABLED;
++  delete process.env.GROWTH_PUBLISHER_ENABLED;
++  assert.equal(config.draftsEnabled(), false);
++  assert.equal(config.operationsEnabled(), false);
++  assert.equal(config.publisherEnabled(), false);
++  process.env.GROWTH_DRAFTS_ENABLED = 'yes';
++  assert.equal(config.draftsEnabled(), false);
++});
++
++test('publisher sends only its trigger and separate credential, never a self-approved payload', async () => {
++  process.env.BOOTFILE_PUBLISHER_URL = 'https://bootfile.ai/api/operations/publish';
++  process.env.GROWTH_PUBLISHER_SECRET = 'test-publisher-credential';
++  process.env.GROWTH_AGENT_SECRET = 'test-author-credential';
++  globalThis.fetch = (async (_url: unknown, init?: RequestInit) => {
++    assert.equal(init?.redirect, 'error'); assert.equal(init?.method, 'POST'); assert.equal(init?.body, '{}');
++    assert.equal((init?.headers as Record<string,string>).Authorization, 'Bearer test-publisher-credential');
++    return new Response(JSON.stringify({ status: 'approved', reason: 'publication_disabled' }), { status: 200 });
++  }) as typeof fetch;
++  await runOwnedBlogPublisher();
++});
++
++test('credential destinations require HTTPS and the exact service path', () => {
++  assert.throws(() => validatedServiceUrl('http://bootfile.ai/api/operations/run', '/api/operations/run'));
++  assert.throws(() => validatedServiceUrl('https://secret@bootfile.ai/api/operations/run', '/api/operations/run'));
++  assert.throws(() => validatedServiceUrl('https://bootfile.ai/api/operations/run?token=x', '/api/operations/run'));
++  assert.throws(() => validatedServiceUrl('https://bootfile.ai/api/admin/publish', '/api/operations/run'));
++  assert.equal(validatedServiceUrl('https://bootfile.ai/api/operations/run', '/api/operations/run').pathname, '/api/operations/run');
++});
++
++test('task keys stay stable through a daily or weekly restart', () => {
++  assert.equal(dailyJobKey('blog', new Date('2026-10-20T01:00:00Z')), dailyJobKey('blog', new Date('2026-10-20T23:00:00Z')));
++  assert.equal(weekJobKey(new Date('2026-10-19T00:00:00Z')), weekJobKey(new Date('2026-10-25T23:00:00Z')));
++  assert.notEqual(weekJobKey(new Date('2026-10-25T23:00:00Z')), weekJobKey(new Date('2026-10-26T00:00:00Z')));
++});
++
++test('paid operations refuses redirects and sends only the dedicated credential', async () => {
++  process.env.BOOTFILE_OPERATIONS_URL = 'https://bootfile.ai/api/operations/run';
++  process.env.BOOTFILE_CRON_SECRET = 'test-operations-credential';
++  let calls = 0;
++  globalThis.fetch = (async (_url: unknown, init?: RequestInit) => {
++    calls += 1;
++    assert.equal(init?.redirect, 'error');
++    assert.deepEqual(init?.headers, { Authorization: 'Bearer test-operations-credential' });
++    return new Response(JSON.stringify({ status: 'skipped' }), { status: 200 });
++  }) as typeof fetch;
++  await runBootfileOperations();
++  assert.equal(calls, 1);
++});
++
++test('an unavailable draft ledger fails the task before generation', async () => {
++  process.env.BOOTFILE_APP_URL = 'https://bootfile.ai';
++  process.env.GROWTH_AGENT_SECRET = 'test-draft-credential';
++  globalThis.fetch = (async () => new Response('unavailable', { status: 503 })) as typeof fetch;
++  await assert.rejects(() => draftExists('blog', 'blog:2026-10-20'), /ledger check failed/);
++});
+diff --git a/src/product.ts b/src/product.ts
+new file mode 100644
+index 0000000..0d3c58c
+--- /dev/null
++++ b/src/product.ts
+@@ -0,0 +1,23 @@
++export const PRODUCT_VERSION = 'studio-marketing-v1';
++
++export const PRODUCT_BRIEF = `Bootfile Marketing Setup serves solo service-business owners who need to prepare one concrete promotion.
++The offer is $49 once, with no subscription. The customer supplies a business brief, their actual offer, audience, facts, constraints, and tone.
++The saved result is a customer email and three coordinated social posts, a saved business brief, a reusable task setup, and a quality checklist.
++The product entry is https://bootfile.ai/studio. The business owner reviews facts and sends or posts the work themselves.
++AI memory can remember a user; it does not establish that a specific promotion is accurate or ready to use.
++Never describe Bootfile as a new personality test, an archetype quiz, a memory replacement, a chat app, or a subscription.
++Do not invent customer results, performance numbers, time saved, testimonials, citations, provider capabilities, or guaranteed sales.
++Examples must be clearly labeled fictional and use placeholders for unprovided prices, dates, availability, credentials, and customer claims.
++Do not suggest uploading confidential customer data. No unsolicited outreach or paid advertising instructions are part of this content task.
++Write useful, specific guidance in plain language. The single product mention must match the actual offer and URL above.
++All outputs are unpublished drafts. A draft is never proof of approval, publication, audience reach, or revenue.`;
++
++export function dailyJobKey(task: string, now = new Date()): string {
++  return `${task}:${now.toISOString().slice(0, 10)}`;
++}
++
++export function weekJobKey(now = new Date()): string {
++  const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
++  monday.setUTCDate(monday.getUTCDate() - ((monday.getUTCDay() + 6) % 7));
++  return `research:${monday.toISOString().slice(0, 10)}`;
++}
+diff --git a/src/publishing.ts b/src/publishing.ts
+new file mode 100644
+index 0000000..fa39b83
+--- /dev/null
++++ b/src/publishing.ts
+@@ -0,0 +1,19 @@
++import { config } from './config.js';
++import { logAction } from './logger.js';
++
++/** Triggers server-owned review/publish policy. Cannot submit content, an approval, or a target URL. */
++export async function runOwnedBlogPublisher(): Promise<void> {
++  const response = await fetch(config.publisherUrl(), {
++    method: 'POST',
++    headers: { Authorization: `Bearer ${config.publisherSecret()}`, 'Content-Type': 'application/json' },
++    body: '{}', signal: AbortSignal.timeout(170_000), redirect: 'error',
++  });
++  if (!response.ok) throw new Error(`Owned-blog operating endpoint returned HTTP ${response.status}; inspect its durable review ledger`);
++  const data = await response.json() as { status?: unknown; id?: unknown; slug?: unknown; reason?: unknown };
++  if (!['disabled', 'skipped', 'approved', 'published', 'already_published', 'rejected'].includes(String(data.status))) throw new Error('Owned-blog endpoint returned an unrecognized outcome');
++  logAction('Owned-blog operating response observed', {
++    status: String(data.status), id: typeof data.id === 'string' ? data.id : null,
++    slug: typeof data.slug === 'string' ? data.slug : null,
++    reason: typeof data.reason === 'string' ? data.reason : null,
++  });
++}
+diff --git a/src/tools/blog.ts b/src/tools/blog.ts
+index ea183f7..1bd9fca 100644
+--- a/src/tools/blog.ts
++++ b/src/tools/blog.ts
+@@ -1,10 +1,9 @@
+-import fs from 'fs';
+-import path from 'path';
+-import { config } from '../config.js';
+-import { log, logAction, logError } from '../logger.js';
+-import { ensureRepo, commitAndPush, getWorkspacePath } from '../git.js';
++import { generateText } from '../model.js';
++import { PRODUCT_BRIEF } from '../product.js';
++import { draftExists, saveDraft } from '../drafts.js';
++import { log, logAction } from '../logger.js';
+ 
+-interface BlogPostPlan {
++export interface BlogPostPlan {
+   title: string;
+   slug: string;
+   targetKeyword: string;
+@@ -12,152 +11,20 @@ interface BlogPostPlan {
+   pillar: string;
+ }
+ 
+-const ARCHETYPE_AUTHORS = [
+-  { id: 'surgeon', name: 'The Surgeon', voice: 'Direct, precise, no-nonsense. Cut straight to the point. No preamble, no hedging. Confident opinions over wishy-washy "it depends." Short paragraphs, sharp observations.' },
+-  { id: 'architect', name: 'The Architect', voice: 'Systems-thinking, structured, analytical. Show how pieces connect. Use frameworks and mental models. Map the full landscape before narrowing. Methodical and thorough.' },
+-  { id: 'sparring', name: 'The Sparring Partner', voice: 'Challenging, provocative, contrarian. Question assumptions. Poke holes in conventional wisdom. Use rhetorical questions. Productive friction over comfortable agreement.' },
+-  { id: 'translator', name: 'The Translator', voice: 'Clear, warm, metaphor-rich. Take complex ideas and make them click. Use analogies and everyday comparisons. Clarity over sophistication. Make the reader go "oh, that makes sense."' },
+-  { id: 'copilot', name: 'The Co-Pilot', voice: 'Conversational, collaborative, riffing. Think out loud with the reader. Casual tone, like a smart colleague. Half-formed ideas welcome. Build on thoughts together.' },
+-  { id: 'librarian', name: 'The Librarian', voice: 'Thorough, nuanced, comprehensive. Give the full picture with context and caveats. Don\'t pre-filter. Include edge cases and counterpoints. Depth over brevity.' },
+-  { id: 'closer', name: 'The Closer', voice: 'Action-oriented, decisive, bottom-line. Lead with the answer. Rank options, make recommendations. "Here\'s what to do" over "here are some things to consider." Bias toward action.' },
+-  { id: 'maker', name: 'The Maker', voice: 'Practical, hands-on, output-focused. Show don\'t tell. Give concrete examples, templates, step-by-step. Less philosophy, more "here\'s how to actually do it." Ship over discuss.' },
+-] as const;
+-
+-function pickRandomArchetype() {
+-  return ARCHETYPE_AUTHORS[Math.floor(Math.random() * ARCHETYPE_AUTHORS.length)];
+-}
+-
+-/**
+- * Write and publish a blog post.
+- * Generates via Claude, writes to content/blog/, commits, and pushes.
+- * Vercel auto-deploys on push.
+- */
+-export async function writeBlogPost(plan: BlogPostPlan): Promise<boolean> {
+-  const apiKey = config.anthropicApiKey();
+-
+-  // Check if post already exists
+-  const git = await ensureRepo();
+-  const postPath = getWorkspacePath('content', 'blog', `${plan.slug}.md`);
+-  if (fs.existsSync(postPath)) {
+-    log('WARN', `Blog post already exists: ${plan.slug}`);
+-    return false;
+-  }
+-
+-  const archetype = pickRandomArchetype();
+-  log('INFO', `Writing blog post: ${plan.title} (author: ${archetype.name})`);
+-
+-  const systemPrompt = `You are writing a blog post for bootfile.ai as ${archetype.name} — one of BootFile's archetype writers. BootFile creates personalized AI instruction profiles based on how you think, and each blog post is written by a different archetype as a proof of concept.
+-
+-Your writing voice as ${archetype.name}: ${archetype.voice}
+-
+-Brand guardrails: No "revolutionize." No "paradigm shift." Plain observations and concrete explanations. Stay true to the archetype's voice while keeping things grounded.
+-
+-Write a complete blog post in markdown. The post should:
+-- Be 800-1500 words
+-- Target the keyword naturally (don't stuff it)
+-- Open with a hook that reflects ${archetype.name}'s perspective
+-- Include 3-5 H2 sections with clear structure
+-- End with a natural mention of BootFile and a link to the quiz (https://bootfile.ai/quiz)
+-- The BootFile mention should be ONE paragraph, positioned as "here's what we're doing about it" — not a sales pitch
+-- Include concrete examples and specific details, not vague generalizations
+-- The voice should be distinctly ${archetype.name} — a reader should be able to tell which archetype wrote this
+-- Do NOT include frontmatter — I will add that separately
+-
+-Do NOT output anything except the blog post body in markdown.`;
+-
+-  const userPrompt = `Write a blog post with this plan:
+-
+-Title: ${plan.title}
+-Target keyword: ${plan.targetKeyword}
+-Description: ${plan.description}
+-Pillar: ${plan.pillar}
+-
+-Write this in the voice of ${archetype.name}. The tone should be distinctly yours — not generic blog voice.`;
+-
+-  try {
+-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+-      method: 'POST',
+-      headers: {
+-        'x-api-key': apiKey,
+-        'anthropic-version': '2023-06-01',
+-        'Content-Type': 'application/json',
+-      },
+-      body: JSON.stringify({
+-        model: 'claude-sonnet-4-6',
+-        max_tokens: 3000,
+-        system: systemPrompt,
+-        messages: [{ role: 'user', content: userPrompt }],
+-      }),
+-    });
+-
+-    if (!res.ok) {
+-      logError('Claude API error during blog generation', new Error(await res.text()));
+-      return false;
+-    }
+-
+-    const data = await res.json();
+-    const body = data.content?.[0]?.text;
+-    if (!body || body.length < 200) {
+-      logError('Blog generation returned insufficient content', new Error(`Length: ${body?.length}`));
+-      return false;
+-    }
+-
+-    // Build the full markdown file with frontmatter
+-    const today = new Date().toISOString().split('T')[0];
+-    const markdown = `---
+-title: "${plan.title.replace(/"/g, '\\"')}"
+-description: "${plan.description.replace(/"/g, '\\"')}"
+-publishedAt: "${today}"
+-target_query: "${plan.targetKeyword}"
+-pillar: "${plan.pillar}"
+-author: "${archetype.id}"
+-meta_title: "${plan.title.replace(/"/g, '\\"')}"
+-meta_description: "${plan.description.replace(/"/g, '\\"')}"
+----
+-
+-${body.trim()}
+-`;
+-
+-    // Write to workspace
+-    const blogDir = getWorkspacePath('content', 'blog');
+-    if (!fs.existsSync(blogDir)) {
+-      fs.mkdirSync(blogDir, { recursive: true });
+-    }
+-    fs.writeFileSync(postPath, markdown, 'utf-8');
+-
+-    // Commit and push
+-    const relativePath = path.relative(getWorkspacePath(), postPath);
+-    const pushed = await commitAndPush(
+-      git,
+-      relativePath,
+-      `Add blog post: ${plan.title}\n\nTarget keyword: ${plan.targetKeyword}\nGenerated by BootFile Growth Agent`,
+-    );
+-
+-    if (pushed) {
+-      logAction('Blog post published', {
+-        title: plan.title,
+-        slug: plan.slug,
+-        keyword: plan.targetKeyword,
+-        wordCount: body.split(/\s+/).length,
+-      });
+-    }
+-
+-    return pushed;
+-  } catch (err) {
+-    logError('Blog post writing failed', err);
++/** Writes a pending draft only. There is no git push or public publish capability. */
++export async function writeBlogPost(plan: BlogPostPlan, jobKey: string): Promise<boolean> {
++  if (await draftExists('blog', jobKey)) {
++    log('INFO', 'Blog draft already exists for this day; no model request made');
+     return false;
+   }
++  const body = await generateText(PRODUCT_BRIEF + `\nWrite an unpublished practical article of 600-900 words. Use 3-5 headings, one clearly fictional worked example, and a final factual checklist. Do not include frontmatter. Use Markdown without raw HTML, images or outside links. The sole source link must be [Bootfile Marketing Setup](https://bootfile.ai/studio). Do not add other factual sources, external provider claims, statistics, prices, or guarantees. Make the worked example and instructions specific enough to add useful substance; do not merely restate the product description.`, `Title: ${plan.title}\nKeyword: ${plan.targetKeyword}\nTask: ${plan.description}`, 2_500);
++  if (body.length < 200 || body.length > 35_000) throw new Error('Blog draft length is invalid');
++  const frontmatter = [
++    '---', `title: ${JSON.stringify(plan.title)}`, `description: ${JSON.stringify(plan.description)}`,
++    `target_query: ${JSON.stringify(plan.targetKeyword)}`, `pillar: ${JSON.stringify(plan.pillar)}`,
++    'author: "bootfile"', '---', '', body,
++  ].join('\n');
++  const id = await saveDraft('blog', jobKey, frontmatter, { ...plan, kind: 'article', sourceUrls: ['https://bootfile.ai/studio'] });
++  logAction('Blog draft persisted; not published', { id, jobKey, wordCount: body.split(/\s+/).length });
++  return true;
+ }
+-
+-/**
+- * Get list of existing blog post slugs.
+- */
+-export async function getExistingSlugs(): Promise<string[]> {
+-  await ensureRepo();
+-  const blogDir = getWorkspacePath('content', 'blog');
+-  if (!fs.existsSync(blogDir)) return [];
+-  return fs.readdirSync(blogDir)
+-    .filter(f => f.endsWith('.md'))
+-    .map(f => f.replace('.md', ''));
+-}
+-
+diff --git a/src/tools/instagram.ts b/src/tools/instagram.ts
+index 92ee8cf..51dc30a 100644
+--- a/src/tools/instagram.ts
++++ b/src/tools/instagram.ts
+@@ -1,120 +1,28 @@
+-import fs from 'fs';
+-import path from 'path';
+-import { config } from '../config.js';
+-import { log, logAction, logError } from '../logger.js';
+-import { ensureRepo, commitAndPush, getWorkspacePath } from '../git.js';
++import { generateText } from '../model.js';
++import { PRODUCT_BRIEF, dailyJobKey } from '../product.js';
++import { draftExists, saveDraft } from '../drafts.js';
++import { log, logAction } from '../logger.js';
+ 
+ interface InstagramPost {
+   caption: string;
+   hashtags: string[];
+   hook: string;
+-  contentType: 'tip' | 'myth-bust' | 'archetype-spotlight' | 'before-after' | 'question';
++  contentType: 'tip' | 'before-after' | 'checklist';
+ }
+ 
+-/**
+- * Generate an Instagram post caption.
+- * Saves to content/drafts/instagram/ and optionally posts via Meta Graph API.
+- */
+-export async function generateInstagramPost(topic?: string): Promise<InstagramPost | null> {
+-  const apiKey = config.anthropicApiKey();
+-
+-  const systemPrompt = `You are a social media content creator for bootfile.ai — a product that creates personalized AI instruction profiles based on how you think.
+-
+-Instagram voice: punchy, relatable, specific. Every post should make someone think "that's exactly my experience with AI." No corporate speak. No "unlock your potential." Real observations about how people use AI and why it's frustrating when it doesn't know how you think.
+-
+-Content types (rotate between these):
+-1. TIP — A specific, actionable tip for getting better AI responses
+-2. MYTH-BUST — Challenge a common assumption about AI
+-3. ARCHETYPE-SPOTLIGHT — Highlight one of the 8 thinking styles
+-4. BEFORE-AFTER — Show generic AI response vs. BootFile-calibrated response
+-5. QUESTION — Engagement post that asks the audience something
+-
+-Return ONLY valid JSON:
+-{
+-  "caption": "The full caption text (150-300 words). Include line breaks as \\n\\n.",
+-  "hashtags": ["relevant", "hashtags", "max8"],
+-  "hook": "The first line that appears before 'more' (must stop the scroll)",
+-  "contentType": "tip|myth-bust|archetype-spotlight|before-after|question"
+-}`;
+-
+-  const userPrompt = topic
+-    ? `Create an Instagram post about: ${topic}`
+-    : `Create an Instagram post. Pick whichever content type feels freshest. Make it specific and scroll-stopping.`;
+-
+-  try {
+-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+-      method: 'POST',
+-      headers: {
+-        'x-api-key': apiKey,
+-        'anthropic-version': '2023-06-01',
+-        'Content-Type': 'application/json',
+-      },
+-      body: JSON.stringify({
+-        model: 'claude-sonnet-4-6',
+-        max_tokens: 1000,
+-        system: systemPrompt,
+-        messages: [{ role: 'user', content: userPrompt }],
+-      }),
+-    });
+-
+-    if (!res.ok) {
+-      logError('Claude API error during IG generation', new Error(await res.text()));
+-      return null;
+-    }
+-
+-    const data = await res.json();
+-    const text = data.content?.[0]?.text || '';
+-    const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+-    const post: InstagramPost = JSON.parse(cleaned);
+-
+-    // Save draft to repo
+-    await saveDraft(post);
+-
+-    // Attempt to publish if Meta API is configured
+-    const metaToken = config.metaAccessToken();
+-    const igUserId = config.instagramUserId();
+-    if (metaToken && igUserId) {
+-      // Note: Instagram Graph API requires an image URL for publishing.
+-      // For now, we just save the draft. Image generation would need
+-      // a separate service (Canva API, DALL-E, etc.)
+-      log('INFO', 'Instagram post drafted (auto-publish requires image URL)');
+-    }
+-
+-    logAction('Instagram post generated', {
+-      contentType: post.contentType,
+-      hook: post.hook,
+-      hashtagCount: post.hashtags.length,
+-    });
+-
+-    return post;
+-  } catch (err) {
+-    logError('Instagram post generation failed', err);
++export async function generateInstagramPost(topic: string, now = new Date()): Promise<InstagramPost | null> {
++  const jobKey = dailyJobKey('instagram', now);
++  if (await draftExists('instagram', jobKey)) {
++    log('INFO', 'Instagram draft already exists for this day; no model request made');
+     return null;
+   }
+-}
+-
+-async function saveDraft(post: InstagramPost): Promise<void> {
+-  try {
+-    const git = await ensureRepo();
+-    const draftsDir = getWorkspacePath('content', 'drafts', 'instagram');
+-    if (!fs.existsSync(draftsDir)) {
+-      fs.mkdirSync(draftsDir, { recursive: true });
+-    }
+-
+-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+-    const filename = `${timestamp}-${post.contentType}.json`;
+-    const filePath = path.join(draftsDir, filename);
+-
+-    fs.writeFileSync(filePath, JSON.stringify(post, null, 2), 'utf-8');
+-
+-    const relativePath = path.relative(getWorkspacePath(), filePath);
+-    await commitAndPush(
+-      git,
+-      relativePath,
+-      `Draft Instagram post: ${post.contentType}\n\nHook: ${post.hook}\nGenerated by BootFile Growth Agent`,
+-    );
+-  } catch (err) {
+-    logError('Failed to save Instagram draft', err);
++  const text = await generateText(PRODUCT_BRIEF + '\nWrite one useful Instagram caption for a solo service-business owner. Return only JSON: {"caption":"80-160 words","hashtags":["max6"],"hook":"specific first line","contentType":"tip|before-after|checklist"}. No engagement bait or invented success story.', topic, 1_000);
++  const parsed = JSON.parse(text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()) as Partial<InstagramPost>;
++  if (typeof parsed.caption !== 'string' || parsed.caption.length < 50 || parsed.caption.length > 2_500 || typeof parsed.hook !== 'string' || parsed.hook.length > 240 || !Array.isArray(parsed.hashtags) || parsed.hashtags.length > 6 || parsed.hashtags.some(tag => typeof tag !== 'string' || !/^[a-z0-9_]{1,40}$/i.test(tag)) || !['tip', 'before-after', 'checklist'].includes(parsed.contentType || '')) {
++    throw new Error('Instagram draft did not match the required schema');
+   }
++  const post = parsed as InstagramPost;
++  const id = await saveDraft('instagram', jobKey, `${post.hook}\n\n${post.caption}`, { ...post, kind: 'caption' });
++  logAction('Instagram draft persisted; not published', { id, jobKey, contentType: post.contentType });
++  return post;
+ }
+-
+diff --git a/src/tools/research.ts b/src/tools/research.ts
+index dcb4f80..d0dd414 100644
+--- a/src/tools/research.ts
++++ b/src/tools/research.ts
+@@ -1,129 +1,29 @@
+ import { config } from '../config.js';
+-import { log, logError } from '../logger.js';
+-import fs from 'fs';
+-import { getWorkspacePath } from '../git.js';
+-
+-interface KeywordIdea {
+-  keyword: string;
+-  searchIntent: string;
+-  suggestedTitle: string;
+-  suggestedSlug: string;
+-  difficulty: 'low' | 'medium' | 'high';
+-  relevance: string;
+-}
+-
+-export interface ResearchResult {
+-  keywords: KeywordIdea[];
+-  trendingTopics: string[];
+-  competitorInsights: string[];
+-}
+-
+-/**
+- * Research keywords and trending topics via Perplexity API.
+- * Returns keyword ideas ranked by opportunity.
+- */
+-export async function researchKeywords(): Promise<ResearchResult> {
+-  const apiKey = config.perplexityApiKey();
+-
+-  // Get existing blog slugs to avoid duplicates
+-  const blogDir = getWorkspacePath('content', 'blog');
+-  let existingSlugs: string[] = [];
+-  try {
+-    if (fs.existsSync(blogDir)) {
+-      existingSlugs = fs.readdirSync(blogDir)
+-        .filter(f => f.endsWith('.md'))
+-        .map(f => f.replace('.md', ''));
+-    }
+-  } catch { /* workspace may not exist yet */ }
+-
+-  const query = `What are the most searched questions and topics about AI personalization, custom instructions for ChatGPT/Claude/Gemini, AI productivity tips, and how to get better results from AI assistants? Focus on topics that a small startup blog (bootfile.ai) could realistically rank for — long-tail keywords with lower competition. Return specific keyword phrases people actually search, not generic topics.`;
+-
+-  try {
+-    const res = await fetch('https://api.perplexity.ai/chat/completions', {
+-      method: 'POST',
+-      headers: {
+-        'Authorization': `Bearer ${apiKey}`,
+-        'Content-Type': 'application/json',
+-      },
+-      body: JSON.stringify({
+-        model: 'sonar',
+-        messages: [
+-          {
+-            role: 'system',
+-            content: 'You are an SEO researcher. Return structured, actionable keyword opportunities. Focus on long-tail keywords with clear search intent that a new blog could rank for.',
+-          },
+-          { role: 'user', content: query },
+-        ],
+-        max_tokens: 2000,
+-      }),
+-    });
+-
+-    if (!res.ok) {
+-      const errText = await res.text();
+-      logError('Perplexity API error', new Error(errText));
+-      return { keywords: [], trendingTopics: [], competitorInsights: [] };
+-    }
+-
+-    const data = await res.json();
+-    const content = data.choices?.[0]?.message?.content || '';
+-
+-    // Now use Claude to structure the Perplexity output into our format
+-    const structured = await structureResearch(content, existingSlugs);
+-    log('ACTION', 'Keyword research complete', { keywordCount: structured.keywords.length });
+-    return structured;
+-  } catch (err) {
+-    logError('Research failed', err);
+-    return { keywords: [], trendingTopics: [], competitorInsights: [] };
++import { PRODUCT_BRIEF, weekJobKey } from '../product.js';
++import { draftExists, saveDraft } from '../drafts.js';
++import { log, logAction } from '../logger.js';
++
++/** One bounded research request; results are clearly labeled notes awaiting source verification. */
++export async function researchKeywords(now = new Date()): Promise<void> {
++  const jobKey = weekJobKey(now);
++  if (await draftExists('blog', jobKey)) {
++    log('INFO', 'Research notes already exist for this week; no provider request made');
++    return;
+   }
+-}
+-
+-async function structureResearch(rawResearch: string, existingSlugs: string[]): Promise<ResearchResult> {
+-  const apiKey = config.anthropicApiKey();
+-
+-  const res = await fetch('https://api.anthropic.com/v1/messages', {
++  const response = await fetch('https://api.perplexity.ai/chat/completions', {
+     method: 'POST',
+-    headers: {
+-      'x-api-key': apiKey,
+-      'anthropic-version': '2023-06-01',
+-      'Content-Type': 'application/json',
+-    },
+-    body: JSON.stringify({
+-      model: 'claude-haiku-4-5-20251001',
+-      max_tokens: 2000,
+-      system: `You structure SEO research into JSON. Return ONLY valid JSON, no markdown fencing.
+-
+-Existing blog slugs (DO NOT suggest duplicates): ${existingSlugs.join(', ')}
+-
+-Return this exact structure:
+-{
+-  "keywords": [
+-    {
+-      "keyword": "exact search phrase",
+-      "searchIntent": "informational|transactional|navigational",
+-      "suggestedTitle": "Blog post title targeting this keyword",
+-      "suggestedSlug": "url-friendly-slug",
+-      "difficulty": "low|medium|high",
+-      "relevance": "Why this matters for bootfile.ai"
+-    }
+-  ],
+-  "trendingTopics": ["topic 1", "topic 2"],
+-  "competitorInsights": ["insight 1", "insight 2"]
+-}
+-
+-Return 8-12 keyword ideas, prioritized by: low difficulty + high relevance to bootfile.ai.`,
+-      messages: [{ role: 'user', content: rawResearch }],
+-    }),
++    headers: { Authorization: `Bearer ${config.perplexityApiKey()}`, 'Content-Type': 'application/json' },
++    body: JSON.stringify({ model: 'sonar', max_tokens: 1_500, messages: [
++      { role: 'system', content: `${PRODUCT_BRIEF}\nYou prepare internal research notes. Separate observed evidence from hypotheses. Cite primary sources with dates. Do not invent keyword volume, difficulty, conversion, or customer demand.` },
++      { role: 'user', content: 'Find up to five concrete questions a solo service-business owner has when turning one promotion into a customer email and coordinated social posts. For each, provide a plausible task, useful tutorial angle, source URL, and what remains unverified. Treat all search-demand claims as hypotheses unless directly measured.' },
++    ] }),
++    signal: AbortSignal.timeout(65_000), redirect: 'error',
+   });
+-
+-  const data = await res.json();
+-  const text = data.content?.[0]?.text || '{}';
+-  const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+-
+-  try {
+-    return JSON.parse(cleaned);
+-  } catch {
+-    logError('Failed to parse research JSON', new Error(text.slice(0, 200)));
+-    return { keywords: [], trendingTopics: [], competitorInsights: [] };
+-  }
++  if (!response.ok) throw new Error(`Research request failed with HTTP ${response.status}`);
++  const data = await response.json() as { choices?: Array<{ message?: { content?: string } }>; citations?: unknown[] };
++  const notes = data.choices?.[0]?.message?.content;
++  if (typeof notes !== 'string' || notes.length < 40 || notes.length > 25_000) throw new Error('Research notes are invalid');
++  const sourceUrls = (data.citations || []).filter((url): url is string => typeof url === 'string' && /^https:\/\//.test(url)).slice(0, 15);
++  const id = await saveDraft('blog', jobKey, `# Internal Studio research notes\n\nNot a publishable article. Sources and demand hypotheses require verification.\n\n${notes}`, { kind: 'research-notes', sourceUrls, title: `Studio research ${jobKey.slice(9)}` });
++  logAction('Research notes persisted; not published', { id, jobKey, sourceCount: sourceUrls.length });
+ }
+-

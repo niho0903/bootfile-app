@@ -1,0 +1,131 @@
+{
+  "generatedAt": "2026-10-20T19:31:42.771Z",
+  "environment": "Local Next 16.4.2 production build; isolated Chromium; public HTTP and paused config real; all paid-order/feedback/refund/provider API calls intercepted",
+  "httpChecks": [
+    {
+      "path": "/",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "path": "/studio",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "path": "/studio/sample",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "path": "/studio/recover",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "path": "/privacy",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "path": "/terms",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "path": "/quiz",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "path": "/build",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "path": "/api/studio/config",
+      "status": 200,
+      "checkoutEnabled": false,
+      "price": {
+        "amount": 4900,
+        "currency": "usd",
+        "formatted": "$49"
+      },
+      "passed": true
+    },
+    {
+      "path": "/api/studio/orders/11111111-1111-4111-8111-111111111111",
+      "status": 401,
+      "privateCache": true,
+      "noReferrer": true,
+      "passed": true
+    },
+    {
+      "path": "/api/studio/orders/11111111-1111-4111-8111-111111111111/download",
+      "status": 401,
+      "privateCache": true,
+      "noReferrer": true,
+      "passed": true
+    },
+    {
+      "path": "/api/studio/orders/11111111-1111-4111-8111-111111111111/feedback",
+      "status": 401,
+      "privateCache": true,
+      "noReferrer": true,
+      "passed": true
+    }
+  ],
+  "results": [
+    {
+      "name": "Homepage desktop and mobile",
+      "passed": true,
+      "apiRequests": 0,
+      "realProviderRequests": 0,
+      "blockedExternalRequests": []
+    },
+    {
+      "name": "Sample pack keyboard copy and download",
+      "passed": true,
+      "apiRequests": 0,
+      "realProviderRequests": 0,
+      "blockedExternalRequests": []
+    },
+    {
+      "name": "Paused checkout cannot create an order",
+      "passed": true,
+      "apiRequests": 3,
+      "realProviderRequests": 0,
+      "blockedExternalRequests": []
+    },
+    {
+      "name": "Private-link recovery without token",
+      "passed": true,
+      "apiRequests": 0,
+      "realProviderRequests": 0,
+      "blockedExternalRequests": []
+    },
+    {
+      "name": "Deliberate refund confirmation pending and complete",
+      "passed": true,
+      "apiRequests": 5,
+      "realProviderRequests": 0,
+      "blockedExternalRequests": []
+    },
+    {
+      "name": "Optional feedback retry and reported use milestones",
+      "passed": true,
+      "apiRequests": 9,
+      "realProviderRequests": 0,
+      "blockedExternalRequests": []
+    },
+    {
+      "name": "Optional feedback failure leaves pack accessible",
+      "passed": true,
+      "apiRequests": 3,
+      "realProviderRequests": 0,
+      "blockedExternalRequests": []
+    }
+  ],
+  "passed": 7,
+  "failed": 0
+}

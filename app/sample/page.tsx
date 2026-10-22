@@ -108,7 +108,7 @@ export default function SamplePage() {
               className="font-heading"
               style={{ fontSize: '1.1rem', color: '#2D2926', fontWeight: 500, marginBottom: 12 }}
             >
-              What's personalized in yours
+              What&apos;s personalized in yours
             </h2>
             <ul style={{ margin: 0, paddingLeft: 20, fontSize: 14, color: '#5A544C', lineHeight: 1.7 }}>
               <li>Your cognitive archetype (one of eight — this sample is the Architect)</li>

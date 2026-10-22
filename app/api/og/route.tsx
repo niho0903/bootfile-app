@@ -211,7 +211,7 @@ export async function GET(req: NextRequest) {
               marginBottom: '48px',
             }}
           >
-            Know Your AI Style
+            Your next marketing task, ready to use
           </div>
 
           {/* Sage accent bar */}
@@ -233,7 +233,7 @@ export async function GET(req: NextRequest) {
               textAlign: 'center',
             }}
           >
-            Quick quiz &middot; 8 archetypes &middot; personalized AI instructions
+            One email &middot; Three social posts &middot; A reusable AI setup
           </div>
         </div>
       ),

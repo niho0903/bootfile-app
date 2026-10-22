@@ -41,7 +41,6 @@ function BuildContent() {
   const [error, setError] = useState<{ message: string; retry: () => void } | null>(null);
   const [archetypeId, setArchetypeId] = useState<ArchetypeId | null>(null);
   const [previewText, setPreviewText] = useState<string | null>(null);
-  const [bootfileText, setBootfileText] = useState<string | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const initRef = useRef(false);
@@ -91,7 +90,7 @@ function BuildContent() {
 
   // --- Actions ---
 
-  const generatePreview = useCallback(async () => {
+  const generatePreview = useCallback(async function generatePreview() {
     setState('generating_preview');
     setError(null);
 
@@ -159,8 +158,7 @@ function BuildContent() {
           });
         }
       }
-    } catch (err) {
-      const detail = err instanceof Error ? err.message : String(err);
+    } catch {
       setError({
         message: 'Something went wrong. Please try again.',
         retry: generatePreview,
@@ -168,7 +166,7 @@ function BuildContent() {
     }
   }, [getSupplementaryData, buildGenerateBody, router]);
 
-  const generateFull = useCallback(async (paymentIntentId: string) => {
+  const generateFull = useCallback(async function generateFull(paymentIntentId: string) {
     setState('generating_full');
     setError(null);
     setClientSecret(null);
@@ -273,7 +271,7 @@ function BuildContent() {
           }).catch(() => { /* non-blocking */ });
         }
 
-        // Redirect to success page (conversion pixels fire there)
+        // Redirect to the saved legacy result.
         router.push('/build/success');
       } else {
         setError({
@@ -281,8 +279,7 @@ function BuildContent() {
           retry: () => generateFull(paymentIntentId),
         });
       }
-    } catch (err) {
-      const detail = err instanceof Error ? err.message : String(err);
+    } catch {
       setError({
         message: 'Something went wrong. Please try again.',
         retry: () => generateFull(paymentIntentId),
@@ -358,7 +355,7 @@ function BuildContent() {
     generatePreview();
   }, [generatePreview]);
 
-  const handleUnlock = useCallback(async () => {
+  const handleUnlock = useCallback(async function handleUnlock() {
     const quizState = getQuizState();
     if (!quizState) {
       console.error('[BUILD] Quiz data missing when trying to unlock');
@@ -416,7 +413,7 @@ function BuildContent() {
     } finally {
       setPaymentLoading(false);
     }
-  }, [getQuizState, router]);
+  }, [getQuizState, getSupplementaryData, router]);
 
   const handlePaymentSuccess = useCallback((paymentIntentId: string) => {
     console.log('[BUILD] Payment succeeded:', paymentIntentId);
