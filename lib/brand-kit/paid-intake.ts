@@ -16,7 +16,7 @@ function record(value: unknown): value is Record<string, unknown> {
 
 /** The browser stores this only after the customer checks the displayed backbrief. Any edit invalidates it. */
 export function brandBackbriefSnapshot(input: BrandInput): string {
-  return JSON.stringify(input);
+  return JSON.stringify(normalizeBrandInput(input));
 }
 
 export function validatePaidBrandIntake(raw: unknown): PaidBrandIntake {
