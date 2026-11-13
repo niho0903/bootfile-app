@@ -42,6 +42,7 @@ The repository decision log named in `docs/OPERATING_CHARTER.md`. Each record st
 
 ## Open
 
+- The terms and privacy text for the Brand & AI Kit. Proposed wording is in `docs/PROPOSED_TERMS_PRIVACY_BRAND_KIT.md`. It is not legal advice and is applied to no page. Needs the owner's approval, and counsel's reading, before the first real charge.
 - Hosted acceptance, per `docs/PROVIDER_ACCEPTANCE_RUNBOOK.md`. Needs from the owner: the database choice (recommended: a separate free Supabase project for acceptance, so no synthetic order enters the production ledger), the Preview variables for the `rebuild/acceptance` branch, and the test payment. Bounded cost: one generation under the $0.35 ceiling, one email, one build.
 - The production database plan. It is on Supabase's Free plan, which pauses projects after a week of low activity and reserves automated backups for paid plans. Recommended before the first real charge: a paid plan. It is a new subscription, so it waits for the owner.
 - Build spend. Every push here now pays for a `personal-site` build as well as the Bootfile one. Recommended: disconnect `personal-site` from this repository, and consider the Basic build machine for `bootfile-app`. Both are the owner's settings; `personal-site` is outside this work and was not touched. Pushes on the rebuild line are kept to one per increment.
