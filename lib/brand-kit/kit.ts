@@ -78,6 +78,8 @@ export function normalizeBrandInput(raw: unknown): BrandInput {
   }
   return input;
 }
+/** The exact brief a customer approves on the review screen, in one canonical form. Any edit changes it. */
+export function brandBackbriefSnapshot(input: BrandInput): string { return JSON.stringify(normalizeBrandInput(input)); }
 export function quizComplete(input: BrandInput): boolean { return QUESTIONS.every(q => /^[ABCD]$/.test(input.answers[q.id] || '')); }
 export function ownerProfile(input: BrandInput) {
   if (!quizComplete(input)) return { name: 'Not yet defined', instruction: 'Finish the original eight-question quiz to create your working preferences.', complete: false };

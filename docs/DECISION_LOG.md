@@ -34,6 +34,7 @@ The repository decision log named in `docs/OPERATING_CHARTER.md`. Each record st
 ## Open
 
 - The hosting plan. The Vercel team is on Hobby, which Vercel's terms limit to non-commercial use, and `docs/LEGACY_PRODUCT_CONTEXT.md` records live Stripe payments for the original product on this deployment. Stripe has not been inspected. Recommended: move to a paid plan before Brand Kit checkout opens. It is a new subscription, so it waits for the owner.
+- The wording a customer sees on `/brand` once checkout is open: the purchase panel in `components/brand/BrandKitPurchase.tsx` and the four conditional lines in `components/brand/BrandStudio.tsx`. It describes what the synthesis returns today, states one payment with no subscription, and names the existing 7-day refund policy. Shown to no one while either checkout flag is off.
 - The Brand & AI Kit delivery email wording in `lib/studio/delivery.ts` and the labels on its order page. They keep the existing seven-day refund policy and promise nothing new. Shown to no one while fulfillment is closed.
 - The bounded refinement allowance behind the $49 promise. Must be decided before any charge.
 - Whether an independent second model stage is wanted at up to roughly double the per-order ceiling.

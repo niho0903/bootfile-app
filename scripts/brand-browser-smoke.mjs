@@ -15,7 +15,7 @@ const output = resolve('artifacts/brand-kit');
 await mkdir(output, { recursive: true });
 const server = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '-H', '127.0.0.1', '-p', '31991'], {
   stdio: ['ignore', 'pipe', 'pipe'],
-  env: { ...process.env, STUDIO_CHECKOUT_ENABLED: 'false', STUDIO_FULFILLMENT_ENABLED: 'false', STUDIO_REFUNDS_ENABLED: 'false', GROWTH_REVIEW_ENABLED: 'false', GROWTH_PUBLICATION_ENABLED: 'false', LEGACY_GROWTH_ENABLED: 'false', NEXT_TELEMETRY_DISABLED: '1' },
+  env: { ...process.env, STUDIO_CHECKOUT_ENABLED: 'false', BRAND_KIT_CHECKOUT_ENABLED: 'false', STUDIO_FULFILLMENT_ENABLED: 'false', STUDIO_REFUNDS_ENABLED: 'false', GROWTH_REVIEW_ENABLED: 'false', GROWTH_PUBLICATION_ENABLED: 'false', LEGACY_GROWTH_ENABLED: 'false', NEXT_TELEMETRY_DISABLED: '1' },
 });
 let diagnostics = '';
 for (const stream of [server.stdout, server.stderr]) stream.on('data', chunk => { diagnostics = (diagnostics + String(chunk)).slice(-2000); });
@@ -101,6 +101,11 @@ try {
   await page.getByRole('button', { name: /Open my kit preview/ }).click();
   await page.getByRole('tab', { name: 'Your brand', exact: true }).waitFor();
   assert.ok((await page.locator('.brandDefinition').textContent()).includes('Juniper Browser Test'));
+  // With checkout closed the approved kit offers no purchase and the page still says so.
+  assert.equal(await page.locator('#brand-purchase').count(), 0);
+  assert.equal(await page.getByRole('button', { name: /Continue to payment/ }).count(), 0);
+  assert.equal(await page.getByRole('link', { name: /Get the full kit/ }).count(), 0);
+  assert.ok((await page.locator('.brandPreviewBar').textContent()).includes('No purchase'));
   await page.screenshot({ path: output + '/05-brand-result-desktop.png', fullPage: true });
   groups++;
   await page.getByRole('tab', { name: 'Your brand', exact: true }).focus();
@@ -163,8 +168,92 @@ try {
   assert.deepEqual(runtimeErrors, [], 'No browser runtime errors');
   assert.deepEqual(mutations, [], 'Prototype must not issue server mutations');
   assert.deepEqual(externalRequests, [], 'Prototype must not transmit data to external services');
-  await writeFile(output + '/report.json', JSON.stringify({ groupsPassed: groups, runtimeErrors: 0, apiMutations: 0, externalRequests: 0, environment: 'local production build; all business input fictional', hostedAcceptance: false, providerCalls: false }, null, 2));
-  console.log(`PASS: ${groups} Brand Kit browser groups; no runtime errors, API mutations or external requests. Screenshots and fictional print PDF saved.`);
+
+  // Simulated open checkout. The server above stays closed. The readiness answer, the order answer and the
+  // Stripe page are stand-ins supplied at the browser's network boundary, so no order, payment or provider call can occur.
+  const paidPosts = [];
+  const paidRedirects = [];
+  const paidErrors = [];
+  const paidContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
+  await paidContext.route('**/*', route => {
+    const request = route.request();
+    const url = new URL(request.url());
+    if (url.hostname === 'checkout.stripe.com') { paidRedirects.push(url.href); return route.fulfill({ status: 200, contentType: 'text/html', body: '<title>Stand-in for Stripe</title>' }); }
+    if (!request.url().startsWith(origin + '/')) { externalRequests.push(url.origin); return route.abort(); }
+    if (url.pathname === '/api/studio/brand-config') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ checkoutEnabled: true, price: { amount: 4900, currency: 'usd', formatted: '$49' }, productName: 'Bootfile Brand & AI Kit', productDescription: 'A brand foundation, voice guide, visual starter kit, AI working instructions, and a first campaign.', productVersion: 'brand-foundation-paid-v1' }) });
+    if (url.pathname === '/api/studio/brand-orders' && request.method() === 'POST') {
+      paidPosts.push({ key: request.headers()['idempotency-key'], body: JSON.parse(request.postData() || '{}') });
+      return paidPosts.length === 1
+        ? route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: { code: 'checkout_provider_unavailable', message: 'Checkout is temporarily unavailable. Please try again.' } }) })
+        : route.fulfill({ status: 201, contentType: 'application/json', body: JSON.stringify({ orderId: '11111111-1111-4111-8111-111111111111', accessToken: 't'.repeat(43), checkoutUrl: 'https://checkout.stripe.com/c/pay/cs_test_stand_in' }) });
+    }
+    if (!['GET', 'HEAD'].includes(request.method())) { mutations.push(request.method() + ' ' + url.pathname); return route.abort(); }
+    return route.continue();
+  });
+  page = await paidContext.newPage();
+  page.setDefaultTimeout(10000);
+  page.on('pageerror', error => paidErrors.push(error.message));
+  await page.goto(origin + '/brand');
+  await page.getByRole('button', { name: /Start with how I work/ }).waitFor();
+  await page.waitForFunction(() => document.querySelector('.brandPreviewBar')?.textContent?.includes('Free interactive preview'));
+  assert.equal(await page.getByText('No checkout is enabled').count(), 0);
+  await page.getByRole('button', { name: /Explore a fictional example/ }).click();
+  await page.getByRole('tab', { name: 'Your brand', exact: true }).waitFor();
+  assert.equal(await page.locator('#brand-purchase').count(), 0, 'The fictional example must never be purchasable');
+  await page.getByRole('button', { name: /Clear this draft/ }).click();
+  await page.getByRole('button', { name: /Confirm: erase/ }).click();
+  await page.getByRole('button', { name: /Start with how I work/ }).click();
+  for (let i = 0; i < 8; i++) {
+    await page.getByRole('radio').first().check();
+    await page.getByRole('button', { name: i < 7 ? /Next question/ : /^Continue/ }).click();
+  }
+  await page.locator('input[name="businessName"]').fill('Juniper Browser Test');
+  await page.locator('textarea[name="description"]').fill('A fictional organizing business that helps households use existing kitchen storage.');
+  await page.locator('textarea[name="audience"]').fill('Households looking for practical kitchen organization.');
+  await next();
+  await next();
+  await next();
+  await page.locator('textarea[name="offer"]').fill('A practical kitchen reset');
+  await page.locator('textarea[name="facts"]').fill('We use existing storage. Pricing and availability are discussed before booking.');
+  await page.locator('textarea[name="callToAction"]').fill('Reply KITCHEN to ask about a reset.');
+  await page.getByRole('button', { name: /Review my foundation/ }).click();
+  assert.equal(await page.locator('#brand-purchase').count(), 0, 'No purchase is offered before the brief is approved');
+  await page.getByRole('checkbox').check();
+  await page.getByRole('button', { name: /Open my kit preview/ }).click();
+  await page.getByRole('tab', { name: 'Your brand', exact: true }).waitFor();
+  const purchase = page.locator('#brand-purchase');
+  const pay = purchase.getByRole('button', { name: /Continue to payment · \$49/ });
+  assert.equal(await pay.isDisabled(), true, 'Payment stays disabled without an email and accepted terms');
+  await purchase.getByRole('textbox').fill('not-an-email');
+  await purchase.getByRole('checkbox').check();
+  await pay.click();
+  assert.ok((await purchase.getByRole('alert').textContent()).includes('valid delivery email'));
+  assert.equal(paidPosts.length, 0, 'An invalid email must not reach the server');
+  await purchase.getByRole('textbox').fill('owner@example.com');
+  await page.screenshot({ path: output + '/09-brand-purchase-simulated-open.png', fullPage: true });
+  await pay.click();
+  await purchase.getByText('temporarily unavailable').waitFor();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await noOverflow('mobile purchase panel');
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await Promise.all([page.waitForURL(/^https:\/\/checkout\.stripe\.com\//), pay.click()]);
+  assert.equal(paidPosts.length, 2);
+  assert.equal(paidPosts[0].key, paidPosts[1].key, 'A retry of the same intake must reuse its request key');
+  assert.match(paidPosts[1].key, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+  const posted = paidPosts[1].body;
+  assert.deepEqual(Object.keys(posted).sort(), ['acceptedTerms', 'approvalSnapshot', 'approvedBackbrief', 'brand', 'email', 'productVersion']);
+  assert.equal(posted.productVersion, 'brand-foundation-paid-v1');
+  assert.equal(posted.acceptedTerms, true);
+  assert.equal(posted.email, 'owner@example.com');
+  assert.equal(JSON.parse(posted.approvalSnapshot).businessName, 'Juniper Browser Test');
+  assert.deepEqual(paidRedirects, ['https://checkout.stripe.com/c/pay/cs_test_stand_in']);
+  assert.deepEqual(paidErrors, [], 'No browser runtime errors with checkout simulated open');
+  assert.deepEqual(mutations, [], 'Only the stand-in order request may be issued');
+  assert.deepEqual(externalRequests, [], 'Only the stand-in Stripe page may be opened');
+  await paidContext.close();
+  groups++;
+  await writeFile(output + '/report.json', JSON.stringify({ groupsPassed: groups, runtimeErrors: 0, apiMutations: 0, externalRequests: 0, environment: 'local production build; all business input fictional', hostedAcceptance: false, providerCalls: false, simulatedOpenCheckout: { serverCheckoutEnabled: false, standInOrderRequests: paidPosts.length, ordersCreated: 0, paymentsCreated: 0 } }, null, 2));
+  console.log(`PASS: ${groups} Brand Kit browser groups; no runtime errors, API mutations or external requests. The simulated open checkout reached only stand-ins. Screenshots and fictional print PDF saved.`);
 } catch (error) {
   if (page) await page.screenshot({ path: output + '/failure.png', fullPage: true }).catch(() => {});
   console.error('FAIL: Brand Kit browser QA:', error instanceof Error ? error.message : 'unknown');
