@@ -22,6 +22,8 @@ export interface BrandKitCheckoutConfig {
   productName: string;
   productDescription: string;
   priceFormatted: string;
+  /** True when the server reports Stripe test keys. No real payment can be taken. */
+  testMode?: boolean;
 }
 export interface BrandKitCheckoutPayload {
   productVersion: typeof PAID_BRAND_KIT_VERSION;
@@ -49,7 +51,7 @@ export function parseBrandKitCheckoutConfig(data: unknown): BrandKitCheckoutConf
   const productDescription = shortText(data.productDescription, 300);
   const priceFormatted = shortText(record(data.price) ? data.price.formatted : '', 12);
   const described = !!productName && !!productDescription && !!priceFormatted && data.productVersion === PAID_BRAND_KIT_CHECKOUT_VERSION;
-  if (data.checkoutEnabled === true && described) return { checkoutEnabled: true, productName, productDescription, priceFormatted };
+  if (data.checkoutEnabled === true && described) return { checkoutEnabled: true, productName, productDescription, priceFormatted, ...(data.paymentMode === 'test' ? { testMode: true } : {}) };
   return { checkoutEnabled: false, reasonCode: data.checkoutEnabled !== true && data.reasonCode === 'temporarily_full' ? 'temporarily_full' : 'checkout_unavailable', productName, productDescription, priceFormatted };
 }
 

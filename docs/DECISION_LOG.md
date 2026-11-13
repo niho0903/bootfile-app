@@ -42,6 +42,8 @@ The repository decision log named in `docs/OPERATING_CHARTER.md`. Each record st
 
 ## Open
 
+- Hosted acceptance, per `docs/PROVIDER_ACCEPTANCE_RUNBOOK.md`. Needs from the owner: the database choice (recommended: a separate free Supabase project for acceptance, so no synthetic order enters the production ledger), the Preview variables for the `rebuild/acceptance` branch, and the test payment. Bounded cost: one generation under the $0.35 ceiling, one email, one build.
+- The production database plan. It is on Supabase's Free plan, which pauses projects after a week of low activity and reserves automated backups for paid plans. Recommended before the first real charge: a paid plan. It is a new subscription, so it waits for the owner.
 - Build spend. Every push here now pays for a `personal-site` build as well as the Bootfile one. Recommended: disconnect `personal-site` from this repository, and consider the Basic build machine for `bootfile-app`. Both are the owner's settings; `personal-site` is outside this work and was not touched. Pushes on the rebuild line are kept to one per increment.
 - The wording a customer sees on `/brand` once checkout is open: the purchase panel in `components/brand/BrandKitPurchase.tsx` and the four conditional lines in `components/brand/BrandStudio.tsx`. It describes what the synthesis returns today, states one payment with no subscription, and names the existing 7-day refund policy. Shown to no one while either checkout flag is off.
 - The Brand & AI Kit delivery email wording in `lib/studio/delivery.ts` and the labels on its order page. They keep the existing seven-day refund policy and promise nothing new. Shown to no one while fulfillment is closed.

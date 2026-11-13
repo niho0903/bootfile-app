@@ -1,4 +1,4 @@
-import { assertBrandKitCheckoutConfigured, studioDailyGenerationLimit } from '@/lib/studio/config';
+import { assertBrandKitCheckoutConfigured, studioDailyGenerationLimit, studioDeployment, studioPaymentMode } from '@/lib/studio/config';
 import { checkStudioProductSchema, studioCapacity } from '@/lib/studio/db';
 import { studioJson } from '@/lib/studio/http';
 import { BRAND_KIT_PRODUCT } from '@/lib/studio/products';
@@ -26,5 +26,8 @@ export async function GET() {
     productName: BRAND_KIT_PRODUCT.name,
     productDescription: BRAND_KIT_PRODUCT.description,
     productVersion: BRAND_KIT_PRODUCT.version,
+    // Lets the page label a test checkout and lets the acceptance script refuse production before it sends anything.
+    paymentMode: studioPaymentMode(),
+    deployment: studioDeployment(),
   });
 }

@@ -95,7 +95,16 @@ describe('GET /api/studio/brand-config', () => {
   it('opens with both flags and the schema, and reports a capacity pause', async () => {
     openEnvironment();
     const open = await (await brandConfigRoute()).json();
-    expect(open).toEqual(openAnswer);
+    // 'test-only' is not a Stripe key shape, so the mode is reported as unset, never guessed.
+    expect(open).toEqual({ ...openAnswer, paymentMode: 'unset', deployment: 'local' });
+    vi.stubEnv('STRIPE_SECRET_KEY', 'sk_test_placeholder');
+    vi.stubEnv('VERCEL_ENV', 'preview');
+    expect(await (await brandConfigRoute()).json()).toMatchObject({ checkoutEnabled: true, paymentMode: 'test', deployment: 'preview' });
+    vi.stubEnv('STRIPE_SECRET_KEY', 'sk_live_placeholder');
+    vi.stubEnv('VERCEL_ENV', 'production');
+    expect(await (await brandConfigRoute()).json()).toMatchObject({ paymentMode: 'live', deployment: 'production' });
+    vi.stubEnv('STRIPE_SECRET_KEY', 'test-only');
+    vi.stubEnv('VERCEL_ENV', '');
     expect(parseBrandKitCheckoutConfig(open)).toEqual(openConfig);
     rpc.mockImplementation(async (name: string) => name === 'studio_product_versions'
       ? { data: { version: 'studio-product-versions-v1', products: [PAID_BRAND_KIT_VERSION] }, error: null }
@@ -183,5 +192,12 @@ describe('the purchase panel', () => {
     expect(html).toMatch(/<button type="submit"[^>]*disabled=""/);
     expect(html).not.toMatch(/<input type="checkbox"[^>]*checked/);
     expect(html).not.toContain('Juniper');
+    expect(html).not.toContain('Test mode');
+  });
+
+  it('labels a test checkout, and only when the server reports Stripe test keys', () => {
+    expect(parseBrandKitCheckoutConfig({ ...openAnswer, paymentMode: 'test' }).testMode).toBe(true);
+    for (const mode of ['live', 'unset', undefined, true]) expect(parseBrandKitCheckoutConfig({ ...openAnswer, paymentMode: mode })).not.toHaveProperty('testMode');
+    expect(render(parseBrandKitCheckoutConfig({ ...openAnswer, paymentMode: 'test' }))).toContain('Test mode. This checkout uses Stripe test keys and takes no real payment.');
   });
 });

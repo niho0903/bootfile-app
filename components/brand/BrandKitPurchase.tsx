@@ -55,6 +55,7 @@ export function BrandKitPurchase({ config, input, approvalSnapshot }: { config: 
   return (
     <section className="brandPurchase" id="brand-purchase" aria-labelledby="brand-purchase-title">
       <div>
+        {config.testMode ? <p className="brandError" role="note">Test mode. This checkout uses Stripe test keys and takes no real payment.</p> : null}
         <p className="brandEyebrow">THE FULL KIT · {config.priceFormatted} ONCE</p>
         <h2 id="brand-purchase-title">Get your Brand &amp; AI Kit.</h2>
         <p>{config.productDescription}</p>
