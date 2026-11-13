@@ -23,6 +23,7 @@ Railway, Supabase aggregates and Vercel statuses were not re-read in this sessio
 4. **bootfile-app is a public repository.** Every branch, operating document and migration is world-readable. Visibility is an owner decision.
 5. **Both allowed models are legacy.** `claude-haiku-4-5-20251001` is past its published "not sooner than 2026-10-15" retirement floor and `claude-sonnet-4-6` has a floor of 2027-02-17. The current small model lists at one tenth of the Haiku 4.5 price. Moving the allow-list is recommended before provider acceptance, with an output-quality check, and it lowers cost.
 6. **CI does not run on every stacked PR.** `verify.yml` runs for pushes to `master` and `rebuild/**` and for PRs whose base is one of those. A PR based on a `build/**` branch gets no run. This branch carries a `rebuild/` name so a push is verified.
+7. **The Verify gate is red on the whole rebuild line as of 2026-11-13.** `npm audit --omit=dev --audit-level=high` fails on advisory GHSA-mrhx-c7xc-m3w5 in `zod` 4.3.6, a transitive dependency of `@anthropic-ai/sdk`. The lockfile is identical on #2, #3 and #4, so a re-run of any of them stops at the audit step; their earlier successful runs are no longer current evidence. This branch carries a three-line lockfile change to 4.6.7 as its own commit so it can be cherry-picked to the base of the stack. Five moderate advisories remain below the gate's threshold and were not assessed.
 
 ## Gaps in dependency order
 
@@ -62,7 +63,7 @@ Branch `rebuild/order-model-budget-20261113`, stacked on `82bfe33`.
 | Ceiling per order, all attempts | $0.35 |
 | Estimated typical call, unmeasured | about $0.01 on Haiku 4.5 |
 
-Verification on this source: `npm run typecheck` exit 0. `npm run lint` 0 errors. `npm test` 226 passed in 22 files, 15 of them new. `npm run build` could not complete in the build sandbox because Google Fonts was unreachable; the Verify workflow run on this branch is the build and smoke evidence. No provider was called. No flag, route, migration or production setting changed.
+Verification on this source: `npm ci` and `npm audit --omit=dev --audit-level=high` exit 0 after the lockfile fix. `npm run typecheck` exit 0. `npm run lint` 0 errors. `npm test` 226 passed in 22 files, 15 of them new. `npm run build` could not complete in the build sandbox because Google Fonts was unreachable; the Verify workflow run on this branch is the build and smoke evidence. No provider was called. No flag, route, migration or production setting changed.
 
 ## Owner decisions queued
 
