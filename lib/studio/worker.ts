@@ -3,7 +3,7 @@ import { assertStudioWorkerConfigured, studioDailyGenerationLimit } from './conf
 import { getStudioOrder, studioRpc } from './db';
 import { sendStudioDelivery } from './delivery';
 import { studioErrorCode, StudioError } from './errors';
-import { generateForOrder, type StudioDispatchResult } from './dispatch';
+import { generateForOrder, StudioGenerationError, type StudioDispatchResult } from './dispatch';
 import type { StudioDeliveryRow, StudioOrderRow } from './types';
 
 export interface StudioWorkerResult {
@@ -51,7 +51,10 @@ export async function runStudioWorker(
       result.errors.push(order ? `${order.id}:${code}` : code);
       if (!order) break;
       try {
-        const status = await dependencies.rpc<string>('studio_fail_generation', { p_order_id: order.id, p_lease_token: leaseToken, p_error_code: code });
+        // An attempt that reached the provider is recorded in the order's usage ledger together with its failure.
+        const status = error instanceof StudioGenerationError
+          ? await dependencies.rpc<string>('studio_fail_metered_generation', { p_order_id: order.id, p_lease_token: leaseToken, p_error_code: code, p_usage: error.usage })
+          : await dependencies.rpc<string>('studio_fail_generation', { p_order_id: order.id, p_lease_token: leaseToken, p_error_code: code });
         if (status === 'needs_attention') result.needsAttention += 1;
         if (status === 'queued') result.retried += 1;
       } catch (persistenceError) {

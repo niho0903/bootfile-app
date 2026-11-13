@@ -13,7 +13,7 @@ Recorded 2026-11-13 at the owner's handoff to a new operator. The evidence is so
 | bootfile-growth-agent | `rebuild/studio-operations-20261020` | #1 | `46e5dc5` | Matches the handoff. Open draft. |
 | bootfile-growth-agent | `ops/growth-suspension-brand-kit-plan-20261023` | #2 | `be3ff30` | Not in the handoff. One design document stacked on #1. Open draft. |
 
-Railway, Supabase aggregates and Vercel statuses were not re-read in this session because no connector to them was available. The handoff's values for those systems are carried forward unconfirmed.
+Hosted state was re-read later on 2026-11-13 once connectors were added. **Supabase:** the same six migrations are applied; `studio_orders`, `studio_order_events`, `studio_deliveries`, `operations_runs`, `operations_decisions`, `studio_feedback`, `studio_feedback_requests` and `operations_publications` each hold zero rows; `blog_posts` holds 12 and `content_drafts` 83; the server is PostgreSQL 17; every `studio_` table has row-level security and none of the 19 `studio_` functions is executable by the anonymous role. **Railway:** one service, latest deployment `783bbcb2` (2026-10-24) successful, no staged changes. Both match the handoff. **Vercel:** still returns 403 for the team scope; it needs the owner's one-time team approval, so deployments and the team plan remain unverified.
 
 ## What differs from the handoff
 
@@ -32,7 +32,7 @@ Railway, Supabase aggregates and Vercel statuses were not re-read in this sessio
 | 1 | Versioned paid intake and approval | `paid-intake.ts` validates version, terms, backbrief snapshot and limits. No route calls it. | Candidate only |
 | 2 | Per-order model ceilings for calls, tokens and cost | `lib/studio/model-budget.ts` | Done in this increment |
 | 3 | Generation dispatched by the order's persisted version | `lib/studio/dispatch.ts`, `worker.ts` | Done in this increment, inert until gap 4 |
-| 4 | Schema admits only one product | `studio_orders` checks and `studio_record_payment` and `studio_finish_generation` hard-code `marketing-setup-v1`, 4900 and output `schemaVersion` 1. `studio_fail_generation` cannot store usage. | Not started. Needs an additive migration and a rollback smoke suite. |
+| 4 | Schema admits only one product | Migration `20261113185211_studio_product_versions_v1`, its rollback and `studio_product_versions_smoke.sql` | Done in source in the second increment. Not applied to the hosted database. |
 | 5 | Commerce binds to one constant | `checkout.ts`, `payments.ts` and `refunds.ts` compare Stripe objects to `STUDIO_PRODUCT` in about forty places. | Not started. Needs a registry keyed by the persisted version. |
 | 6 | Versioned delivery, order page and download | Renderers for Markdown and JSON exist in `paid-output.ts`. Email, receipt, order view and download understand only the old product. | Fails closed as of this increment. Renderers not built. |
 | 7 | Synthesis is thinner than the promised kit | The candidate returns positioning, voice rules, one email, three posts and source quotations. It has no messaging hierarchy, differentiator hypotheses, missing or contradictory fact detection, independent content check, saved-output graphics, PDF, or bounded refinement. | Not started. A second model stage raises per-order cost and needs approval. |
@@ -65,9 +65,19 @@ Branch `rebuild/order-model-budget-20261113`, stacked on `82bfe33`.
 
 Verification on this source: `npm ci` and `npm audit --omit=dev --audit-level=high` exit 0 after the lockfile fix. `npm run typecheck` exit 0. `npm run lint` 0 errors. `npm test` 226 passed in 22 files, 15 of them new. `npm run build` could not complete in the build sandbox because Google Fonts was unreachable; the Verify workflow run on this branch is the build and smoke evidence. No provider was called. No flag, route, migration or production setting changed.
 
-## Owner decisions queued
+## Second increment
 
-1. Confirm $0.35 as the approved per-order model ceiling for the single-stage design.
-2. Keep bootfile-app public or make it private.
-3. Define the bounded refinement allowance and the exact $49 promise before any charge.
-4. Decide whether an independent second model stage is wanted at up to roughly double the per-order ceiling.
+Branch `rebuild/product-versions-schema-20261113`, stacked on the first.
+
+- `supabase/migrations/20261113185211_studio_product_versions_v1.sql`: admits `brand-foundation-paid-v1` beside `marketing-setup-v1`, ties each saved output to its own version's schema, binds a model budget on every versioned order at creation, and adds a usage ledger that also counts failed attempts. The seven-day refund covers both products. Every existing function keeps its signature and the original creation path is untouched.
+- `supabase/rollbacks/`: the matching rollback. It refuses to run once a versioned order exists.
+- `scripts/sql-smoke.sh` (`npm run test:sql`): applies all seven migrations to a disposable local Postgres, proves the rollback restores the exact prior schema, and runs all six smoke suites. It touches no hosted database.
+- The order row now stores the validated intake with a digest of the approved backbrief. The worker re-checks that digest before any model call and meters failed attempts through `studio_fail_metered_generation`.
+
+The new size tests found one defect and one thin margin, both fixed before commit. A maximal Brand Kit (every field at its validated maximum, in a three-byte script) measures 101,140 bytes, above the 100,000-byte output bound it would have inherited, so that version has its own 150,000-byte bound. A saved intake that repeated the approved backbrief measures 23,125 bytes for the largest accepted brief, within 4 percent of the 24,000-byte intake bound, so the row stores a digest instead of a second copy and measures 11,656 bytes.
+
+Verification on this source: `npm run test:sql` passes (seven migrations, rollback restores the baseline, six suites). Each of three seeded defects makes the new suite fail. `npm run typecheck` exit 0, `npm run lint` 0 errors, `npm test` 229 passed, dependency audit exit 0. The migration has not been applied to the hosted project; that belongs with the release step for the checkout that needs it, after a rollback-only run against the hosted database.
+
+## Owner decisions
+
+Recorded in `docs/DECISION_LOG.md`. Decided on 2026-11-13: the handoff brief governs and Bootfile is outside any short-term revenue target; the $0.35 per-order model ceiling is approved; the repository should be private. Still open: the bounded refinement allowance behind the $49 promise, and whether an independent second model stage is wanted at up to roughly double the per-order ceiling.

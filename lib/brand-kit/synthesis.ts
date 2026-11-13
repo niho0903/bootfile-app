@@ -82,6 +82,13 @@ export function validateBrandSynthesis(value: unknown, input: BrandInput): Brand
   return synthesis;
 }
 
+export type BrandUsage = { model: string; input_tokens: number | null; output_tokens: number | null };
+
+/** Thrown once the provider has answered: the attempt was billed even though its output cannot be used. */
+export class BrandSynthesisError extends Error {
+  constructor(code: string, public readonly usage: BrandUsage) { super(code); this.name = 'BrandSynthesisError'; }
+}
+
 /** The exact provider request for an approved brand input. Pure: no key, no network. */
 export function brandModelRequest(input: BrandInput, model: string): string {
   const reference = Object.fromEntries([...sourceFields, 'voice', 'voiceNotes', 'avoid', 'palette', 'background', 'ink', 'accent'].map(field => [field, input[field as keyof BrandInput]]));
@@ -98,7 +105,7 @@ export function brandRequestBytes(input: BrandInput): number {
 export interface BrandModelCall { model: string; requestBytes: number; maxOutputTokens: number }
 
 /** One bounded model request; the durable paid worker must supply its own lease and pass its budget guard as beforeCall. */
-export async function synthesizeBrandKit(raw: unknown, fetcher: typeof fetch = fetch, beforeCall?: (call: BrandModelCall) => void): Promise<{ kit: PaidBrandKit; usage: { model: string; input_tokens: number | null; output_tokens: number | null } }> {
+export async function synthesizeBrandKit(raw: unknown, fetcher: typeof fetch = fetch, beforeCall?: (call: BrandModelCall) => void): Promise<{ kit: PaidBrandKit; usage: BrandUsage }> {
   const input = normalizeBrandInput(raw);
   const foundation = buildBrandKit(input);
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -113,14 +120,19 @@ export async function synthesizeBrandKit(raw: unknown, fetcher: typeof fetch = f
   });
   if (!response.ok) throw new Error(response.status === 429 ? 'brand_model_rate_limited' : 'brand_model_provider_error');
   const body: unknown = await response.json();
-  if (!record(body) || body.stop_reason !== 'tool_use' || !Array.isArray(body.content)) throw new Error('brand_output_incomplete');
-  const calls = body.content.filter((block: unknown) => record(block) && block.type === 'tool_use');
-  if (calls.length !== 1 || !record(calls[0]) || calls[0].name !== 'deliver_brand_kit') throw new Error('brand_output_invalid');
-  const usage = record(body.usage) ? body.usage : {};
-  return {
-    kit: { schemaVersion: PAID_BRAND_KIT_VERSION, price: BRAND_KIT_PRICE, foundation, synthesis: validateBrandSynthesis(calls[0].input, input), provenance: 'Model-assisted draft from customer-supplied facts; not independently verified.', requiresCustomerReview: true },
-    usage: { model, input_tokens: Number.isInteger(usage.input_tokens) ? usage.input_tokens as number : null, output_tokens: Number.isInteger(usage.output_tokens) ? usage.output_tokens as number : null },
-  };
+  const reported = record(body) && record(body.usage) ? body.usage : {};
+  const usage: BrandUsage = { model, input_tokens: Number.isInteger(reported.input_tokens) ? reported.input_tokens as number : null, output_tokens: Number.isInteger(reported.output_tokens) ? reported.output_tokens as number : null };
+  try {
+    if (!record(body) || body.stop_reason !== 'tool_use' || !Array.isArray(body.content)) throw new Error('brand_output_incomplete');
+    const calls = body.content.filter((block: unknown) => record(block) && block.type === 'tool_use');
+    if (calls.length !== 1 || !record(calls[0]) || calls[0].name !== 'deliver_brand_kit') throw new Error('brand_output_invalid');
+    return {
+      kit: { schemaVersion: PAID_BRAND_KIT_VERSION, price: BRAND_KIT_PRICE, foundation, synthesis: validateBrandSynthesis(calls[0].input, input), provenance: 'Model-assisted draft from customer-supplied facts; not independently verified.', requiresCustomerReview: true },
+      usage,
+    };
+  } catch (error) {
+    throw new BrandSynthesisError(error instanceof Error && /^brand_[a-z_]+$/.test(error.message) ? error.message : 'brand_output_invalid', usage);
+  }
 }
 
 /** Public handoff allowlist excludes quiz answers and private working preferences. */

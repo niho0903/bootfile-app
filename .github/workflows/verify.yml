@@ -43,6 +43,8 @@ jobs:
         run: npm run lint
       - name: Verify behavior and failure boundaries
         run: npm test
+      - name: Verify migrations, rollback and database smoke suites on a disposable Postgres
+        run: npm run test:sql
       - name: Build the production application
         run: npm run build
       - name: Smoke test disabled checkout, private routes, and release headers
