@@ -28,3 +28,5 @@ Before activation, the owner must review the exact customer promise and bounded 
 ## 2026-11-13 increment
 
 Item 3 now has its per-order model ceiling and version dispatch in source: `lib/studio/model-budget.ts` and `lib/studio/dispatch.ts`. The worker selects the generator from the order's persisted version, and delivery, download and the order view refuse an output they cannot render. This remains inert: the schema in item 2 still admits only `marketing-setup-v1`, no route creates a Brand Kit order, and failed attempts are costed at the worst case until the migration stores their usage. See `docs/HANDOFF_GAP_REGISTER.md` for verified source state, remaining gaps and queued owner decisions.
+
+Item 2's schema half is now in source as migration `20261113185211_studio_product_versions_v1` with a tested rollback and smoke suite; it is not applied to the hosted database. Stripe and checkout binding by persisted version, the paid intake route, and versioned delivery remain.

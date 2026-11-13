@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { StudioGenerationError } from './dispatch';
 import { runStudioWorker, type StudioWorkerDependencies } from './worker';
 import { STUDIO_DEMO_BUNDLE } from './demo';
 import { StudioError } from './errors';
@@ -82,5 +83,25 @@ describe('studio durable worker orchestration', () => {
     const result = await runStudioWorker({ limit: 1 }, h.dependencies);
     expect(result.errors).toEqual(['fulfillment_paused']);
     expect(h.history).toEqual([]);
+  });
+
+  it('records the usage of a failed attempt that reached the provider with its failure', async () => {
+    const calls: { name: string; args: Record<string, unknown> }[] = [];
+    const usage = { model: 'claude-haiku-4-5-20251001', input_tokens: null, output_tokens: null, cost_microusd: 37_000, cost_basis: 'worst_case' as const };
+    const dependencies: StudioWorkerDependencies = {
+      assertConfigured: () => {}, deliver: vi.fn(async () => 'unused'), getOrder: async () => studioOrderFixture(),
+      generate: vi.fn(async () => { throw new StudioGenerationError('provider_timeout', 'Timed out', usage); }),
+      rpc: async <T>(name: string, args: Record<string, unknown> = {}): Promise<T> => {
+        calls.push({ name, args });
+        if (name === 'studio_claim_order') return (calls.filter(call => call.name === name).length === 1 ? [studioOrderFixture()] : []) as T;
+        if (name === 'studio_fail_metered_generation') return 'queued' as T;
+        if (name === 'studio_claim_delivery') return [] as T;
+        throw new Error(`Unexpected RPC: ${name}`);
+      },
+    };
+    const result = await runStudioWorker({ limit: 1 }, dependencies);
+    expect(result).toMatchObject({ claimed: 1, completed: 0, retried: 1 });
+    expect(calls.find(call => call.name === 'studio_fail_metered_generation')?.args).toMatchObject({ p_error_code: 'provider_timeout', p_usage: usage });
+    expect(calls.some(call => call.name === 'studio_fail_generation')).toBe(false);
   });
 });

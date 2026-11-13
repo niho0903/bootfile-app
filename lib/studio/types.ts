@@ -99,6 +99,14 @@ export interface StudioOrderRow {
   refund_attempts: number;
   refund_next_attempt_at: string;
   refund_last_error_code: string | null;
+  /** Present after studio_product_versions_v1. Null on unmetered marketing-setup-v1 orders. */
+  model_call_limit?: number | null;
+  model_cost_limit_microusd?: number | null;
+  model_calls?: number | null;
+  model_input_tokens?: number | null;
+  model_output_tokens?: number | null;
+  model_cost_microusd?: number | null;
+  model_cost_estimated?: boolean | null;
 }
 
 export interface StudioDeliveryRow {
