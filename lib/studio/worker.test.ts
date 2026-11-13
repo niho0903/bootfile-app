@@ -14,7 +14,7 @@ function harness({ generationFails = false, receiptFailsOnce = false, concurrent
     history.push('generate');
     if (concurrent) await new Promise(resolve => setTimeout(resolve, 1));
     if (generationFails) throw new StudioError('model_provider_error', 'Provider failed');
-    return { bundle: STUDIO_DEMO_BUNDLE, usage: { model: 'test', input_tokens: 1, output_tokens: 1 } };
+    return { output: STUDIO_DEMO_BUNDLE, usage: { model: 'test', input_tokens: 1, output_tokens: 1 } };
   });
   const deliver = vi.fn(async () => { history.push('send'); return 'email_receipt'; });
   const dependencies: StudioWorkerDependencies = {

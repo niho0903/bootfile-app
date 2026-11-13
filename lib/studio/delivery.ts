@@ -2,11 +2,13 @@ import { createStudioAccessToken, verifyStudioAccessToken } from './access';
 import { studioBundleMarkdown } from './bundle';
 import { studioBaseUrl } from './config';
 import { StudioError } from './errors';
-import type { StudioOrderRow } from './types';
+import { STUDIO_PRODUCT, type StudioOrderRow } from './types';
 
 /** Stable request body + key across retries; provider acceptance is persisted by the worker. */
 export function studioDeliveryMessage(order: StudioOrderRow) {
   if (!order.output || order.payment_status !== 'paid' || order.refund_status !== 'none') throw new StudioError('delivery_not_ready', 'This order is not ready for delivery.');
+  // This message and attachment describe marketing-setup-v1. Another version needs its own released renderer.
+  if (order.product_version !== STUDIO_PRODUCT.version) throw new StudioError('delivery_version_unsupported', 'Delivery for this product version is not released.');
   const token = createStudioAccessToken(order.id);
   if (!verifyStudioAccessToken(token, order.access_token_hash)) throw new StudioError('access_key_rotated', 'The original private delivery key needs recovery.');
   const link = `${studioBaseUrl()}/studio/order/${order.id}#access_token=${token}`;

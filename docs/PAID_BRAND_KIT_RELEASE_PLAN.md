@@ -24,3 +24,7 @@ No checkout, model-call, refund, publication, email or scheduler flag should be 
 
 Before activation, the owner must review the exact customer promise and bounded revision scope, and any new model/provider spend ceiling beyond existing approved accounts. The decision record should state the cap, how usage is measured, the stop condition and the rollback target. A failed technical gate goes back to the isolated branch for repair. Existing orders and their output format remain immutable. The rollback for this candidate is to close its stacked draft PR or revert the isolated files; for a later release, disable new checkout and worker flags first, then redeploy the known previous app/service SHAs after checking outstanding paid orders.
 
+
+## 2026-11-13 increment
+
+Item 3 now has its per-order model ceiling and version dispatch in source: `lib/studio/model-budget.ts` and `lib/studio/dispatch.ts`. The worker selects the generator from the order's persisted version, and delivery, download and the order view refuse an output they cannot render. This remains inert: the schema in item 2 still admits only `marketing-setup-v1`, no route creates a Brand Kit order, and failed attempts are costed at the worst case until the migration stores their usage. See `docs/HANDOFF_GAP_REGISTER.md` for verified source state, remaining gaps and queued owner decisions.
