@@ -25,7 +25,17 @@ let groups = 0;
 const runtimeErrors = [];
 const mutations = [];
 const externalRequests = [];
-async function next() { await page.getByRole('button', { name: /^Continue/ }).click(); }
+// In headless Chrome, scrolling a page to its very end by script can leave the layout flipping by one pixel per frame.
+// It does not happen with a wheel or the keyboard, so no person sees it, but Playwright reads it as a control that
+// never settles. Each action is therefore tried normally first, and repeated without the settle check only for that reason.
+async function act(locator, action = 'click', options = {}) {
+  try { await locator[action]({ ...options, timeout: 4000 }); }
+  catch (error) {
+    if (!/element is not stable/.test(String(error && error.message))) throw error;
+    await locator[action]({ ...options, force: true });
+  }
+}
+async function next() { await act(page.getByRole('button', { name: /^Continue/ })); }
 async function noOverflow(label) {
   await page.evaluate(() => document.fonts.ready);
   const metrics = await page.evaluate(() => ({
@@ -57,6 +67,7 @@ try {
   groups++;
   browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, acceptDownloads: true, reducedMotion: 'reduce' });
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin });
   await context.route('**/*', route => {
     const request = route.request();
     if (/^https?:/.test(request.url()) && !request.url().startsWith(origin + '/')) { externalRequests.push(new URL(request.url()).origin); return route.abort(); }
@@ -67,7 +78,11 @@ try {
   page.setDefaultTimeout(10000);
   page.on('pageerror', error => runtimeErrors.push(error.message));
   await page.goto(origin + '/brand');
-  await page.getByRole('button', { name: /Start with how I work/ }).waitFor();
+  await page.getByRole('button', { name: /Build my kit/ }).waitFor();
+  assert.equal(await page.locator('.brandOutputs article').count(), 4, 'The opening screen must show the four outputs');
+  assert.equal(await page.locator('.brandOutputs .brandGoes').count(), 4, 'Each output must say where it goes');
+  assert.equal(await page.locator('.brandFrames .brandFrame').count(), 3, 'A finished example must be visible without a click');
+  assert.equal(await page.locator('.brandWelcome').getByRole('button').count(), 1, 'The opening screen offers one way forward');
   await noOverflow('desktop landing');
   await page.screenshot({ path: output + '/01-brand-home-desktop.png', fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
@@ -75,32 +90,45 @@ try {
   await page.screenshot({ path: output + '/02-brand-home-mobile.png', fullPage: true });
   await page.setViewportSize({ width: 1440, height: 1000 });
   groups++;
-  await page.getByRole('button', { name: /Start with how I work/ }).click();
+  await act(page.getByRole('button', { name: /Build my kit/ }), 'click');
   for (let i = 0; i < 8; i++) {
-    await page.getByRole('radio').first().check();
-    await page.getByRole('button', { name: i < 7 ? /Next question/ : /^Continue/ }).click();
+    await act(page.getByRole('radio').first(), 'check');
+    await act(page.getByRole('button', { name: i < 7 ? /Next question/ : /^Continue/ }), 'click');
   }
   await page.locator('input[name="businessName"]').fill('Juniper Browser Test');
   await page.locator('textarea[name="description"]').fill('A fictional organizing business that helps households use existing kitchen storage.');
   await page.locator('textarea[name="audience"]').fill('Households looking for practical kitchen organization.');
   await page.locator('textarea[name="difference"]').fill('We start with existing storage and everyday routines.');
   await next();
-  await page.locator('.brandVoiceCard').filter({ hasText: 'Clear & considered' }).getByRole('radio').check();
+  await act(page.locator('.brandVoiceCard').filter({ hasText: 'Clear & considered' }).getByRole('radio'), 'check');
   await page.locator('textarea[name="avoid"]').fill('No invented results, discounts or false urgency.');
   await next();
-  await page.locator('.brandPaletteCard').filter({ hasText: 'Human warmth' }).getByRole('radio').check();
+  await act(page.locator('.brandPaletteCard').filter({ hasText: 'Human warmth' }).getByRole('radio'), 'check');
   await page.screenshot({ path: output + '/03-brand-visual-choices.png', fullPage: true });
   await next();
   await page.locator('textarea[name="offer"]').fill('A practical kitchen reset');
   await page.locator('textarea[name="facts"]').fill('We use existing storage. Pricing and availability are discussed before booking.');
   await page.locator('textarea[name="callToAction"]').fill('Reply KITCHEN to ask about a reset.');
-  await page.getByRole('button', { name: /Review my foundation/ }).click();
+  await act(page.getByRole('button', { name: /Check my answers/ }), 'click');
   assert.equal(await page.getByRole('button', { name: /Open my kit preview/ }).isDisabled(), true);
   await page.screenshot({ path: output + '/04-brand-backbrief.png', fullPage: true });
-  await page.getByRole('checkbox').check();
-  await page.getByRole('button', { name: /Open my kit preview/ }).click();
+  await act(page.getByRole('checkbox'), 'check');
+  await act(page.getByRole('button', { name: /Open my kit preview/ }), 'click');
   await page.getByRole('tab', { name: 'Your brand', exact: true }).waitFor();
   assert.ok((await page.locator('.brandDefinition').textContent()).includes('Juniper Browser Test'));
+  // The finished kit leads with where each piece goes: one assistant chosen from the list, then three other places.
+  assert.equal(await page.locator('.brandDeployGrid > li').count(), 4);
+  assert.equal(await page.locator('.brandAssistantPicker').getByRole('radio').count(), 7);
+  assert.equal(await page.getByText(/Enrich|Helena/).count(), 0);
+  await act(page.locator('.brandAssistantPicker').getByRole('radio', { name: 'Kimi' }), 'check');
+  assert.ok((await page.locator('.brandDeployGrid > li').first().textContent()).includes('Open a new chat in Kimi'));
+  await act(page.locator('.brandAssistantPicker').getByRole('radio', { name: 'ChatGPT' }), 'check');
+  assert.ok((await page.locator('.brandDeployGrid > li').first().textContent()).includes('Custom instructions'));
+  await act(page.locator('.brandDeployGrid > li').first().getByRole('button', { name: /Copy AI instructions/ }), 'click');
+  await page.getByRole('status').filter({ hasText: 'AI instructions copied' }).waitFor();
+  assert.ok((await page.evaluate(() => navigator.clipboard.readText())).includes('Juniper Browser Test'), 'The copied instructions must be this business’s own');
+  await act(page.locator('.brandDeployGrid > li').first().getByRole('checkbox'), 'check');
+  assert.ok((await page.locator('.brandDeployCount').textContent()).includes('1 of 4 done'));
   // With checkout closed the approved kit offers no purchase and the page still says so.
   assert.equal(await page.locator('#brand-purchase').count(), 0);
   assert.equal(await page.getByRole('button', { name: /Continue to payment/ }).count(), 0);
@@ -117,25 +145,25 @@ try {
     return images.length === 3 && images.every(image => image.complete && image.naturalWidth > 0);
   });
   const pngPromise = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Save PNG', exact: true }).first().click();
+  await act(page.getByRole('button', { name: 'Save PNG', exact: true }).first(), 'click');
   const png = await pngPromise;
   const pngPath = await png.path(); assert.ok(pngPath);
   assert.equal((await readFile(pngPath)).subarray(1, 4).toString(), 'PNG');
   await page.screenshot({ path: output + '/06-brand-first-campaign.png', fullPage: true });
   groups++;
-  await page.getByRole('tab', { name: 'Your AI partner', exact: true }).click();
+  await act(page.getByRole('tab', { name: 'Your AI partner', exact: true }), 'click');
   const prompt = page.getByRole('textbox', { name: 'Your AI working-partner instructions', exact: true });
   assert.ok((await prompt.inputValue()).includes('HOW TO WORK WITH ME'));
-  await page.getByRole('checkbox').uncheck();
+  await act(page.getByRole('checkbox', { name: /private work-style notes/ }), 'uncheck');
   assert.equal((await prompt.inputValue()).includes('HOW TO WORK WITH ME'), false);
   assert.ok((await prompt.inputValue()).includes('Never send, publish, purchase'));
   groups++;
-  await page.getByRole('tab', { name: 'Use & export', exact: true }).click();
+  await act(page.getByRole('tab', { name: 'Use & export', exact: true }), 'click');
   const voice = await page.getByRole('textbox', { name: 'Canva voice block', exact: true }).inputValue();
   assert.ok(voice.length <= 500);
   assert.ok(voice.includes('No invented results'));
   const downloadPromise = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Public JSON', exact: true }).click();
+  await act(page.getByRole('button', { name: 'Public JSON', exact: true }), 'click');
   const exported = await downloadPromise;
   const jsonPath = await exported.path(); assert.ok(jsonPath);
   const data = JSON.parse(await readFile(jsonPath, 'utf8'));
@@ -148,20 +176,20 @@ try {
   await page.pdf({ path: output + '/fictional-brand-guide-print.pdf', format: 'A4', printBackground: true, preferCSSPageSize: true });
   await page.emulateMedia({ media: 'screen' });
   groups++;
-  await page.getByRole('button', { name: /Review or edit my choices/ }).click();
+  await act(page.getByRole('button', { name: /Review or edit my choices/ }), 'click');
   assert.equal(await page.getByRole('button', { name: /Open my kit preview/ }).isDisabled(), true);
-  await page.locator('.brandReviewCard').filter({ hasText: 'Your public voice' }).getByRole('button', { name: 'Edit', exact: true }).click();
-  await page.locator('.brandVoiceCard').filter({ hasText: 'Warm & grounded' }).getByRole('radio').check();
+  await act(page.locator('.brandReviewCard').filter({ hasText: 'Your public voice' }).getByRole('button', { name: 'Edit', exact: true }), 'click');
+  await act(page.locator('.brandVoiceCard').filter({ hasText: 'Warm & grounded' }).getByRole('radio'), 'check');
   assert.equal(await page.getByRole('button', { name: 'Public JSON', exact: true }).count(), 0);
   await page.reload();
   await page.getByRole('button', { name: /Continue my brand kit/ }).waitFor();
   assert.equal(await page.getByRole('button', { name: 'Public JSON', exact: true }).count(), 0);
   groups++;
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole('button', { name: /Explore a fictional example/ }).click();
+  await act(page.getByRole('button', { name: /Open the full example/ }), 'click');
   await noOverflow('mobile result');
   await page.screenshot({ path: output + '/07-brand-result-mobile.png', fullPage: true });
-  await page.getByRole('tab', { name: 'Use & export', exact: true }).click();
+  await act(page.getByRole('tab', { name: 'Use & export', exact: true }), 'click');
   await noOverflow('mobile exports');
   await page.screenshot({ path: output + '/08-brand-exports-mobile.png', fullPage: true });
   groups++;
@@ -194,18 +222,18 @@ try {
   page.setDefaultTimeout(10000);
   page.on('pageerror', error => paidErrors.push(error.message));
   await page.goto(origin + '/brand');
-  await page.getByRole('button', { name: /Start with how I work/ }).waitFor();
+  await page.getByRole('button', { name: /Build my kit/ }).waitFor();
   await page.waitForFunction(() => document.querySelector('.brandPreviewBar')?.textContent?.includes('Free interactive preview'));
   assert.equal(await page.getByText('No checkout is enabled').count(), 0);
-  await page.getByRole('button', { name: /Explore a fictional example/ }).click();
+  await act(page.getByRole('button', { name: /Open the full example/ }), 'click');
   await page.getByRole('tab', { name: 'Your brand', exact: true }).waitFor();
   assert.equal(await page.locator('#brand-purchase').count(), 0, 'The fictional example must never be purchasable');
-  await page.getByRole('button', { name: /Clear this draft/ }).click();
-  await page.getByRole('button', { name: /Confirm: erase/ }).click();
-  await page.getByRole('button', { name: /Start with how I work/ }).click();
+  await act(page.getByRole('button', { name: /Clear this draft/ }), 'click');
+  await act(page.getByRole('button', { name: /Confirm: erase/ }), 'click');
+  await act(page.getByRole('button', { name: /Build my kit/ }), 'click');
   for (let i = 0; i < 8; i++) {
-    await page.getByRole('radio').first().check();
-    await page.getByRole('button', { name: i < 7 ? /Next question/ : /^Continue/ }).click();
+    await act(page.getByRole('radio').first(), 'check');
+    await act(page.getByRole('button', { name: i < 7 ? /Next question/ : /^Continue/ }), 'click');
   }
   await page.locator('input[name="businessName"]').fill('Juniper Browser Test');
   await page.locator('textarea[name="description"]').fill('A fictional organizing business that helps households use existing kitchen storage.');
@@ -216,27 +244,27 @@ try {
   await page.locator('textarea[name="offer"]').fill('A practical kitchen reset');
   await page.locator('textarea[name="facts"]').fill('We use existing storage. Pricing and availability are discussed before booking.');
   await page.locator('textarea[name="callToAction"]').fill('Reply KITCHEN to ask about a reset.');
-  await page.getByRole('button', { name: /Review my foundation/ }).click();
+  await act(page.getByRole('button', { name: /Check my answers/ }), 'click');
   assert.equal(await page.locator('#brand-purchase').count(), 0, 'No purchase is offered before the brief is approved');
-  await page.getByRole('checkbox').check();
-  await page.getByRole('button', { name: /Open my kit preview/ }).click();
+  await act(page.getByRole('checkbox'), 'check');
+  await act(page.getByRole('button', { name: /Open my kit preview/ }), 'click');
   await page.getByRole('tab', { name: 'Your brand', exact: true }).waitFor();
   const purchase = page.locator('#brand-purchase');
   const pay = purchase.getByRole('button', { name: /Continue to payment · \$49/ });
   assert.equal(await pay.isDisabled(), true, 'Payment stays disabled without an email and accepted terms');
   await purchase.getByRole('textbox').fill('not-an-email');
-  await purchase.getByRole('checkbox').check();
-  await pay.click();
+  await act(purchase.getByRole('checkbox'), 'check');
+  await act(pay, 'click');
   assert.ok((await purchase.getByRole('alert').textContent()).includes('valid delivery email'));
   assert.equal(paidPosts.length, 0, 'An invalid email must not reach the server');
   await purchase.getByRole('textbox').fill('owner@example.com');
   await page.screenshot({ path: output + '/09-brand-purchase-simulated-open.png', fullPage: true });
-  await pay.click();
+  await act(pay, 'click');
   await purchase.getByText('temporarily unavailable').waitFor();
   await page.setViewportSize({ width: 390, height: 844 });
   await noOverflow('mobile purchase panel');
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await Promise.all([page.waitForURL(/^https:\/\/checkout\.stripe\.com\//), pay.click()]);
+  await Promise.all([page.waitForURL(/^https:\/\/checkout\.stripe\.com\//), act(pay)]);
   assert.equal(paidPosts.length, 2);
   assert.equal(paidPosts[0].key, paidPosts[1].key, 'A retry of the same intake must reuse its request key');
   assert.match(paidPosts[1].key, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);

@@ -54,6 +54,14 @@ The repository decision log named in `docs/OPERATING_CHARTER.md`. Each record st
 - **Consequence:** a preview that had the checkout flags turned on, without branch-scoped overrides, would take live payments against the production database. The acceptance order therefore is: branch-scoped test values first, then a read of `/api/studio/brand-config` showing `paymentMode: "test"`, and only then the flags.
 - **Recommended, owner's setting:** limit the production values of those secrets to the Production environment.
 
+## 2026-11-13: the site must explain itself, and Enrich Labs is not a destination
+
+- **Evidence:** the owner's messages between 18:32 and 18:41 Eastern.
+- **Decided by the owner:** the flow must make plain, without effort, what a small business owner does, what they get, why it is useful and where each piece goes. The outputs should be shown in use as placeholders, at a starter-kit grade, with care that people do not fix on the first version they see. Enrich Labs / Helena is removed as a destination because its adoption is too low. The assistants to support are the ones owners actually use: ChatGPT, Claude, Gemini, Grok, DeepSeek and Kimi.
+- **How it is carried out:** outcome first on the opening screen; plain step names; a last screen that leads with where each piece goes. For visuals the rule is real brand, placeholder layout: the owner's own words, colors and type at full fidelity, with photo, logo and arrangement drawn as obvious placeholders. No generated images. The quiz stays first, under the standing quiz-led decision.
+- **Supersedes:** the destination lists in `docs/BRAND_FOUNDATION_PRODUCT_BRIEF.md`, `docs/BRAND_KIT_BUILD_STATUS.md` and `docs/PAID_BRAND_KIT_RELEASE_PLAN.md` where they name Enrich Labs.
+- **Stop or rollback:** revert the increment. No stored order or approval depends on the destination list.
+
 ## Open
 
 - Hosted acceptance still needs four branch-scoped secrets from the owner on `rebuild/acceptance`: a Stripe test-mode secret key, its webhook signing secret, the acceptance database's service role key, and a new `STUDIO_ACCESS_TOKEN_SECRET`. Then the test payment.

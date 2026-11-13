@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { QUESTIONS } from '../questions';
 import { calculateResult } from '../scoring';
 import { isPrivatePath, isPublicAnalyticsPath } from '../privacy';
-import { BRAND_KIT_PRICE, BRAND_KIT_VERSION, EMPTY_BRAND_INPUT, FICTIONAL_BRAND_INPUT, PALETTES, VOICES, assistantInstructions, brandIssues, brandMarkdown, buildBrandKit, canvaVoice, contrastRatio, destinationGuidance, escapeXml, normalizeBrandInput, ownerProfile, publicBrandKit, quizComplete, restoreBrandDraft, socialSvg, visualSystem } from './kit';
+import { BRAND_KIT_PRICE, BRAND_KIT_VERSION, EMPTY_BRAND_INPUT, FICTIONAL_BRAND_INPUT, PALETTES, VOICES, assistantInstructions, brandIssues, brandMarkdown, buildBrandKit, canvaVoice, contrastRatio, destinationGuidance, escapeXml, normalizeBrandInput, ownerProfile, publicBrandKit, quizComplete, restoreBrandDraft, socialSvg, visualSystem, DESTINATION_NAMES } from './kit';
 const fixture = () => structuredClone(FICTIONAL_BRAND_INPUT);
 describe('quiz-led Brand & AI Kit contract', () => {
   it('keeps $49 and the original eight-question scoring contract', () => {
@@ -97,7 +97,9 @@ describe('quiz-led Brand & AI Kit contract', () => {
     expect(() => socialSvg(buildBrandKit(fixture()), 4)).toThrow();
   });
   it('does not invent a connected importer or model-training result', () => {
-    expect(destinationGuidance('enrich').join(' ')).toContain('No native Bootfile importer');
+    for (const assistant of ['grok', 'deepseek', 'kimi', 'other'] as const) expect(destinationGuidance(assistant).join(' ')).toContain('An ordinary chat is the supported fallback');
+    expect(destinationGuidance('kimi')[0]).toContain('Kimi');
+    expect(JSON.stringify(DESTINATION_NAMES)).not.toMatch(/enrich|helena/i);
     expect(destinationGuidance('chatgpt').join(' ')).toContain('ordinary chat');
     expect(destinationGuidance('claude').join(' ')).toContain('availability vary');
     expect(destinationGuidance('gemini').join(' ')).toContain('do not train');

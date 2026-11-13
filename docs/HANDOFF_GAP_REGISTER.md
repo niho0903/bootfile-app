@@ -133,6 +133,19 @@ Verification on this source: `npm run typecheck` exit 0, `npm run lint` 0 errors
 
 Branch `rebuild/terms-and-manifest-20261113`, stacked on the sixth. Documents only: `docs/PROPOSED_TERMS_PRIVACY_BRAND_KIT.md`, proposed wording checked sentence by sentence against the source and applied to no page, and `docs/RELEASE_MANIFEST.md`, the head commit and latest Verify run of every pull request in the stack with what remains unverified.
 
+## Eighth increment
+
+Branch `rebuild/brand-first-run-20261113`, stacked on the seventh. It answers the owner's critique that the site did not explain itself.
+
+- **Opening screen** (`components/brand/BrandWelcome.tsx`): what you get and where each piece goes, shown before anything is asked, with a finished fictional example in three placeholder frames and one button.
+- **Plain words:** steps are named About you, Your business, Your voice, Your look and Your first campaign. The words foundation, backbrief, chapter, working preferences, synthesis and prototype no longer appear on the page. The exported files still use some of them; that is not changed here.
+- **Last screen** (`components/brand/BrandDeploy.tsx`, `lib/brand-kit/deploy.ts`): "Put it to work" leads the finished kit. The owner picks an assistant and sees three steps for it, then Canva, their email tool and their social accounts, each with a copy button.
+- **Assistants:** ChatGPT, Claude, Gemini, Grok, DeepSeek, Kimi and "another". Enrich Labs is removed. A menu path is written only where one was confirmed on 2026-11-13 (ChatGPT, Claude, Gemini, Grok, and Canva's limits). DeepSeek, Kimi and "another" use the method that needs no menu: paste as the first message of a new chat.
+
+Verification on this source: `npm run typecheck` exit 0, `npm run lint` 0 errors, `npm test` 275 passed in 27 files, `npm run test:sql` passes. The browser smoke passed all nine groups locally in Chrome, including new checks on the opening screen, the assistant chooser and the clipboard. One harness change: in headless Chrome a page scrolled to its end by script can flip by one pixel per frame, which Playwright reads as a control that never settles. It does not occur with a wheel or the keyboard. Each smoke action is now tried normally and repeated without the settle check only for that reason.
+
+Not done here: the full set of placements with a shuffle, and the same frames on the paid order page, which follow as the next increment. No time estimate or outcome claim is made on the page because none has been measured.
+
 ## Owner decisions
 
 Recorded in `docs/DECISION_LOG.md`. Decided on 2026-11-13: the handoff brief governs and Bootfile is outside any short-term revenue target; the $0.35 per-order model ceiling is approved; the repository should be private, not yet executed because of the preview trade-off above; hosting moved to Vercel Pro. Still open: build spend from the second connected project, the bounded refinement allowance behind the $49 promise, the Brand & AI Kit checkout, purchase-panel and delivery wording, and whether an independent second model stage is wanted at up to roughly double the per-order ceiling.
