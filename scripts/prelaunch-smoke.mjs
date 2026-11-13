@@ -120,6 +120,12 @@ try {
   });
   assert.equal(brandClosed.status, 503, 'Brand Kit checkout must stay closed while its flag is off');
   expectPrivateHeaders(brandClosed, '/api/studio/brand-orders');
+  const brandConfig = await request('/api/studio/brand-config');
+  assert.equal(brandConfig.status, 200);
+  expectPrivateHeaders(brandConfig, '/api/studio/brand-config');
+  const brandConfigBody = await brandConfig.json();
+  assert.equal(brandConfigBody.checkoutEnabled, false, 'The Brand Kit page must be told checkout is closed');
+  assert.deepEqual(brandConfigBody.price, { amount: 4900, currency: 'usd', formatted: '$49' });
   checks += 1;
 
   console.log('PASS: ' + checks + ' production-mode prelaunch HTTP, privacy, auth, and disabled-commerce checks.');

@@ -34,3 +34,5 @@ Item 2's schema half is now in source as migration `20261113185211_studio_produc
 Items 1 and 2 are now complete on the server side: Stripe metadata, payment verification, reconciliation and refunds bind to the persisted product version, and `POST /api/studio/brand-orders` is the default-off paid intake. Versioned delivery and private access (item 4), page wiring, customer wording and provider acceptance (item 5) remain.
 
 Item 4 is now in source: the delivery email, the download and the private order page render a Brand & AI Kit order from its own persisted version, the public kit is the default everywhere, and the owner's private working preferences leave the server only on an explicit `scope=private` download. Page wiring from `/brand` to the paid intake, approval of customer wording, and provider acceptance (item 5) remain.
+
+Page wiring is now in source: `/brand` asks `GET /api/studio/brand-config` whether checkout is open and offers the paid kit only then, for an approved kit that is not the fictional example. Approval of customer wording and provider acceptance (item 5) remain, and nothing here turns a flag on.

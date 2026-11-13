@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { brandIssues, normalizeBrandInput, TEXT_LIMITS, type BrandInput } from './kit';
+import { brandBackbriefSnapshot, brandIssues, normalizeBrandInput, TEXT_LIMITS, type BrandInput } from './kit';
 import { STUDIO_MODEL_BUDGETS } from '../studio/model-budget';
 import { PAID_BRAND_KIT_VERSION, brandRequestBytes, synthesizeBrandKit, type BrandModelCall, type PaidBrandKit } from './synthesis';
 
@@ -17,9 +17,7 @@ function record(value: unknown): value is Record<string, unknown> {
 }
 
 /** The browser stores this only after the customer checks the displayed backbrief. Any edit invalidates it. */
-export function brandBackbriefSnapshot(input: BrandInput): string {
-  return JSON.stringify(normalizeBrandInput(input));
-}
+export { brandBackbriefSnapshot };
 
 export function validatePaidBrandIntake(raw: unknown): PaidBrandIntake {
   if (!record(raw) || !record(raw.brand)) throw new Error('brand_intake_invalid');

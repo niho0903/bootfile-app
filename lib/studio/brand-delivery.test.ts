@@ -12,6 +12,7 @@ import { createStudioAccessToken, hashStudioAccessToken } from './access';
 import { studioOrderView } from './db';
 import { studioDeliveryMessage } from './delivery';
 import { STUDIO_DEMO_BUNDLE } from './demo';
+import { studioOrderWording } from './order-wording';
 import { brandKitOf, marketingBundleOf } from './outputs';
 import { readyStudioOrderFixture, studioOrderFixture, STUDIO_TEST_ORDER_ID } from './test-fixtures';
 import type { StudioIntake, StudioOrderRow } from './types';
@@ -141,5 +142,27 @@ describe('Brand Kit download and order view', () => {
     expect(html).toContain('Juniper Home Organizing helps busy households');
     expect(html).not.toContain(privateInstruction.slice(0, 40));
     expect(html).not.toContain(token);
+  });
+});
+
+describe('order page wording follows the product that was bought', () => {
+  it('names neither product before the order has loaded', () => {
+    const unknown = studioOrderWording(STUDIO_TEST_ORDER_ID);
+    expect(unknown.label).toBe('order');
+    expect(unknown.readyHeading).toBe('Your order is ready.');
+    expect(unknown.supportSubject).toBe(`Bootfile order ${STUDIO_TEST_ORDER_ID}`);
+    expect(JSON.stringify(studioOrderWording(STUDIO_TEST_ORDER_ID, null))).not.toMatch(/Marketing Setup|Brand & AI Kit/);
+  });
+
+  it('keeps the Marketing Setup wording and gives the Brand & AI Kit its own', () => {
+    const setup = studioOrderWording(STUDIO_TEST_ORDER_ID, { version: 'marketing-setup-v1', name: 'Bootfile Marketing Setup' });
+    expect(setup).toMatchObject({ label: 'Marketing Setup', readyHeading: 'Your Marketing Setup is ready.', generatingHeading: 'Your promotion is taking shape.', readyStep: 'Your pack is ready', restart: { href: '/studio', label: 'Start a new brief' } });
+    expect(setup.preparing).toContain('email, social posts, and reusable setup');
+    const kitWording = studioOrderWording(STUDIO_TEST_ORDER_ID, { version: PAID_BRAND_KIT_VERSION, name: 'Bootfile Brand & AI Kit' });
+    expect(kitWording).toMatchObject({ label: 'Brand & AI Kit', readyHeading: 'Your Brand & AI Kit is ready.', generatingHeading: 'Your kit is taking shape.', readyStep: 'Your kit is ready', restart: { href: '/brand', label: 'Start a new kit' } });
+    expect(kitWording.supportSubject).toBe(`Brand & AI Kit order ${STUDIO_TEST_ORDER_ID}`);
+    expect(JSON.stringify(kitWording)).not.toMatch(/Marketing Setup|pack|promotion|social posts/);
+    // An unknown product is described neutrally and never as the Brand & AI Kit.
+    expect(studioOrderWording(STUDIO_TEST_ORDER_ID, { version: 'brand-foundation-paid-v2', name: 'Bootfile order' }).restart.href).toBe('/studio');
   });
 });
