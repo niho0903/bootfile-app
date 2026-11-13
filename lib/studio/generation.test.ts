@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { marketingBundleOf } from './outputs';
 import { generateStudioBundle } from './generation';
 import { STUDIO_DEMO_BUNDLE, STUDIO_DEMO_INTAKE } from './demo';
 import { studioDeliveryMessage, sendStudioDelivery } from './delivery';
@@ -41,7 +42,7 @@ describe('bounded generation and durable email request', () => {
     expect(calls[0][1].headers['Idempotency-Key']).toBe(calls[1][1].headers['Idempotency-Key']);
     const message = studioDeliveryMessage(order);
     expect(message.text).toContain(`#access_token=${token}`);
-    expect(Buffer.from(message.attachments[0].content, 'base64').toString('utf8')).toContain(order.output!.email.subject);
+    expect(Buffer.from(message.attachments[0].content, 'base64').toString('utf8')).toContain(marketingBundleOf(order).email.subject);
   });
 
   it('never sends an unpaid, refund-pending or incomplete order', () => {

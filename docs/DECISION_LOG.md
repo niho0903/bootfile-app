@@ -27,11 +27,14 @@ The repository decision log named in `docs/OPERATING_CHARTER.md`. Each record st
 - **Evidence:** the repository API reports `visibility=public`; a pattern scan of all 274 commits on `master` and six branch heads found no key-shaped strings other than one test placeholder.
 - **Decision:** make it private.
 - **Status:** not yet executed. On a Vercel Hobby team, commits to a private repository deploy only when authored by the team owner, which would stop previews of agent-authored commits. The team plan could not be read because the Vercel connection lacks team approval. Execute once the plan is known, or on the owner's word that the trade-off is accepted.
+- **Update, later on 2026-11-13:** the owner approved Vercel team access and the plan was read: Hobby. Vercel's published rules for private repositories were read the same day. On Hobby a commit deploys only when its author is the team owner; on Pro or Enterprise only when its author is a team member. An earlier note that a Pro plan alone would remove the problem was wrong. Agent-authored commits would stop producing previews on either plan unless the agent's commit identity joins the team or previews are created another way. The repository is left public, and CI remains the verification of record, until the owner says to switch with that trade-off accepted.
 - **Cost:** none on GitHub. Possibly a hosting plan change, which would be its own decision.
 - **Stop or rollback:** visibility can be switched back.
 
 ## Open
 
+- The hosting plan. The Vercel team is on Hobby, which Vercel's terms limit to non-commercial use, and `docs/LEGACY_PRODUCT_CONTEXT.md` records live Stripe payments for the original product on this deployment. Stripe has not been inspected. Recommended: move to a paid plan before Brand Kit checkout opens. It is a new subscription, so it waits for the owner.
+- The Brand & AI Kit delivery email wording in `lib/studio/delivery.ts` and the labels on its order page. They keep the existing seven-day refund policy and promise nothing new. Shown to no one while fulfillment is closed.
 - The bounded refinement allowance behind the $49 promise. Must be decided before any charge.
 - Whether an independent second model stage is wanted at up to roughly double the per-order ceiling.
 - The exact checkout wording for the Brand & AI Kit. `lib/studio/products.ts` currently names it "Bootfile Brand & AI Kit" with the line "A brand foundation, voice guide, visual starter kit, AI working instructions, and a first campaign." It is shown to no one while checkout is closed.

@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { GET } from '@/app/api/studio/orders/[id]/download/route';
 import { createStudioAccessToken, hashStudioAccessToken } from './access';
+import { marketingBundleOf } from './outputs';
 import { readyStudioOrderFixture, STUDIO_TEST_ORDER_ID } from './test-fixtures';
 import type { StudioOrderRow } from './types';
 
@@ -51,14 +52,14 @@ describe('private order download boundary', () => {
     expect(response.headers.get('cache-control')).toContain('no-store');
     expect(response.headers.get('referrer-policy')).toBe('no-referrer');
     expect(response.headers.get('content-disposition')).toContain('attachment');
-    expect(await response.text()).toContain(row.output!.email.subject);
+    expect(await response.text()).toContain(marketingBundleOf(row).email.subject);
   });
 
   it.each(['pending', 'failed', 'completed'] as const)('withholds output while refund status is %s', async refundStatus => {
     row.refund_status = refundStatus;
     const response = await GET(request(token), context);
     expect(response.status).toBe(409);
-    expect(await response.text()).not.toContain(row.output!.email.subject);
+    expect(await response.text()).not.toContain(marketingBundleOf(row).email.subject);
   });
 
   it('fails closed when the durable database is unavailable', async () => {

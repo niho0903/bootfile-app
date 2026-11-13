@@ -1,24 +1,36 @@
+import { paidBrandMarkdown } from '../brand-kit/paid-output';
+import { PAID_BRAND_KIT_VERSION } from '../brand-kit/synthesis';
 import { createStudioAccessToken, verifyStudioAccessToken } from './access';
 import { studioBundleMarkdown } from './bundle';
 import { studioBaseUrl } from './config';
 import { StudioError } from './errors';
+import { brandKitOf, marketingBundleOf } from './outputs';
 import { STUDIO_PRODUCT, type StudioOrderRow } from './types';
 
 /** Stable request body + key across retries; provider acceptance is persisted by the worker. */
 export function studioDeliveryMessage(order: StudioOrderRow) {
   if (!order.output || order.payment_status !== 'paid' || order.refund_status !== 'none') throw new StudioError('delivery_not_ready', 'This order is not ready for delivery.');
-  // This message and attachment describe marketing-setup-v1. Another version needs its own released renderer.
-  if (order.product_version !== STUDIO_PRODUCT.version) throw new StudioError('delivery_version_unsupported', 'Delivery for this product version is not released.');
+  // Each product version has its own released message. Anything else is refused, never guessed at.
+  if (order.product_version !== STUDIO_PRODUCT.version && order.product_version !== PAID_BRAND_KIT_VERSION) throw new StudioError('delivery_version_unsupported', 'Delivery for this product version is not released.');
   const token = createStudioAccessToken(order.id);
   if (!verifyStudioAccessToken(token, order.access_token_hash)) throw new StudioError('access_key_rotated', 'The original private delivery key needs recovery.');
   const link = `${studioBaseUrl()}/studio/order/${order.id}#access_token=${token}`;
+  const envelope = { from: process.env.STUDIO_EMAIL_FROM || 'Bootfile <support@bootfile.ai>', to: [order.intake.email], reply_to: 'support@bootfile.ai' };
+  if (order.product_version === PAID_BRAND_KIT_VERSION) {
+    // The attachment is the public kit. Private working preferences stay behind the private order page.
+    const kit = brandKitOf(order);
+    return {
+      ...envelope,
+      subject: 'Your Bootfile Brand & AI Kit is ready',
+      text: `Your Brand & AI Kit is ready.\n\nOpen your private kit: ${link}\n\nThe public version of your kit is attached as a Markdown text file you can save and open in any text editor. It includes your brand foundation, voice guide, visual direction, your first customer email and three social posts, and instructions for setting up your AI assistant. Your private working preferences are not in the attachment. You can download them separately from your private order page.\n\nThis is a model-assisted draft built from the facts you supplied. Please check every claim before you publish anything. Nothing has been sent or published on your behalf.\n\nKeep this email: the link gives access to your private order.\n\nOrder: ${order.id}\n\nIf the kit is not right for you, open your private order within seven days of payment to request a full refund, or contact support@bootfile.ai.\n\nBootfile`,
+      attachments: [{ filename: 'bootfile-brand-ai-kit.md', content: Buffer.from(paidBrandMarkdown(kit, 'public'), 'utf8').toString('base64'), content_type: 'text/markdown' }],
+    };
+  }
   return {
-    from: process.env.STUDIO_EMAIL_FROM || 'Bootfile <support@bootfile.ai>',
-    to: [order.intake.email],
-    reply_to: 'support@bootfile.ai',
+    ...envelope,
     subject: 'Your Bootfile Marketing Setup is ready',
     text: `Your Marketing Setup is ready.\n\nOpen your private package: ${link}\n\nThe complete package is also attached as a Markdown text file you can save and open in any text editor. It includes your business brief, promotional email, three social posts, reusable workflow, and review checklist.\n\nPlease check every claim and link before publishing. The automated checks do not independently verify your business or every generated sentence.\n\nKeep this email: the link gives access to your private order.\n\nOrder: ${order.id}\n\nIf the setup is not right for you, open your private order within seven days of payment to request a full refund, or contact support@bootfile.ai.\n\nBootfile`,
-    attachments: [{ filename: 'bootfile-marketing-setup.md', content: Buffer.from(studioBundleMarkdown(order.output), 'utf8').toString('base64'), content_type: 'text/markdown' }],
+    attachments: [{ filename: 'bootfile-marketing-setup.md', content: Buffer.from(studioBundleMarkdown(marketingBundleOf(order)), 'utf8').toString('base64'), content_type: 'text/markdown' }],
   };
 }
 
