@@ -31,9 +31,18 @@ The repository decision log named in `docs/OPERATING_CHARTER.md`. Each record st
 - **Cost:** none on GitHub. Possibly a hosting plan change, which would be its own decision.
 - **Stop or rollback:** visibility can be switched back.
 
+## 2026-11-13: hosting moved to Vercel Pro
+
+- **Affects:** every project in the Vercel team, including `bootfile-app`.
+- **Evidence:** the owner's message, and the team's event log entry "changed plan from Hobby to Pro" at 20:18 UTC on 2026-11-13. The user-level billing field still read `hobby` minutes later, so the team event is the evidence of record.
+- **Decision:** made and executed by the owner. It removes the Hobby plan's non-commercial limit as a blocker for a paid product on this hosting.
+- **Scope:** hosting only. It opens no checkout, enables no flag and does not change repository visibility. On Pro a private repository still deploys only commits authored by a team member.
+- **Cost:** the Pro subscription, bought by the owner; the amount was not read. Builds are now billed. Vercel's published rate on 2026-11-13 starts at $0.0035 per CPU minute, and the plan change moved every project to Elastic build machines. Each push to this repository builds two projects, `bootfile-app` and `personal-site`.
+- **Stop or rollback:** the owner can change the plan.
+
 ## Open
 
-- The hosting plan. The Vercel team is on Hobby, which Vercel's terms limit to non-commercial use, and `docs/LEGACY_PRODUCT_CONTEXT.md` records live Stripe payments for the original product on this deployment. Stripe has not been inspected. Recommended: move to a paid plan before Brand Kit checkout opens. It is a new subscription, so it waits for the owner.
+- Build spend. Every push here now pays for a `personal-site` build as well as the Bootfile one. Recommended: disconnect `personal-site` from this repository, and consider the Basic build machine for `bootfile-app`. Both are the owner's settings; `personal-site` is outside this work and was not touched. Pushes on the rebuild line are kept to one per increment.
 - The wording a customer sees on `/brand` once checkout is open: the purchase panel in `components/brand/BrandKitPurchase.tsx` and the four conditional lines in `components/brand/BrandStudio.tsx`. It describes what the synthesis returns today, states one payment with no subscription, and names the existing 7-day refund policy. Shown to no one while either checkout flag is off.
 - The Brand & AI Kit delivery email wording in `lib/studio/delivery.ts` and the labels on its order page. They keep the existing seven-day refund policy and promise nothing new. Shown to no one while fulfillment is closed.
 - The bounded refinement allowance behind the $49 promise. Must be decided before any charge.
