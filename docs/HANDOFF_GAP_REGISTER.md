@@ -29,11 +29,11 @@ Hosted state was re-read later on 2026-11-13 once connectors were added. **Supab
 
 | # | Gap | Evidence | Status |
 | --- | --- | --- | --- |
-| 1 | Versioned paid intake and approval | `paid-intake.ts` validates version, terms, backbrief snapshot and limits. No route calls it. | Candidate only |
+| 1 | Versioned paid intake and approval | `paid-intake.ts` validates version, terms, backbrief snapshot and limits. `POST /api/studio/brand-orders` accepts it behind two default-off flags. The `/brand` page does not call it yet. | Server side done in the third increment. Page wiring and customer wording remain. |
 | 2 | Per-order model ceilings for calls, tokens and cost | `lib/studio/model-budget.ts` | Done in this increment |
 | 3 | Generation dispatched by the order's persisted version | `lib/studio/dispatch.ts`, `worker.ts` | Done in this increment, inert until gap 4 |
 | 4 | Schema admits only one product | Migration `20261113185211_studio_product_versions_v1`, its rollback and `studio_product_versions_smoke.sql` | Done in source in the second increment. Not applied to the hosted database. |
-| 5 | Commerce binds to one constant | `checkout.ts`, `payments.ts` and `refunds.ts` compare Stripe objects to `STUDIO_PRODUCT` in about forty places. | Not started. Needs a registry keyed by the persisted version. |
+| 5 | Commerce binds to one constant | `lib/studio/products.ts`; `checkout.ts`, `payments.ts` and `refunds.ts` now resolve the product from the order's persisted version. | Done in source in the third increment. Provider acceptance in Stripe test mode has not been run. |
 | 6 | Versioned delivery, order page and download | Renderers for Markdown and JSON exist in `paid-output.ts`. Email, receipt, order view and download understand only the old product. | Fails closed as of this increment. Renderers not built. |
 | 7 | Synthesis is thinner than the promised kit | The candidate returns positioning, voice rules, one email, three posts and source quotations. It has no messaging hierarchy, differentiator hypotheses, missing or contradictory fact detection, independent content check, saved-output graphics, PDF, or bounded refinement. | Not started. A second model stage raises per-order cost and needs approval. |
 | 8 | Durable customer state | The prototype stores drafts in the browser tab. | Not started |
@@ -77,6 +77,16 @@ Branch `rebuild/product-versions-schema-20261113`, stacked on the first.
 The new size tests found one defect and one thin margin, both fixed before commit. A maximal Brand Kit (every field at its validated maximum, in a three-byte script) measures 101,140 bytes, above the 100,000-byte output bound it would have inherited, so that version has its own 150,000-byte bound. A saved intake that repeated the approved backbrief measures 23,125 bytes for the largest accepted brief, within 4 percent of the 24,000-byte intake bound, so the row stores a digest instead of a second copy and measures 11,656 bytes.
 
 Verification on this source: `npm run test:sql` passes (seven migrations, rollback restores the baseline, six suites). Each of three seeded defects makes the new suite fail. `npm run typecheck` exit 0, `npm run lint` 0 errors, `npm test` 229 passed, dependency audit exit 0. The migration has not been applied to the hosted project; that belongs with the release step for the checkout that needs it, after a rollback-only run against the hosted database.
+
+## Third increment
+
+Branch `rebuild/versioned-checkout-20261113`, stacked on the second.
+
+- `lib/studio/products.ts`: the registry of sold product versions. Checkout parameters, paid-session verification, reconciliation, webhook handling and refunds all resolve the product from the version persisted on the order. A session or payment for one product can never mark, resume or refund an order of the other.
+- `POST /api/studio/brand-orders` and `createBrandKitCheckout`: the paid Brand & AI Kit intake. Closed unless `BRAND_KIT_CHECKOUT_ENABLED` and `STUDIO_CHECKOUT_ENABLED` are both `true` and the product-version schema is present. With a flag off the route answers 503 without reading the request. When open it saves the approved intake with its version and model budget before any payable session exists.
+- The prelaunch smoke now asserts that route is closed in a production build.
+
+Verification on this source: `npm run typecheck` exit 0, `npm run lint` 0 errors, `npm test` 239 passed in 23 files, `npm run test:sql` passes, dependency audit exit 0. No Stripe, model or email call was made; every provider is mocked in tests. The name and one-line description that will appear on the Stripe checkout page are customer wording and need the owner's approval before either flag is turned on.
 
 ## Owner decisions
 

@@ -48,6 +48,7 @@ const RATE_LIMITS: Record<string, { max: number; windowMs: number }> = {
   '/api/admin/publish':          { max: 20, windowMs: 3600_000 },
   '/api/send-bootfile':          { max: 5,  windowMs: 3600_000 },
   '/api/studio/orders':         { max: 5,  windowMs: 3600_000 },
+  '/api/studio/brand-orders':   { max: 5,  windowMs: 3600_000 },
   '/api/studio/config':         { max: 120, windowMs: 60_000 },
   '/api/studio/order-access':   { max: 90, windowMs: 60_000 },
   '/api/studio/checkout':       { max: 10, windowMs: 3600_000 },

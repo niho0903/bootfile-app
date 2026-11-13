@@ -25,8 +25,8 @@ export function studioDeliveryFixture(): StudioDeliveryRow {
     provider_message_id: null, last_error_code: null, sent_at: null };
 }
 
-export function studioSessionFixture(): Stripe.Checkout.Session {
-  const metadata = { product: STUDIO_PRODUCT.id, product_version: STUDIO_PRODUCT.version, studio_order_id: STUDIO_TEST_ORDER_ID };
+export function studioSessionFixture(sku: { id: string; version: string } = STUDIO_PRODUCT): Stripe.Checkout.Session {
+  const metadata = { product: sku.id, product_version: sku.version, studio_order_id: STUDIO_TEST_ORDER_ID };
   return {
     id: 'cs_test_studio', object: 'checkout.session', client_reference_id: STUDIO_TEST_ORDER_ID,
     mode: 'payment', status: 'complete', payment_status: 'paid', amount_total: 4900, currency: 'usd',
