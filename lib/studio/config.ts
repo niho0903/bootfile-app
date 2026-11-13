@@ -47,6 +47,18 @@ export function assertStudioCheckoutConfigured(): void {
   }
 }
 
+/** Read from the key's published prefix. A label and a guard, never proof that the provider accepts the key. */
+export function studioPaymentMode(): 'test' | 'live' | 'unset' {
+  const key = process.env.STRIPE_SECRET_KEY || '';
+  return /^(sk|rk)_test_/.test(key) ? 'test' : /^(sk|rk)_live_/.test(key) ? 'live' : 'unset';
+}
+
+/** Which kind of deployment is answering, as the host reports it. */
+export function studioDeployment(): 'production' | 'preview' | 'development' | 'local' {
+  const value = process.env.VERCEL_ENV;
+  return value === 'production' || value === 'preview' || value === 'development' ? value : 'local';
+}
+
 /** Two gates: the shared paid-checkout flag and the Brand Kit's own. Unset means closed. */
 export function assertBrandKitCheckoutConfigured(): void {
   if (process.env.BRAND_KIT_CHECKOUT_ENABLED !== 'true') {

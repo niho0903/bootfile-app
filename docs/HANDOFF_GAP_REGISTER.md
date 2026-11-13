@@ -41,7 +41,7 @@ Hosted state was re-read later on 2026-11-13 once connectors were added. **Supab
 | 7 | Synthesis is thinner than the promised kit | The candidate returns positioning, voice rules, one email, three posts and source quotations. It has no messaging hierarchy, differentiator hypotheses, missing or contradictory fact detection, independent content check, saved-output graphics, PDF, or bounded refinement. | Not started. A second model stage raises per-order cost and needs approval. |
 | 8 | Durable customer state | The prototype stores drafts in the browser tab. | Not started |
 | 9 | Customer promises | Terms, privacy and pricing copy describe Marketing Setup. The refinement allowance is undefined. | Owner decision before any charge |
-| 10 | Provider and hosted acceptance | Stripe test mode, model schema and usage, email acceptance versus inbox arrival, authorized hosting access. | Not started |
+| 10 | Provider and hosted acceptance | Stripe test mode, model schema and usage, email acceptance versus inbox arrival, authorized hosting access. | Prepared in the sixth increment: `docs/PROVIDER_ACCEPTANCE_RUNBOOK.md` and a guarded script. Not run. Waits on the owner for keys, a database choice and the test payment. |
 | 11 | Growth service | Content contract still describes Marketing Setup. Production runs an idle placeholder per the handoff. | Not started |
 | 12 | Unattended operations | Two observed five-minute runs and a tested support destination. | Not started |
 | 13 | Customer value | Pilot of about ten owners against a strong free alternative. | Not started |
@@ -116,6 +116,18 @@ Branch `rebuild/brand-page-checkout-20261113`, stacked on the fourth.
 Verification on this source: `npm run typecheck` exit 0, `npm run lint` 0 errors, `npm test` 261 passed in 25 files, `npm run test:sql` passes, dependency audit exit 0. `scripts/brand-browser-smoke.mjs` gained a ninth group that simulates open checkout: the readiness answer, the order answer and the Stripe page are stand-ins at the browser's network boundary while the server stays closed. It checks that the example cannot be bought, that nothing is offered before approval, that an invalid email never reaches the server, that a retry reuses its request key, and that the only redirect is to Stripe. All nine groups passed locally in Chrome against a development server; CI runs them against the production build. A payload captured from that browser run was accepted by `validatePaidBrandIntake`.
 
 Not verified: a real Stripe session, the return from Stripe to the order page, and anything on a hosted deployment. Known limits: a kit started from the fictional example stays labelled an example and cannot be bought until the draft is cleared; the draft still lives only in the browser tab (gap 8); and `/terms` and `/privacy` do not yet describe this product (gap 9).
+
+## Sixth increment
+
+Branch `rebuild/hosted-acceptance-kit-20261113`, stacked on the fifth.
+
+- `docs/PROVIDER_ACCEPTANCE_RUNBOOK.md`: the ordered steps for one synthetic paid order on a preview in provider test modes, the Preview-scope variable names, what each observation proves and does not prove, stop conditions, cost and rollback.
+- `GET /api/studio/brand-config` now also reports `paymentMode` (from the Stripe key's prefix) and `deployment` (from the host). The purchase panel shows a test-mode notice when the server reports test keys.
+- `scripts/brand-acceptance.mjs` with `scripts/lib/acceptance-guards.mjs`: preflight, create, observe and refund phases. It refuses production hosts, servers that do not report a preview on test keys, checkout addresses that are not Stripe test sessions, and runs without a confirmation flag. Private state stays outside the repository and evidence is refused if it carries a token, an address, a payment link or a key.
+
+Hosted facts read on 2026-11-13 for this increment: the Vercel project protects every address except custom domains with Vercel Authentication, which is why earlier hosted QA stopped at a sign-in wall; the Supabase organization is on the Free plan with one active project and one paused.
+
+Verification on this source: `npm run typecheck` exit 0, `npm run lint` 0 errors, `npm test` 270 passed in 26 files, `npm run test:sql` passes, dependency audit exit 0. The script was exercised only for its refusals, which happen before any request is sent. It has not been run against a deployment, and no provider was called.
 
 ## Owner decisions
 
