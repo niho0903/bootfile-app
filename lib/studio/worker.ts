@@ -3,8 +3,8 @@ import { assertStudioWorkerConfigured, studioDailyGenerationLimit } from './conf
 import { getStudioOrder, studioRpc } from './db';
 import { sendStudioDelivery } from './delivery';
 import { studioErrorCode, StudioError } from './errors';
-import { generateStudioBundle, type StudioGeneratedResult } from './generation';
-import type { StudioDeliveryRow, StudioIntake, StudioOrderRow } from './types';
+import { generateForOrder, type StudioDispatchResult } from './dispatch';
+import type { StudioDeliveryRow, StudioOrderRow } from './types';
 
 export interface StudioWorkerResult {
   claimed: number;
@@ -19,12 +19,12 @@ export interface StudioWorkerResult {
 export interface StudioWorkerDependencies {
   rpc: typeof studioRpc;
   getOrder: typeof getStudioOrder;
-  generate: (intake: StudioIntake) => Promise<StudioGeneratedResult>;
+  generate: (order: StudioOrderRow) => Promise<StudioDispatchResult>;
   deliver: (order: StudioOrderRow) => Promise<string>;
   assertConfigured: () => void;
 }
 
-const defaults: StudioWorkerDependencies = { rpc: studioRpc, getOrder: getStudioOrder, generate: generateStudioBundle, deliver: sendStudioDelivery, assertConfigured: assertStudioWorkerConfigured };
+const defaults: StudioWorkerDependencies = { rpc: studioRpc, getOrder: getStudioOrder, generate: generateForOrder, deliver: sendStudioDelivery, assertConfigured: assertStudioWorkerConfigured };
 
 /** Durable claims, fenced commits and a receipt ledger; safe to invoke concurrently or after a crash. */
 export async function runStudioWorker(
@@ -42,8 +42,8 @@ export async function runStudioWorker(
       order = (await dependencies.rpc<StudioOrderRow[]>('studio_claim_order', { p_lease_token: leaseToken, p_daily_limit: studioDailyGenerationLimit() }))?.[0];
       if (!order) break;
       result.claimed += 1;
-      const generated = await dependencies.generate(order.intake);
-      const committed = await dependencies.rpc<boolean>('studio_finish_generation', { p_order_id: order.id, p_lease_token: leaseToken, p_output: generated.bundle, p_usage: generated.usage });
+      const generated = await dependencies.generate(order);
+      const committed = await dependencies.rpc<boolean>('studio_finish_generation', { p_order_id: order.id, p_lease_token: leaseToken, p_output: generated.output, p_usage: generated.usage });
       if (!committed) throw new StudioError('generation_lease_lost', 'This worker no longer owns the order.');
       result.completed += 1;
     } catch (error) {

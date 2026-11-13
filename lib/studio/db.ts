@@ -1,7 +1,7 @@
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { STUDIO_ORDER_ID_PATTERN, verifyStudioAccessToken } from './access';
 import { StudioError } from './errors';
-import type { StudioDeliveryRow, StudioOrderRow, StudioOrderView } from './types';
+import { STUDIO_PRODUCT, type StudioDeliveryRow, type StudioOrderRow, type StudioOrderView } from './types';
 
 export function studioDb() {
   const db = getSupabaseAdmin();
@@ -60,7 +60,7 @@ export async function studioOrderView(order: StudioOrderRow): Promise<StudioOrde
     refundAvailable: process.env.STUDIO_REFUNDS_ENABLED === 'true' && order.payment_status === 'paid' && order.refund_status === 'none' && order.refund_attempts < 3 && !!refundUntil && new Date(refundUntil).getTime() >= Date.now(),
     refundEligibleUntil: refundUntil,
     refundRequestedAt: order.refund_requested_at,
-    ...(order.output && order.payment_status === 'paid' && order.refund_status === 'none' ? { result: order.output } : {}),
+    ...(order.output && order.product_version === STUDIO_PRODUCT.version && order.payment_status === 'paid' && order.refund_status === 'none' ? { result: order.output } : {}),
     ...(order.status === 'needs_attention' ? { error: { code: 'order_needs_attention', message: 'Your order needs a service review. Your payment and submitted details are saved. You can contact support@bootfile.ai with this order ID.' } } : {}),
     retryAfterSeconds: 15,
   };

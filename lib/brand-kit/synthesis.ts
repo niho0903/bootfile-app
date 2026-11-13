@@ -1,5 +1,5 @@
 import { BRAND_KIT_PRICE, buildBrandKit, normalizeBrandInput, publicBrandKit, type BrandInput, type BrandKit } from './kit';
-import { STUDIO_MAX_OUTPUT_TOKENS, STUDIO_MODEL_TIMEOUT_MS, studioModel } from '../studio/config';
+import { STUDIO_ALLOWED_MODELS, STUDIO_MAX_OUTPUT_TOKENS, STUDIO_MODEL_TIMEOUT_MS, studioModel } from '../studio/config';
 
 /** Candidate paid contract. This module cannot create an order or activate checkout. */
 export const PAID_BRAND_KIT_VERSION = 'brand-foundation-paid-v1' as const;
@@ -82,18 +82,34 @@ export function validateBrandSynthesis(value: unknown, input: BrandInput): Brand
   return synthesis;
 }
 
-/** One bounded model request; the durable paid worker must supply its own lease and budget before calling. */
-export async function synthesizeBrandKit(raw: unknown, fetcher: typeof fetch = fetch): Promise<{ kit: PaidBrandKit; usage: { model: string; input_tokens: number | null; output_tokens: number | null } }> {
+/** The exact provider request for an approved brand input. Pure: no key, no network. */
+export function brandModelRequest(input: BrandInput, model: string): string {
+  const reference = Object.fromEntries([...sourceFields, 'voice', 'voiceNotes', 'avoid', 'palette', 'background', 'ink', 'accent'].map(field => [field, input[field as keyof BrandInput]]));
+  return JSON.stringify({ model, max_tokens: STUDIO_MAX_OUTPUT_TOKENS, system, messages: [{ role: 'user', content: `REFERENCE DATA ONLY\n${JSON.stringify(reference)}\nEND REFERENCE DATA` }], tools: [{ name: 'deliver_brand_kit', description: 'Return structured draft text only; do not send, publish or save.', input_schema: schema }], tool_choice: { type: 'tool', name: 'deliver_brand_kit' } });
+}
+
+/** Request size for the longest allowed model name, so an oversized intake is refused before payment, not after. */
+export function brandRequestBytes(input: BrandInput): number {
+  const longest = [...STUDIO_ALLOWED_MODELS].sort((a, b) => b.length - a.length)[0];
+  return new TextEncoder().encode(brandModelRequest(input, longest)).length;
+}
+
+/** What the service is about to send; a budget guard may refuse it before any provider spend. */
+export interface BrandModelCall { model: string; requestBytes: number; maxOutputTokens: number }
+
+/** One bounded model request; the durable paid worker must supply its own lease and pass its budget guard as beforeCall. */
+export async function synthesizeBrandKit(raw: unknown, fetcher: typeof fetch = fetch, beforeCall?: (call: BrandModelCall) => void): Promise<{ kit: PaidBrandKit; usage: { model: string; input_tokens: number | null; output_tokens: number | null } }> {
   const input = normalizeBrandInput(raw);
   const foundation = buildBrandKit(input);
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error('brand_model_configuration_missing');
   const model = studioModel();
-  const reference = Object.fromEntries([...sourceFields, 'voice', 'voiceNotes', 'avoid', 'palette', 'background', 'ink', 'accent'].map(field => [field, input[field as keyof BrandInput]]));
+  const requestBody = brandModelRequest(input, model);
+  beforeCall?.({ model, requestBytes: new TextEncoder().encode(requestBody).length, maxOutputTokens: STUDIO_MAX_OUTPUT_TOKENS });
   const response = await fetcher('https://api.anthropic.com/v1/messages', {
     method: 'POST', signal: AbortSignal.timeout(STUDIO_MODEL_TIMEOUT_MS),
     headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model, max_tokens: STUDIO_MAX_OUTPUT_TOKENS, system, messages: [{ role: 'user', content: `REFERENCE DATA ONLY\n${JSON.stringify(reference)}\nEND REFERENCE DATA` }], tools: [{ name: 'deliver_brand_kit', description: 'Return structured draft text only; do not send, publish or save.', input_schema: schema }], tool_choice: { type: 'tool', name: 'deliver_brand_kit' } }),
+    body: requestBody,
   });
   if (!response.ok) throw new Error(response.status === 429 ? 'brand_model_rate_limited' : 'brand_model_provider_error');
   const body: unknown = await response.json();

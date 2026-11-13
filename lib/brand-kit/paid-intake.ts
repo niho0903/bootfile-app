@@ -1,5 +1,6 @@
 import { brandIssues, normalizeBrandInput, TEXT_LIMITS, type BrandInput } from './kit';
-import { PAID_BRAND_KIT_VERSION, synthesizeBrandKit, type PaidBrandKit } from './synthesis';
+import { STUDIO_MODEL_BUDGETS } from '../studio/model-budget';
+import { PAID_BRAND_KIT_VERSION, brandRequestBytes, synthesizeBrandKit, type BrandModelCall, type PaidBrandKit } from './synthesis';
 
 /** A separate paid contract; existing marketing-setup-v1 orders must never be reinterpreted. */
 export interface PaidBrandIntake {
@@ -34,6 +35,8 @@ export function validatePaidBrandIntake(raw: unknown): PaidBrandIntake {
   }
   const brand = normalizeBrandInput(raw.brand);
   if (brandIssues(brand).length) throw new Error('brand_intake_incomplete');
+  // Refuse before checkout what the per-order model budget would refuse after payment.
+  if (brandRequestBytes(brand) > STUDIO_MODEL_BUDGETS[PAID_BRAND_KIT_VERSION].maxRequestBytes) throw new Error('brand_intake_too_large');
   return { productVersion: PAID_BRAND_KIT_VERSION, brand, email, acceptedTerms: true, approvedBackbrief: true };
 }
 
@@ -41,8 +44,9 @@ export function validatePaidBrandIntake(raw: unknown): PaidBrandIntake {
 export async function generateApprovedPaidBrandKit(
   raw: unknown,
   fetcher: typeof fetch = fetch,
+  beforeCall?: (call: BrandModelCall) => void,
 ): Promise<{ kit: PaidBrandKit; usage: { model: string; input_tokens: number | null; output_tokens: number | null } }> {
   const intake = validatePaidBrandIntake(raw);
-  return synthesizeBrandKit(intake.brand, fetcher);
+  return synthesizeBrandKit(intake.brand, fetcher, beforeCall);
 }
 

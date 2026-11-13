@@ -4,6 +4,7 @@ import { studioBundleMarkdown } from '@/lib/studio/bundle';
 import { requireStudioOrderAccess } from '@/lib/studio/db';
 import { StudioError } from '@/lib/studio/errors';
 import { STUDIO_PRIVATE_HEADERS, studioErrorResponse } from '@/lib/studio/http';
+import { STUDIO_PRODUCT } from '@/lib/studio/types';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -13,6 +14,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const { id } = await params;
     const order = await requireStudioOrderAccess(id, bearerStudioToken(request));
     if (!order.output || order.payment_status !== 'paid' || order.refund_status !== 'none') throw new StudioError('package_not_ready', 'This package is not currently available to download.', 409);
+    if (order.product_version !== STUDIO_PRODUCT.version) throw new StudioError('package_version_unsupported', 'This package is not currently available to download.', 409);
     return new Response(studioBundleMarkdown(order.output), {
       headers: { ...STUDIO_PRIVATE_HEADERS, 'Content-Type': 'text/markdown; charset=utf-8', 'Content-Disposition': 'attachment; filename="bootfile-marketing-setup.md"' },
     });
