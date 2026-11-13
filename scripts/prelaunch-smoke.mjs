@@ -115,6 +115,13 @@ try {
   expectPrivateHeaders(invalidIntake, '/api/studio/orders');
   checks += 1;
 
+  const brandClosed = await request('/api/studio/brand-orders', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Origin: origin }, body: '{}',
+  });
+  assert.equal(brandClosed.status, 503, 'Brand Kit checkout must stay closed while its flag is off');
+  expectPrivateHeaders(brandClosed, '/api/studio/brand-orders');
+  checks += 1;
+
   console.log('PASS: ' + checks + ' production-mode prelaunch HTTP, privacy, auth, and disabled-commerce checks.');
 } catch (error) {
   console.error('FAIL: prelaunch smoke:', error instanceof Error ? error.message : 'unknown failure');

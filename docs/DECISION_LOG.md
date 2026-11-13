@@ -34,3 +34,5 @@ The repository decision log named in `docs/OPERATING_CHARTER.md`. Each record st
 
 - The bounded refinement allowance behind the $49 promise. Must be decided before any charge.
 - Whether an independent second model stage is wanted at up to roughly double the per-order ceiling.
+- The exact checkout wording for the Brand & AI Kit. `lib/studio/products.ts` currently names it "Bootfile Brand & AI Kit" with the line "A brand foundation, voice guide, visual starter kit, AI working instructions, and a first campaign." It is shown to no one while checkout is closed.
+- Proposed, not decided: one revision per order within seven days of delivery. The customer changes their answers once, re-approves the backbrief and receives a regenerated kit; editing the text themselves stays unlimited. Cap: at most 2 further provider calls, raising the per-order ceiling from $0.35 to $0.60. Measurement: the same usage ledger. Stop condition: if more than 40 percent of the first 25 orders use the revision, treat first-draft quality as the defect and fix synthesis instead of widening the allowance. Owner involvement per order: none.

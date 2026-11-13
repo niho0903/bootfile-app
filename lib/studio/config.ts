@@ -47,6 +47,14 @@ export function assertStudioCheckoutConfigured(): void {
   }
 }
 
+/** Two gates: the shared paid-checkout flag and the Brand Kit's own. Unset means closed. */
+export function assertBrandKitCheckoutConfigured(): void {
+  if (process.env.BRAND_KIT_CHECKOUT_ENABLED !== 'true') {
+    throw new StudioError('checkout_unavailable', 'The paid Brand & AI Kit is not open yet. You can keep exploring the preview while we finish testing.');
+  }
+  assertStudioCheckoutConfigured();
+}
+
 export function assertStudioWorkerConfigured(): void {
   if (process.env.STUDIO_FULFILLMENT_ENABLED !== 'true') throw new StudioError('fulfillment_paused', 'Fulfillment is paused.');
   if (!process.env.ANTHROPIC_API_KEY || !process.env.RESEND_API_KEY || (process.env.STUDIO_ACCESS_TOKEN_SECRET || '').length < 32) {

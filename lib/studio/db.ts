@@ -27,6 +27,14 @@ export async function checkStudioSchema(): Promise<void> {
   if (health?.version !== 'studio-fulfillment-v1') throw new StudioError('schema_unavailable', 'The setup service is being prepared.');
 }
 
+/** Present only after studio_product_versions_v1. Without it a versioned order cannot be saved or fulfilled. */
+export async function checkStudioProductSchema(): Promise<void> {
+  const contract = await studioRpc<{ version?: string; products?: unknown }>('studio_product_versions');
+  if (contract?.version !== 'studio-product-versions-v1' || !Array.isArray(contract.products) || !contract.products.includes('brand-foundation-paid-v1')) {
+    throw new StudioError('schema_unavailable', 'The paid Brand & AI Kit is being prepared.');
+  }
+}
+
 export interface StudioCapacity { limit: number; spent: number; reserved: number; remaining: number; checkout_available: boolean }
 
 export async function studioCapacity(dailyLimit: number): Promise<StudioCapacity> {

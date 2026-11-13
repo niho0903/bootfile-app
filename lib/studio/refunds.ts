@@ -3,6 +3,7 @@ import { getStripe } from '@/lib/stripe';
 import { getStudioOrder, studioDb, studioRpc } from './db';
 import { StudioError, studioErrorCode } from './errors';
 import { stripeObjectId } from './payments';
+import { studioProductForVersion, studioProductOrNull } from './products';
 import { STUDIO_PRODUCT, type StudioOrderRow } from './types';
 
 const REFUND_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
@@ -24,14 +25,15 @@ function refundView(order: StudioOrderRow): StudioRefundView {
     pending: 'Your refund request is saved. We are checking or processing it with Stripe. Access to the setup from your order page is paused.',
     needs_attention: 'Your refund request needs a service review. Contact support@bootfile.ai with your order ID; do not make another purchase to resolve it.',
   };
-  return { status, message: messages[status], amount: STUDIO_PRODUCT.amount, currency: STUDIO_PRODUCT.currency };
+  return { status, message: messages[status], amount: order.amount_total, currency: order.currency };
 }
 
 export function verifyStudioRefundEligibility(order: StudioOrderRow, now = Date.now()): void {
   const paidAt = Date.parse(order.paid_at || '');
   const requestedAt = order.refund_requested_at ? Date.parse(order.refund_requested_at) : now;
-  if (order.amount_total !== STUDIO_PRODUCT.amount || order.currency !== STUDIO_PRODUCT.currency
-    || order.product_version !== STUDIO_PRODUCT.version || !order.stripe_payment_intent_id
+  const product = studioProductOrNull(order.product_version);
+  if (!product || order.amount_total !== product.amount || order.currency !== product.currency
+    || !order.stripe_payment_intent_id
     || order.payment_status !== 'paid' || !Number.isFinite(paidAt) || !Number.isFinite(requestedAt)
     || paidAt > requestedAt || requestedAt > now || requestedAt - paidAt > REFUND_WINDOW_MS) {
     throw new StudioError('refund_not_eligible', 'This order needs a support review for a refund. Contact support@bootfile.ai with your order ID.', 409);
@@ -40,15 +42,16 @@ export function verifyStudioRefundEligibility(order: StudioOrderRow, now = Date.
 
 /** Only the original, fully captured $49 Studio card payment is eligible for automatic execution. */
 export function verifyStudioRefundPayment(order: StudioOrderRow, intent: Stripe.PaymentIntent, charge: Stripe.Charge): void {
+  const product = studioProductForVersion(order.product_version);
   const metadata = intent.metadata;
   if (intent.id !== order.stripe_payment_intent_id || intent.status !== 'succeeded'
-    || intent.amount !== STUDIO_PRODUCT.amount || intent.amount_received !== STUDIO_PRODUCT.amount
-    || intent.currency !== STUDIO_PRODUCT.currency || metadata?.studio_order_id !== order.id
-    || metadata?.product !== STUDIO_PRODUCT.id || metadata?.product_version !== STUDIO_PRODUCT.version
+    || intent.amount !== product.amount || intent.amount_received !== product.amount
+    || intent.currency !== product.currency || metadata?.studio_order_id !== order.id
+    || metadata?.product !== product.id || metadata?.product_version !== product.version
     || stripeObjectId(intent.latest_charge) !== charge.id || stripeObjectId(charge.payment_intent) !== intent.id
-    || charge.amount !== STUDIO_PRODUCT.amount || charge.amount_captured !== STUDIO_PRODUCT.amount || charge.currency !== STUDIO_PRODUCT.currency
+    || charge.amount !== product.amount || charge.amount_captured !== product.amount || charge.currency !== product.currency
     || !charge.paid || !charge.captured || charge.disputed
-    || charge.amount_refunded < 0 || charge.amount_refunded > STUDIO_PRODUCT.amount) {
+    || charge.amount_refunded < 0 || charge.amount_refunded > product.amount) {
     throw new StudioError('refund_payment_mismatch', 'The refund needs a payment review.', 409);
   }
   // Bank debits and other methods can have dispute or additional-action requirements.
@@ -59,7 +62,7 @@ export function verifyStudioRefundPayment(order: StudioOrderRow, intent: Stripe.
 
 function verifyRefundObject(refund: Stripe.Refund, order: StudioOrderRow): void {
   if (stripeObjectId(refund.payment_intent) !== order.stripe_payment_intent_id
-    || refund.amount !== STUDIO_PRODUCT.amount || refund.currency !== STUDIO_PRODUCT.currency) {
+    || refund.amount !== order.amount_total || refund.currency !== order.currency) {
     throw new StudioError('refund_payment_mismatch', 'The refund needs a payment review.', 409);
   }
 }
@@ -98,14 +101,14 @@ async function processStudioRefund(orderId: string): Promise<StudioRefundView> {
         const existing = await stripe.refunds.list({ payment_intent: intent.id, limit: 100 }, REQUEST_OPTIONS);
         if (existing.has_more) throw new StudioError('refund_history_review', 'Refund history needs a service review.', 409);
         const active = existing.data.filter(item => item.status !== 'failed' && item.status !== 'canceled');
-        if (active.length === 1 && active[0].amount === STUDIO_PRODUCT.amount) refund = active[0];
+        if (active.length === 1 && active[0].amount === order.amount_total) refund = active[0];
         else if (existing.data.length || latest.amount_refunded !== 0 || latest.refunded) {
           throw new StudioError('refund_history_review', 'A previous refund requires a service review.', 409);
         }
         if (!refund) {
           refund = await stripe.refunds.create({
-            payment_intent: intent.id, amount: STUDIO_PRODUCT.amount, reason: 'requested_by_customer',
-            metadata: { product: STUDIO_PRODUCT.id, studio_order_id: order.id, policy: 'seven-day-v1' },
+            payment_intent: intent.id, amount: order.amount_total, reason: 'requested_by_customer',
+            metadata: { product: studioProductForVersion(order.product_version).id, studio_order_id: order.id, policy: 'seven-day-v1' },
           }, { ...REQUEST_OPTIONS, idempotencyKey: `studio-refund-v1-${order.id}` });
         }
       }
@@ -161,6 +164,7 @@ export async function recordStudioRefundEvent(event: Stripe.Event): Promise<bool
   // Retrieve current status because webhook events can arrive out of order.
   const refund = await getStripe().refunds.retrieve(eventRefund.id, {}, REQUEST_OPTIONS);
   const paymentIntentId = stripeObjectId(refund.payment_intent);
+  // Every product version is sold at the same fixed price, which the database also enforces.
   if (!paymentIntentId || refund.amount !== STUDIO_PRODUCT.amount || refund.currency !== STUDIO_PRODUCT.currency) return false;
   return studioRpc<boolean>('studio_record_refund_status', {
     p_event_id: event.id, p_payment_intent_id: paymentIntentId, p_provider_id: refund.id,
