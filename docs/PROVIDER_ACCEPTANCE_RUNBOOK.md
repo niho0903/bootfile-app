@@ -1,6 +1,6 @@
 # Provider acceptance runbook: paid Brand & AI Kit
 
-Written 2026-11-13. **Status: prepared, not run.** No step below has been executed against any host or provider. This is item 5 of `docs/PAID_BRAND_KIT_RELEASE_PLAN.md` and release gates 3 to 6 of `docs/STAGED_AUTONOMY_RELEASE_POLICY.md`.
+Written 2026-11-13. **Status: step 1 done, nothing else run.** The acceptance database exists and is migrated; see `docs/DECISION_LOG.md`. No other step has been executed against any host or provider. One correction to the variables table found the same day: the project's existing Stripe, Supabase, model and email values already apply to Preview and are the production ones, so the Stripe keys and the Supabase service role key **must** be overridden on the acceptance branch before any flag is set. This is item 5 of `docs/PAID_BRAND_KIT_RELEASE_PLAN.md` and release gates 3 to 6 of `docs/STAGED_AUTONOMY_RELEASE_POLICY.md`.
 
 The goal is one synthetic paid order for a fictional business, taken from approved intake to a delivered kit and a refund, on a preview deployment, with every provider in its test mode. It is not a production release and it turns nothing on for customers.
 

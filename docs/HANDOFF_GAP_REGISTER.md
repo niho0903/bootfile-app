@@ -40,7 +40,7 @@ Hosted state was re-read later on 2026-11-13 once connectors were added. **Supab
 | 6 | Versioned delivery, order page and download | `lib/studio/outputs.ts`, `delivery.ts`, the download route, `studioOrderView` and `components/studio/BrandKitOrderView.tsx` render each order by its own persisted version. | Done in source in the fourth increment. Inbox arrival and hosted rendering are unverified until gap 10. The Stripe receipt was not touched. |
 | 7 | Synthesis is thinner than the promised kit | The candidate returns positioning, voice rules, one email, three posts and source quotations. It has no messaging hierarchy, differentiator hypotheses, missing or contradictory fact detection, independent content check, saved-output graphics, PDF, or bounded refinement. | Not started. A second model stage raises per-order cost and needs approval. |
 | 8 | Durable customer state | The prototype stores drafts in the browser tab. | Not started |
-| 9 | Customer promises | Terms, privacy and pricing copy describe Marketing Setup. The refinement allowance is undefined. | Owner decision before any charge |
+| 9 | Customer promises | Terms, privacy and pricing copy describe Marketing Setup. The refinement allowance is undefined. | Wording proposed in `docs/PROPOSED_TERMS_PRIVACY_BRAND_KIT.md`; the pages are unchanged. Owner decision before any charge |
 | 10 | Provider and hosted acceptance | Stripe test mode, model schema and usage, email acceptance versus inbox arrival, authorized hosting access. | Prepared in the sixth increment: `docs/PROVIDER_ACCEPTANCE_RUNBOOK.md` and a guarded script. Not run. Waits on the owner for keys, a database choice and the test payment. |
 | 11 | Growth service | Content contract still describes Marketing Setup. Production runs an idle placeholder per the handoff. | Not started |
 | 12 | Unattended operations | Two observed five-minute runs and a tested support destination. | Not started |
@@ -128,6 +128,10 @@ Branch `rebuild/hosted-acceptance-kit-20261113`, stacked on the fifth.
 Hosted facts read on 2026-11-13 for this increment: the Vercel project protects every address except custom domains with Vercel Authentication, which is why earlier hosted QA stopped at a sign-in wall; the Supabase organization is on the Free plan with one active project and one paused.
 
 Verification on this source: `npm run typecheck` exit 0, `npm run lint` 0 errors, `npm test` 270 passed in 26 files, `npm run test:sql` passes, dependency audit exit 0. The script was exercised only for its refusals, which happen before any request is sent. It has not been run against a deployment, and no provider was called.
+
+## Seventh increment
+
+Branch `rebuild/terms-and-manifest-20261113`, stacked on the sixth. Documents only: `docs/PROPOSED_TERMS_PRIVACY_BRAND_KIT.md`, proposed wording checked sentence by sentence against the source and applied to no page, and `docs/RELEASE_MANIFEST.md`, the head commit and latest Verify run of every pull request in the stack with what remains unverified.
 
 ## Owner decisions
 
