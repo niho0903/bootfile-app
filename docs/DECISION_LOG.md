@@ -40,9 +40,23 @@ The repository decision log named in `docs/OPERATING_CHARTER.md`. Each record st
 - **Cost:** the Pro subscription, bought by the owner; the amount was not read. Builds are now billed. Vercel's published rate on 2026-11-13 starts at $0.0035 per CPU minute, and the plan change moved every project to Elastic build machines. Each push to this repository builds two projects, `bootfile-app` and `personal-site`.
 - **Stop or rollback:** the owner can change the plan.
 
+## 2026-11-13: owner approval of the open items, and the acceptance database
+
+- **Evidence:** the owner's message "approved to do all" at 17:56 Eastern, in reply to a report that listed what was waiting on him.
+- **Read as approving, and done:** a separate acceptance database. The free Supabase project `bootfile-acceptance` was created in the owner's organization at no cost. The seven files in `supabase/migrations` were applied to it from commit `e0c49a3`, each checked against its SHA-256 before it ran, on top of stand-ins for the two legacy tables the October migrations alter. All six smoke suites in `supabase/tests` then passed on it and were rolled back. Its security advisor reports only the expected notice that tables have row-level security with no policies, which is the design: access is through the service role only.
+- **Read as approving, recorded and not yet built or applied:** the customer wording as written (checkout line, purchase panel, delivery email, order page labels); one revision within seven days of delivery at a $0.60 per-order ceiling; the proposed terms and privacy text, which counsel should still read before a real charge.
+- **Not done under this approval:** entering any key or secret, and paying. Those stay with the owner. No flag was enabled. Nothing in the production database or the `personal-site` project was changed.
+- **Stop or rollback:** delete the `bootfile-acceptance` project and the `rebuild/acceptance` branch. Nothing in production depends on either.
+
+## 2026-11-13: previews share production credentials
+
+- **Evidence:** the Vercel project's variable names and targets, read without values. `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, `ANTHROPIC_API_KEY`, `RESEND_API_KEY`, `CRON_SECRET` and `ADMIN_PASSWORD` each have one value that applies to Production, Preview and Development. No `STUDIO_` variable exists in the project.
+- **Consequence:** a preview that had the checkout flags turned on, without branch-scoped overrides, would take live payments against the production database. The acceptance order therefore is: branch-scoped test values first, then a read of `/api/studio/brand-config` showing `paymentMode: "test"`, and only then the flags.
+- **Recommended, owner's setting:** limit the production values of those secrets to the Production environment.
+
 ## Open
 
-- The terms and privacy text for the Brand & AI Kit. Proposed wording is in `docs/PROPOSED_TERMS_PRIVACY_BRAND_KIT.md`. It is not legal advice and is applied to no page. Needs the owner's approval, and counsel's reading, before the first real charge.
+- Hosted acceptance still needs four branch-scoped secrets from the owner on `rebuild/acceptance`: a Stripe test-mode secret key, its webhook signing secret, the acceptance database's service role key, and a new `STUDIO_ACCESS_TOKEN_SECRET`. Then the test payment.
 - Hosted acceptance, per `docs/PROVIDER_ACCEPTANCE_RUNBOOK.md`. Needs from the owner: the database choice (recommended: a separate free Supabase project for acceptance, so no synthetic order enters the production ledger), the Preview variables for the `rebuild/acceptance` branch, and the test payment. Bounded cost: one generation under the $0.35 ceiling, one email, one build.
 - The production database plan. It is on Supabase's Free plan, which pauses projects after a week of low activity and reserves automated backups for paid plans. Recommended before the first real charge: a paid plan. It is a new subscription, so it waits for the owner.
 - Build spend. Every push here now pays for a `personal-site` build as well as the Bootfile one. Recommended: disconnect `personal-site` from this repository, and consider the Basic build machine for `bootfile-app`. Both are the owner's settings; `personal-site` is outside this work and was not touched. Pushes on the rebuild line are kept to one per increment.

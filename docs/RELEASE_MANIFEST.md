@@ -34,6 +34,7 @@ Two cautions about the table. The runs for #2, #3 and #4 date from October. On 2
 
 - Vercel: team on Pro since 2026-11-13. Production is `master` at `5ede597`. Previews build for each head and sit behind Vercel Authentication. No preview has been exercised with provider credentials.
 - Supabase: the six October migrations are applied to the hosted project. `20261113185211_studio_product_versions_v1` is applied nowhere. The eight Studio and operations tables held zero rows when read on 2026-11-13.
+- Supabase, acceptance: a separate free project, `bootfile-acceptance`, created 2026-11-13 with all seven migrations applied from `e0c49a3` and the six smoke suites passing on it. It holds no orders.
 - Railway: one idle placeholder service, per the handoff.
 - Flags: `STUDIO_CHECKOUT_ENABLED`, `BRAND_KIT_CHECKOUT_ENABLED`, `STUDIO_FULFILLMENT_ENABLED` and `STUDIO_REFUNDS_ENABLED` default to off in source. Their hosted values were not read.
 
