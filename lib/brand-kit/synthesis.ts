@@ -136,6 +136,7 @@ export async function synthesizeBrandKit(raw: unknown, fetcher: typeof fetch = f
 }
 
 /** Public handoff allowlist excludes quiz answers and private working preferences. */
+export type PublicPaidBrandKit = ReturnType<typeof publicPaidBrandKit>;
 export function publicPaidBrandKit(kit: PaidBrandKit) {
   const foundation = publicBrandKit(kit.foundation);
   // The free template campaign and preview label must not masquerade as the paid result.

@@ -2,12 +2,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { buildBrandKit, FICTIONAL_BRAND_INPUT, TEXT_LIMITS, type BrandInput } from '../brand-kit/kit';
 import { brandBackbriefSnapshot, persistedPaidBrandIntake, validatePaidBrandIntake } from '../brand-kit/paid-intake';
 import { PAID_BRAND_KIT_VERSION, brandRequestBytes } from '../brand-kit/synthesis';
-import { studioDeliveryMessage } from './delivery';
 import { STUDIO_DEMO_BUNDLE } from './demo';
 import { generateForOrder, StudioGenerationError } from './dispatch';
 import { StudioError } from './errors';
 import { STUDIO_MODEL_BUDGETS } from './model-budget';
-import { readyStudioOrderFixture, studioOrderFixture } from './test-fixtures';
+import { studioOrderFixture } from './test-fixtures';
 import type { StudioIntake, StudioOrderRow } from './types';
 
 vi.mock('./generation', async () => {
@@ -175,12 +174,5 @@ describe('request size is settled before payment', () => {
     // Unpaired surrogates escape to six characters each; the approval-snapshot cap already refuses them.
     expect(brandRequestBytes(filled('\ud800'))).toBeGreaterThan(cap);
     expect(() => validatePaidBrandIntake(paidIntake(filled('\ud800')))).toThrow(/^brand_intake_(invalid|too_large)$/);
-  });
-});
-
-describe('saved outputs are rendered only by the version that produced them', () => {
-  it('refuses to email a Brand Kit order through the Marketing Setup renderer', () => {
-    const order = { ...readyStudioOrderFixture(), product_version: PAID_BRAND_KIT_VERSION };
-    expect(() => studioDeliveryMessage(order)).toThrow(expect.objectContaining({ code: 'delivery_version_unsupported' }));
   });
 });

@@ -1,3 +1,5 @@
+import type { PaidBrandKit, PublicPaidBrandKit } from '../brand-kit/synthesis';
+
 /** Public, provider-independent contract for the paid Marketing Setup product. */
 export const STUDIO_PRODUCT = {
   id: 'bootfile_marketing_setup',
@@ -64,6 +66,11 @@ export interface StudioOrderView {
   refundEligibleUntil: string | null;
   refundRequestedAt: string | null;
   result?: StudioBundle;
+  /** Brand & AI Kit orders only. The public allowlist: private owner preferences are never in this view. */
+  brandKit?: PublicPaidBrandKit;
+  /** The public assistant instructions and review checklist, exactly as the downloaded public kit carries them. */
+  brandKitGuide?: { assistantInstructions: string; reviewChecklist: string[] };
+  product?: { version: string; name: string };
   error?: { code: string; message: string };
   retryAfterSeconds: number;
 }
@@ -89,7 +96,8 @@ export interface StudioOrderRow {
   next_attempt_at: string;
   last_error_code: string | null;
   error_detail: string | null;
-  output: StudioBundle | null;
+  /** Read it only through lib/studio/outputs.ts, which ties the schema to product_version. */
+  output: StudioBundle | PaidBrandKit | null;
   paid_at: string | null;
   ready_at: string | null;
   refund_status: 'none' | 'pending' | 'completed' | 'failed';

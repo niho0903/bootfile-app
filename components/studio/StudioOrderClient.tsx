@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { StudioOrderView } from '@/lib/studio/types';
+import { BrandKitOrderView } from './BrandKitOrderView';
 import { CopyButton, StudioBundleView } from './StudioBundleView';
 import { StudioRefund } from './StudioRefund';
 import { StudioFeedback } from './StudioFeedback';
@@ -107,17 +108,19 @@ function StudioOrderContent({ orderId }: { orderId: string }) {
     }
   }
 
-  const supportHref = `mailto:support@bootfile.ai?subject=${encodeURIComponent(`Marketing Setup order ${orderId}`)}`;
+  // The saved order names its own product; nothing here assumes which one was bought.
+  const productLabel = (order?.product?.name || 'Bootfile Marketing Setup').replace(/^Bootfile /, '');
+  const supportHref = `mailto:support@bootfile.ai?subject=${encodeURIComponent(`${productLabel} order ${orderId}`)}`;
   const paid = order?.paymentStatus === 'paid';
   const isRefunded = order?.paymentStatus === 'refunded' || order?.refundStatus === 'completed';
   const refundPending = order?.refundStatus === 'pending';
   const refundFailed = order?.refundStatus === 'failed';
-  const ready = order?.status === 'ready' && order.paymentStatus === 'paid' && !!order.result && !order.refundRequestedAt && !refundPending && !refundFailed && !isRefunded;
+  const ready = order?.status === 'ready' && order.paymentStatus === 'paid' && (!!order.result || !!order.brandKit) && !order.refundRequestedAt && !refundPending && !refundFailed && !isRefunded;
   const heading = !order && !error && token ? 'Opening your order…' : !token || accessError ? 'Your private order link opens this page.' : isRefunded ? 'This order has been refunded.' : refundPending ? 'Your refund is processing.' : refundFailed ? 'Your refund request needs attention.' : order?.paymentStatus === 'disputed' ? 'There’s a payment issue to resolve.' : ready ? 'Your Marketing Setup is ready.' : order?.status === 'awaiting_payment' ? 'Your brief is saved.' : order?.status === 'queued' ? 'Your setup is next.' : order?.status === 'generating' ? 'Your promotion is taking shape.' : order?.status === 'needs_attention' ? 'Your setup needs another look.' : order?.status === 'cancelled' ? 'This checkout has closed.' : 'Let’s check your order.';
 
   return (
     <main id="main-content" style={{ ...studioContainer, maxWidth: ready ? 1060 : 820, paddingTop: 54, paddingBottom: 76, minHeight: '65vh' }}>
-      <Eyebrow>Your Marketing Setup</Eyebrow>
+      <Eyebrow>Your {productLabel}</Eyebrow>
       <h1 aria-live="polite" className="font-heading" style={{ fontSize: 'clamp(33px, 4.7vw, 47px)', fontWeight: 400, lineHeight: 1.16, letterSpacing: '-.025em', maxWidth: 760 }}>{heading}</h1>
       {!order && !error && token ? <div role="status" style={{ display: 'flex', alignItems: 'center', gap: 12, color: c.muted, fontSize: 14, marginTop: 26 }}><span className="studio-spinner" aria-hidden="true" />Checking your private order link.</div> : !token || accessError ? <div style={{ marginTop: 28 }}>
         <StudioNotice>Open the complete link from your Bootfile delivery email, or return to the browser tab you used for checkout.</StudioNotice>
@@ -125,16 +128,20 @@ function StudioOrderContent({ orderId }: { orderId: string }) {
         <div className="studio-result-actions" style={{ marginTop: 25 }}><Link href="/studio/recover" className="studio-button">Find my order <ArrowIcon /></Link><a href={supportHref} className="studio-button studio-button-secondary">Contact support</a></div>
       </div> : <>
         <div style={{ marginTop: 20, marginBottom: 30 }}>
-          {ready ? <p style={{ color: c.muted, fontSize: 14, lineHeight: 1.85, maxWidth: 730 }}>Start with your email and posts, then keep the setup for your next promotion. Review the facts and make any edits before publishing.</p> : isRefunded ? <p style={{ color: c.muted, fontSize: 14, lineHeight: 1.85 }}>Your refund has been recorded. Your bank or card provider controls when it appears on your statement.</p> : refundPending ? <p style={{ color: c.muted, fontSize: 14, lineHeight: 1.85 }}>Your full $49 USD refund was requested through Stripe. This page will update when the refund is confirmed.</p> : refundFailed ? <p style={{ color: c.muted, fontSize: 14, lineHeight: 1.85 }}>Your refund hasn’t been confirmed as complete. Contact support with your order number so we can help resolve it.</p> : order?.status === 'awaiting_payment' ? <p style={{ color: c.muted, fontSize: 14, lineHeight: 1.85 }}>We haven’t confirmed a payment for this order yet. If you just paid, this page will update when confirmation arrives. If you left checkout, you can return to it below.</p> : paid && (order?.status === 'queued' || order?.status === 'generating') ? <p style={{ color: c.muted, fontSize: 14, lineHeight: 1.85 }}>Payment confirmed. We’re preparing your email, social posts, and reusable setup from your brief. We’ll send a private link to your delivery email when the pack is ready.</p> : order?.status === 'needs_attention' ? <p style={{ color: c.muted, fontSize: 14, lineHeight: 1.85 }}>Your order is saved, but we couldn’t finish the pack yet. Refresh the status to check again, or contact support with your order number below.</p> : order?.status === 'cancelled' ? <p style={{ color: c.muted, fontSize: 14, lineHeight: 1.85 }}>You can start a new brief when you’re ready. If you made a payment and expected to see your pack here, contact support with this order number.</p> : null}
+          {ready ? <p style={{ color: c.muted, fontSize: 14, lineHeight: 1.85, maxWidth: 730 }}>{order?.brandKit ? 'Start with your brand foundation, then put the first campaign to work. Review the facts and make any edits before publishing.' : 'Start with your email and posts, then keep the setup for your next promotion. Review the facts and make any edits before publishing.'}</p> : isRefunded ? <p style={{ color: c.muted, fontSize: 14, lineHeight: 1.85 }}>Your refund has been recorded. Your bank or card provider controls when it appears on your statement.</p> : refundPending ? <p style={{ color: c.muted, fontSize: 14, lineHeight: 1.85 }}>Your full $49 USD refund was requested through Stripe. This page will update when the refund is confirmed.</p> : refundFailed ? <p style={{ color: c.muted, fontSize: 14, lineHeight: 1.85 }}>Your refund hasn’t been confirmed as complete. Contact support with your order number so we can help resolve it.</p> : order?.status === 'awaiting_payment' ? <p style={{ color: c.muted, fontSize: 14, lineHeight: 1.85 }}>We haven’t confirmed a payment for this order yet. If you just paid, this page will update when confirmation arrives. If you left checkout, you can return to it below.</p> : paid && (order?.status === 'queued' || order?.status === 'generating') ? <p style={{ color: c.muted, fontSize: 14, lineHeight: 1.85 }}>Payment confirmed. We’re preparing your email, social posts, and reusable setup from your brief. We’ll send a private link to your delivery email when the pack is ready.</p> : order?.status === 'needs_attention' ? <p style={{ color: c.muted, fontSize: 14, lineHeight: 1.85 }}>Your order is saved, but we couldn’t finish the pack yet. Refresh the status to check again, or contact support with your order number below.</p> : order?.status === 'cancelled' ? <p style={{ color: c.muted, fontSize: 14, lineHeight: 1.85 }}>You can start a new brief when you’re ready. If you made a payment and expected to see your pack here, contact support with this order number.</p> : null}
         </div>
         {error && !accessError ? <div style={{ marginBottom: 22 }}><StudioNotice tone="error">{error}</StudioNotice></div> : null}
         {ready && order?.result ? <>
           {order.deliveryStatus === 'failed' ? <div style={{ marginBottom: 26 }}><StudioNotice>Your pack is ready here, but email delivery hasn’t completed. Download a copy now so you have it.</StudioNotice></div> : null}
           <StudioBundleView bundle={order.result} />
           <StudioFeedback orderId={orderId} token={token} />
+        </> : ready && order?.brandKit && token ? <>
+          {order.deliveryStatus === 'failed' ? <div style={{ marginBottom: 26 }}><StudioNotice>Your kit is ready here, but email delivery hasn’t completed. Download a copy now so you have it.</StudioNotice></div> : null}
+          <BrandKitOrderView kit={order.brandKit} guide={order.brandKitGuide} orderId={orderId} token={token} />
+          <StudioFeedback orderId={orderId} token={token} />
         </> : <div style={{ background: c.paper, border: `1px solid ${c.line}`, borderRadius: 13, padding: '28px 30px' }}>
           {paid && !refundPending && !refundFailed && order?.status !== 'needs_attention' ? <ol aria-label="Order progress" style={{ listStyle: 'none', display: 'grid', gap: 20, marginBottom: 26 }}>
-            {[['Payment confirmed', true], ['Preparing your Marketing Setup', false], ['Your pack is ready', false]].map(([label, completed], index) => <li key={String(label)} style={{ display: 'flex', gap: 13, alignItems: 'center', color: completed || index === 1 ? c.green : c.muted, fontSize: 13 }}><span style={{ width: 25, height: 25, background: completed ? c.wash : c.cream, border: `1px solid ${c.line}`, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11 }}>{completed ? <CheckIcon size={15} /> : index + 1}</span>{label}</li>)}
+            {[['Payment confirmed', true], [`Preparing your ${productLabel}`, false], ['Your pack is ready', false]].map(([label, completed], index) => <li key={String(label)} style={{ display: 'flex', gap: 13, alignItems: 'center', color: completed || index === 1 ? c.green : c.muted, fontSize: 13 }}><span style={{ width: 25, height: 25, background: completed ? c.wash : c.cream, border: `1px solid ${c.line}`, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11 }}>{completed ? <CheckIcon size={15} /> : index + 1}</span>{label}</li>)}
           </ol> : <span style={{ display: 'inline-flex', color: c.green, marginBottom: 18 }}><DocumentIcon /></span>}
           <div className="studio-result-actions">
             {order?.status === 'awaiting_payment' && !isRefunded ? <button type="button" className="studio-button" onClick={resumeCheckout} disabled={openingCheckout}>{openingCheckout ? 'Opening checkout…' : 'Return to payment'}<ArrowIcon /></button> : null}

@@ -13,7 +13,7 @@ Recorded 2026-11-13 at the owner's handoff to a new operator. The evidence is so
 | bootfile-growth-agent | `rebuild/studio-operations-20261020` | #1 | `46e5dc5` | Matches the handoff. Open draft. |
 | bootfile-growth-agent | `ops/growth-suspension-brand-kit-plan-20261023` | #2 | `be3ff30` | Not in the handoff. One design document stacked on #1. Open draft. |
 
-Hosted state was re-read later on 2026-11-13 once connectors were added. **Supabase:** the same six migrations are applied; `studio_orders`, `studio_order_events`, `studio_deliveries`, `operations_runs`, `operations_decisions`, `studio_feedback`, `studio_feedback_requests` and `operations_publications` each hold zero rows; `blog_posts` holds 12 and `content_drafts` 83; the server is PostgreSQL 17; every `studio_` table has row-level security and none of the 19 `studio_` functions is executable by the anonymous role. **Railway:** one service, latest deployment `783bbcb2` (2026-10-24) successful, no staged changes. Both match the handoff. **Vercel:** still returns 403 for the team scope; it needs the owner's one-time team approval, so deployments and the team plan remain unverified.
+Hosted state was re-read later on 2026-11-13 once connectors were added. **Supabase:** the same six migrations are applied; `studio_orders`, `studio_order_events`, `studio_deliveries`, `operations_runs`, `operations_decisions`, `studio_feedback`, `studio_feedback_requests` and `operations_publications` each hold zero rows; `blog_posts` holds 12 and `content_drafts` 83; the server is PostgreSQL 17; every `studio_` table has row-level security and none of the 19 `studio_` functions is executable by the anonymous role. **Railway:** one service, latest deployment `783bbcb2` (2026-10-24) successful, no staged changes. Both match the handoff. **Vercel:** read on 2026-11-13 after the owner approved team access. The team is on the Hobby plan. Production serves `master` at `5ede597`, built 2026-10-22, which matches the handoff. Preview deployments for the heads of PRs #5, #6 and #7 reached READY. A preview being built is not hosted acceptance: no preview was exercised with provider credentials.
 
 ## What differs from the handoff
 
@@ -25,6 +25,9 @@ Hosted state was re-read later on 2026-11-13 once connectors were added. **Supab
 6. **CI does not run on every stacked PR.** `verify.yml` runs for pushes to `master` and `rebuild/**` and for PRs whose base is one of those. A PR based on a `build/**` branch gets no run. This branch carries a `rebuild/` name so a push is verified.
 7. **The Verify gate is red on the whole rebuild line as of 2026-11-13.** `npm audit --omit=dev --audit-level=high` fails on advisory GHSA-mrhx-c7xc-m3w5 in `zod` 4.3.6, a transitive dependency of `@anthropic-ai/sdk`. The lockfile is identical on #2, #3 and #4, so a re-run of any of them stops at the audit step; their earlier successful runs are no longer current evidence. This branch carries a three-line lockfile change to 4.6.7 as its own commit so it can be cherry-picked to the base of the stack. Five moderate advisories remain below the gate's threshold and were not assessed.
 
+8. **Hosting is on a plan that does not cover a paid product.** The Vercel team is on Hobby. Vercel's published terms, read on 2026-11-13, limit Hobby to non-commercial use and count taking payments as commercial. `docs/LEGACY_PRODUCT_CONTEXT.md` records live Stripe payments for the original $4.99 product on this deployment; Stripe itself has not been inspected. A paid plan is a new subscription and an owner decision, to be settled before Brand Kit checkout opens.
+9. **Making the repository private stops agent previews on any plan.** Vercel's rules for private repositories, read the same day: on Hobby a commit deploys only when its author is the team owner, and on Pro or Enterprise only when its author is a team member. Commits on the rebuild line are authored by an agent identity that is neither. The repository is left public until the owner chooses with that trade-off stated.
+
 ## Gaps in dependency order
 
 | # | Gap | Evidence | Status |
@@ -34,7 +37,7 @@ Hosted state was re-read later on 2026-11-13 once connectors were added. **Supab
 | 3 | Generation dispatched by the order's persisted version | `lib/studio/dispatch.ts`, `worker.ts` | Done in this increment, inert until gap 4 |
 | 4 | Schema admits only one product | Migration `20261113185211_studio_product_versions_v1`, its rollback and `studio_product_versions_smoke.sql` | Done in source in the second increment. Not applied to the hosted database. |
 | 5 | Commerce binds to one constant | `lib/studio/products.ts`; `checkout.ts`, `payments.ts` and `refunds.ts` now resolve the product from the order's persisted version. | Done in source in the third increment. Provider acceptance in Stripe test mode has not been run. |
-| 6 | Versioned delivery, order page and download | Renderers for Markdown and JSON exist in `paid-output.ts`. Email, receipt, order view and download understand only the old product. | Fails closed as of this increment. Renderers not built. |
+| 6 | Versioned delivery, order page and download | `lib/studio/outputs.ts`, `delivery.ts`, the download route, `studioOrderView` and `components/studio/BrandKitOrderView.tsx` render each order by its own persisted version. | Done in source in the fourth increment. Inbox arrival and hosted rendering are unverified until gap 10. The Stripe receipt was not touched. |
 | 7 | Synthesis is thinner than the promised kit | The candidate returns positioning, voice rules, one email, three posts and source quotations. It has no messaging hierarchy, differentiator hypotheses, missing or contradictory fact detection, independent content check, saved-output graphics, PDF, or bounded refinement. | Not started. A second model stage raises per-order cost and needs approval. |
 | 8 | Durable customer state | The prototype stores drafts in the browser tab. | Not started |
 | 9 | Customer promises | Terms, privacy and pricing copy describe Marketing Setup. The refinement allowance is undefined. | Owner decision before any charge |
@@ -88,6 +91,18 @@ Branch `rebuild/versioned-checkout-20261113`, stacked on the second.
 
 Verification on this source: `npm run typecheck` exit 0, `npm run lint` 0 errors, `npm test` 239 passed in 23 files, `npm run test:sql` passes, dependency audit exit 0. No Stripe, model or email call was made; every provider is mocked in tests. The name and one-line description that will appear on the Stripe checkout page are customer wording and need the owner's approval before either flag is turned on.
 
+## Fourth increment
+
+Branch `rebuild/versioned-delivery-20261113`, stacked on the third.
+
+- `lib/studio/outputs.ts`: the two accessors through which a saved output is read as a product. Each checks the order's persisted version against the output's own schema version and refuses a crossing with `output_version_mismatch`. Delivery, download and the order view all go through them.
+- Delivery email: a Brand & AI Kit order has its own subject, body and attachment, `bootfile-brand-ai-kit.md`, which is the public kit. The Marketing Setup message keeps its wording. An unknown version is refused with `delivery_version_unsupported`.
+- Download: `GET /api/studio/orders/[id]/download` serves the public kit as Markdown, or as JSON with `format=json`. The copy that includes the owner's private working preferences is served only for `scope=private`; any other value gets the public copy.
+- Order view: `studioOrderView` returns the product name, the public allowlist of the kit, and the public assistant instructions and review checklist. Private working preferences are never in the page payload, and nothing is returned once a refund is requested.
+- Order page: `components/studio/BrandKitOrderView.tsx` shows the foundation, voice guide, visual starter kit, first campaign, AI working instructions, source quotations and review checklist, with the private copy behind its own button. `StudioOrderClient` takes its labels from the order's own product.
+
+Verification on this source: `npm run typecheck` exit 0, `npm run lint` 0 errors, `npm test` 245 passed in 24 files, `npm run test:sql` passes, dependency audit exit 0. Every provider is mocked; no Stripe, model or email call was made and no flag was changed. Not verified: inbox arrival, the page in a hosted browser, and an accessibility pass on the new view. The Brand & AI Kit email body and the on-page labels are new customer wording, shown to no one while checkout and fulfillment are closed, and need the owner's approval with the checkout wording.
+
 ## Owner decisions
 
-Recorded in `docs/DECISION_LOG.md`. Decided on 2026-11-13: the handoff brief governs and Bootfile is outside any short-term revenue target; the $0.35 per-order model ceiling is approved; the repository should be private. Still open: the bounded refinement allowance behind the $49 promise, and whether an independent second model stage is wanted at up to roughly double the per-order ceiling.
+Recorded in `docs/DECISION_LOG.md`. Decided on 2026-11-13: the handoff brief governs and Bootfile is outside any short-term revenue target; the $0.35 per-order model ceiling is approved; the repository should be private, not yet executed because of the preview trade-off above. Still open: the hosting plan, the bounded refinement allowance behind the $49 promise, the Brand & AI Kit checkout and delivery wording, and whether an independent second model stage is wanted at up to roughly double the per-order ceiling.

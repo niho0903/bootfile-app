@@ -1,6 +1,10 @@
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { STUDIO_ORDER_ID_PATTERN, verifyStudioAccessToken } from './access';
 import { StudioError } from './errors';
+import { assistantInstructions } from '../brand-kit/kit';
+import { PAID_BRAND_KIT_VERSION, publicPaidBrandKit, type PaidBrandKit } from '../brand-kit/synthesis';
+import { brandKitOf, marketingBundleOf } from './outputs';
+import { studioProductOrNull } from './products';
 import { STUDIO_PRODUCT, type StudioDeliveryRow, type StudioOrderRow, type StudioOrderView } from './types';
 
 export function studioDb() {
@@ -54,9 +58,15 @@ export async function requireStudioOrderAccess(id: string, token: string): Promi
   return order;
 }
 
+/** What the owner's order page may hold: the public allowlist and the public instructions. Private preferences are downloaded on request only. */
+function brandKitView(kit: PaidBrandKit) {
+  return { brandKit: publicPaidBrandKit(kit), brandKitGuide: { assistantInstructions: assistantInstructions(kit.foundation, false), reviewChecklist: [...kit.foundation.reviewChecklist] } };
+}
+
 export async function studioOrderView(order: StudioOrderRow): Promise<StudioOrderView> {
   const { data, error } = await studioDb().from('studio_deliveries').select('status').eq('order_id', order.id).maybeSingle();
   if (error) throw new StudioError('database_unavailable', 'The private order service is temporarily unavailable.');
+  const visible = !!order.output && order.payment_status === 'paid' && order.refund_status === 'none';
   const refundUntil = order.paid_at ? new Date(new Date(order.paid_at).getTime() + 7 * 24 * 3600_000).toISOString() : null;
   return {
     orderId: order.id,
@@ -68,7 +78,9 @@ export async function studioOrderView(order: StudioOrderRow): Promise<StudioOrde
     refundAvailable: process.env.STUDIO_REFUNDS_ENABLED === 'true' && order.payment_status === 'paid' && order.refund_status === 'none' && order.refund_attempts < 3 && !!refundUntil && new Date(refundUntil).getTime() >= Date.now(),
     refundEligibleUntil: refundUntil,
     refundRequestedAt: order.refund_requested_at,
-    ...(order.output && order.product_version === STUDIO_PRODUCT.version && order.payment_status === 'paid' && order.refund_status === 'none' ? { result: order.output } : {}),
+    product: { version: order.product_version, name: studioProductOrNull(order.product_version)?.name ?? 'Bootfile order' },
+    ...(visible && order.product_version === STUDIO_PRODUCT.version ? { result: marketingBundleOf(order) } : {}),
+    ...(visible && order.product_version === PAID_BRAND_KIT_VERSION ? brandKitView(brandKitOf(order)) : {}),
     ...(order.status === 'needs_attention' ? { error: { code: 'order_needs_attention', message: 'Your order needs a service review. Your payment and submitted details are saved. You can contact support@bootfile.ai with this order ID.' } } : {}),
     retryAfterSeconds: 15,
   };
