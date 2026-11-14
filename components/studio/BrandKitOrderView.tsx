@@ -2,6 +2,8 @@
 
 import { useState, type ReactNode } from 'react';
 import type { PublicPaidBrandKit } from '@/lib/brand-kit/synthesis';
+import { BrandPlacements } from '@/components/brand/BrandPlacements';
+import { sourceFromPaidKit } from '@/lib/brand-kit/placements';
 import { CopyButton } from './StudioBundleView';
 import { DocumentIcon, StudioNotice, studioColors as c } from './StudioChrome';
 
@@ -37,6 +39,11 @@ function CopyRow({ label, text }: { label: string; text: string }) {
 export function BrandKitOrderView({ kit, guide, orderId, token }: { kit: PublicPaidBrandKit; guide?: { assistantInstructions: string; reviewChecklist: string[] }; orderId: string; token: string }) {
   const [downloading, setDownloading] = useState('');
   const [downloadError, setDownloadError] = useState('');
+  const [copied, setCopied] = useState('');
+  async function copyWords(text: string, label: string) {
+    try { await navigator.clipboard.writeText(text); setCopied(`${label} copied.`); }
+    catch { setCopied('Copying is unavailable in this browser. Use Download my kit instead.'); }
+  }
   const { business, voice, visuals, campaign, synthesis } = kit;
 
   async function download(scope: 'public' | 'private', format: 'md' | 'json') {
@@ -69,6 +76,8 @@ export function BrandKitOrderView({ kit, guide, orderId, token }: { kit: PublicP
       </div>
       {downloadError ? <div style={{ marginBottom: 20 }}><StudioNotice tone="error">{downloadError}</StudioNotice></div> : null}
       <StudioNotice>This is a model-assisted draft built from the facts you supplied. It has not been independently verified. Check every claim before you publish anything. Nothing has been sent or published for you.</StudioNotice>
+
+      <div style={{ marginTop: 30 }}><BrandPlacements source={sourceFromPaidKit(kit)} onCopy={copyWords} /><p role="status" aria-live="polite" style={{ fontSize: 12, minHeight: 18 }}>{copied}</p></div>
 
       <Section title="Brand foundation" description="Who you serve, what you offer, and what sets you apart, in your own supplied facts.">
         <CopyRow label="Positioning" text={synthesis.positioning} />

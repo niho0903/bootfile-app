@@ -116,6 +116,16 @@ try {
   await act(page.getByRole('button', { name: /Open my kit preview/ }), 'click');
   await page.getByRole('tab', { name: 'Your brand', exact: true }).waitFor();
   assert.ok((await page.locator('.brandDefinition').textContent()).includes('Juniper Browser Test'));
+  // The kit is shown in use: the owner's own words in placeholder frames, in more than one arrangement.
+  assert.equal(await page.locator('.kitPlaceFrame').count(), 8);
+  assert.ok((await page.locator('.kitPlaceFrame[data-placement="profile"]').first().textContent()).includes('Juniper Browser Test'));
+  const firstArrangement = await page.locator('.kitPlaceFrame').first().getAttribute('class');
+  await act(page.getByRole('button', { name: 'Shuffle the layouts' }));
+  assert.notEqual(await page.locator('.kitPlaceFrame').first().getAttribute('class'), firstArrangement, 'Shuffle must change the arrangement');
+  assert.ok((await page.locator('.kitPlaceActions [role=status]').textContent()).includes('Arrangement 2 of 3'));
+  await act(page.locator('.kitPlaceGrid article').first().getByRole('button', { name: 'Copy the words' }));
+  await page.getByRole('status').filter({ hasText: 'Email words copied' }).waitFor();
+  assert.ok((await page.evaluate(() => navigator.clipboard.readText())).startsWith('Subject: Juniper Browser Test'));
   // The finished kit leads with where each piece goes: one assistant chosen from the list, then three other places.
   assert.equal(await page.locator('.brandDeployGrid > li').count(), 4);
   assert.equal(await page.locator('.brandAssistantPicker').getByRole('radio').count(), 7);

@@ -146,6 +146,19 @@ Verification on this source: `npm run typecheck` exit 0, `npm run lint` 0 errors
 
 Not done here: the full set of placements with a shuffle, and the same frames on the paid order page, which follow as the next increment. No time estimate or outcome claim is made on the page because none has been measured.
 
+## Ninth increment
+
+Branch `rebuild/brand-placements-20261113`, stacked on the eighth. It shows the kit in use, under the rule recorded in the decision log: real brand, placeholder layout.
+
+- `lib/brand-kit/placements.ts`: four placements (a customer's inbox, a social post, a profile or link page, a printed card) built only from the kit's own words, colors and font names. A typed font name reaches a style only as letters, digits, spaces and hyphens.
+- `components/brand/BrandPlacements.tsx` with `placements.css`: each placement appears in two of three arrangements side by side, with a shuffle, so no single arrangement reads as the design. Photo, logo and contact details are drawn as placeholders. Each placement has a button to copy its words, and the section has one to copy colors for Canva. On a narrow screen one arrangement shows at a time.
+- The section leads the finished kit on `/brand`, above "Put it to work". On the paid order page it uses the drafted words from the public kit, never the private notes.
+- Nothing is generated or fetched: no image, no model call, no external font, and no frame imitates a particular app. Layouts cannot be edited here.
+
+Verification on this source: `npm run typecheck` exit 0, `npm run lint` 0 errors, `npm test` 281 passed in 28 files, `npm run test:sql` passes. The browser smoke passed all nine groups locally in Chrome with new checks for the eight frames, the shuffle and the copied words, and no horizontal overflow at 390 pixels.
+
+Not verified: how owners outside this project react to the placeholders, which is the point of the pilot. A font the owner names is shown only if their device has it; otherwise a fallback is used and the page does not say so.
+
 ## Owner decisions
 
 Recorded in `docs/DECISION_LOG.md`. Decided on 2026-11-13: the handoff brief governs and Bootfile is outside any short-term revenue target; the $0.35 per-order model ceiling is approved; the repository should be private, not yet executed because of the preview trade-off above; hosting moved to Vercel Pro. Still open: build spend from the second connected project, the bounded refinement allowance behind the $49 promise, the Brand & AI Kit checkout, purchase-panel and delivery wording, and whether an independent second model stage is wanted at up to roughly double the per-order ceiling.
