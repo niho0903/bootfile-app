@@ -293,8 +293,136 @@ try {
   assert.deepEqual(externalRequests, [], 'Only the stand-in Stripe page may be opened');
   await paidContext.close();
   groups++;
+
+  // The paid order page, with its one revision. The server above stays closed and has no database. The order,
+  // the customer's answers, the request and the download are stand-ins at the browser's network boundary, built
+  // from the same typed fixtures the unit tests use. No order, provider call or email can occur.
+  const fixture = JSON.parse(await readFile(resolve('scripts/fixtures/brand-order-view.json'), 'utf8'));
+  const orderId = fixture.view.orderId;
+  const orderToken = 'r'.repeat(43);
+  const orderPath = '/api/studio/orders/' + orderId;
+  const revisionPosts = [];
+  const downloads = [];
+  const orderErrors = [];
+  let revisionSaved = false;
+  let readsAfterSave = 0;
+  const orderContext = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce', acceptDownloads: true });
+  await orderContext.route('**/*', route => {
+    const request = route.request();
+    const url = new URL(request.url());
+    if (!request.url().startsWith(origin + '/')) { externalRequests.push(url.origin); return route.abort(); }
+    const json = (status, body) => route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) });
+    if (url.pathname.startsWith(orderPath) && request.headers().authorization !== 'Bearer ' + orderToken) return json(404, { error: { code: 'order_not_found', message: 'This private order link is not valid.' } });
+    if (url.pathname === orderPath && request.method() === 'GET') {
+      const view = structuredClone(fixture.view);
+      if (revisionSaved) {
+        readsAfterSave += 1;
+        const done = readsAfterSave > 1;
+        view.revision = { status: done ? 'ready' : 'queued', canRequest: false, availableUntil: fixture.view.revision.availableUntil, requestedAt: '2026-11-14T15:00:00.000Z', readyAt: done ? '2026-11-14T15:01:00.000Z' : null };
+        if (done) view.brandKit.synthesis.positioning = fixture.revisedPositioning;
+      }
+      return json(200, view);
+    }
+    if (url.pathname === orderPath + '/revision' && request.method() === 'GET') return json(200, { revision: fixture.view.revision, answers: fixture.answers });
+    if (url.pathname === orderPath + '/revision' && request.method() === 'POST') {
+      revisionPosts.push(JSON.parse(request.postData() || '{}'));
+      if (revisionPosts.length === 1) return json(503, { error: { code: 'temporarily_full', message: 'We are at capacity for the moment. Your revision has not been used. Please try again shortly.' } });
+      revisionSaved = true;
+      return json(202, { revision: { status: 'queued', canRequest: false, availableUntil: null, requestedAt: '2026-11-14T15:00:00.000Z', readyAt: null } });
+    }
+    if (url.pathname === orderPath + '/download') { downloads.push(url.search); return route.fulfill({ status: 200, contentType: 'text/markdown; charset=utf-8', body: '# Stand-in for the first kit\n' }); }
+    if (!['GET', 'HEAD'].includes(request.method())) { mutations.push(request.method() + ' ' + url.pathname); return route.abort(); }
+    return route.continue();
+  });
+  page = await orderContext.newPage();
+  page.setDefaultTimeout(10000);
+  page.on('pageerror', error => orderErrors.push(error.message));
+  await page.goto(origin + '/studio/order/' + orderId + '#access_token=' + orderToken);
+  await page.getByRole('heading', { name: 'Your Brand & AI Kit is ready.' }).waitFor();
+  assert.equal(new URL(page.url()).hash, '', 'The private link must be removed from the address bar');
+  assert.equal(await page.locator('.kitPlaceFrame').count(), 8);
+  assert.equal(await page.locator('.brandDeployGrid > li').count(), 4);
+  assert.equal(await page.locator('.brandAssistantPicker').getByRole('radio').count(), 7);
+  const orderWords = await page.locator('main').innerText();
+  assert.equal(/brand foundation|working preferences|backbrief/i.test(orderWords), false, 'The order page must use the words on the brand page');
+  assert.ok(orderWords.includes('See it in use, put it to work, then read the full kit underneath.'));
+  // The offer: one sentence on what it is, the last day, and one button. Nothing is fetched before the click.
+  const revise = page.locator('.kitRevise');
+  await revise.getByRole('heading', { name: 'Something off? Change your answers once.' }).waitFor();
+  assert.ok((await revise.innerText()).includes('one time, until November 20'));
+  assert.equal(await revise.locator('details').count(), 0, 'The customer’s answers must not be on the page before they ask for them');
+  await page.screenshot({ path: output + '/10-order-page-desktop.png', fullPage: true });
+  await act(revise.getByRole('button', { name: 'Change my answers' }));
+  await revise.getByRole('heading', { name: 'Change what you told us.' }).waitFor();
+  assert.equal(await revise.locator('details').count(), 5);
+  assert.deepEqual(await revise.locator('summary > span').allInnerTexts(), ['About you', 'Your business', 'Your voice', 'Your look', 'Your first campaign']);
+  const send = revise.getByRole('button', { name: 'Send my revision' });
+  const confirm = revise.getByRole('checkbox');
+  assert.equal(await send.isDisabled(), true, 'Nothing can be sent before something changes');
+  assert.equal(await confirm.isDisabled(), true);
+  // Spacing alone is not a change, so it cannot spend the revision.
+  await act(revise.locator('summary').filter({ hasText: 'Your business' }));
+  const name = revise.locator('input[name="businessName"]');
+  await name.fill((await name.inputValue()) + ' ');
+  assert.equal(await revise.locator('.kitReviseChanges li').count(), 0);
+  assert.equal(await confirm.isDisabled(), true);
+  await name.fill((await name.inputValue()).trim());
+  // A real change is listed in the words of its question.
+  await act(revise.locator('summary').filter({ hasText: 'Your first campaign' }));
+  await revise.locator('textarea[name="offer"]').fill('A practical pantry reset');
+  await revise.locator('.kitReviseChanges li').filter({ hasText: 'A practical pantry reset' }).waitFor();
+  assert.ok((await revise.locator('.kitReviseChanges li').first().innerText()).includes('What is the one offer?'));
+  // An answer the kit needs cannot be left empty.
+  const facts = revise.locator('textarea[name="facts"]');
+  const savedFacts = await facts.inputValue();
+  await facts.fill('');
+  await revise.getByText('Add the confirmed offer details.').waitFor();
+  assert.equal(await confirm.isDisabled(), true, 'Incomplete answers cannot be approved');
+  await facts.fill(savedFacts);
+  assert.equal(await revise.locator('.kitReviseChanges li').count(), 1);
+  await act(confirm, 'check');
+  // Editing after approval withdraws it.
+  await revise.locator('textarea[name="offer"]').fill('A practical pantry reset for busy households');
+  assert.equal(await confirm.isChecked(), false, 'A change after approval must need approval again');
+  assert.equal(await send.isDisabled(), true);
+  await act(confirm, 'check');
+  await page.screenshot({ path: output + '/11-order-revision-editor.png', fullPage: true });
+  // A refusal says the revision was not used and keeps the customer's work.
+  await act(send);
+  await revise.getByRole('alert').filter({ hasText: 'has not been used' }).waitFor();
+  assert.equal(await revise.locator('textarea[name="offer"]').inputValue(), 'A practical pantry reset for busy households');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await noOverflow('mobile revision editor');
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await act(send);
+  await page.getByText('Your revised kit is being built.').waitFor();
+  assert.equal(revisionPosts.length, 2);
+  const sentRevision = revisionPosts[1];
+  assert.deepEqual(Object.keys(sentRevision).sort(), ['approvalSnapshot', 'approvedBackbrief', 'brand'], 'A revision carries answers and their approval, never an address, a price or a product');
+  assert.equal(sentRevision.approvedBackbrief, true);
+  assert.equal(sentRevision.brand.offer, 'A practical pantry reset for busy households');
+  assert.equal(sentRevision.brand.businessName, fixture.answers.businessName);
+  assert.equal(sentRevision.approvalSnapshot, JSON.stringify(sentRevision.brand), 'The approval must be for exactly the answers that were sent');
+  assert.equal(await page.locator('.kitRevise details').count(), 0, 'The editor closes once the revision is sent');
+  assert.equal(await page.getByRole('button', { name: 'Change my answers' }).count(), 0, 'A second revision is never offered');
+  // The page keeps checking on its own and then shows the revised kit, with the first still on offer.
+  await page.getByText('This is your revised kit.').waitFor({ timeout: 25000 });
+  await page.getByText(fixture.revisedPositioning).first().waitFor();
+  assert.equal(await page.getByRole('button', { name: 'Change my answers' }).count(), 0);
+  const firstVersion = page.waitForEvent('download');
+  await act(page.getByRole('button', { name: 'Download the first version' }));
+  assert.equal((await firstVersion).suggestedFilename(), 'bootfile-brand-ai-kit-first-version.md');
+  assert.ok(downloads.some(query => query.includes('version=first') && query.includes('scope=public')), 'The first kit is requested as the first version');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await noOverflow('mobile order page');
+  await page.screenshot({ path: output + '/12-order-page-revised-mobile.png', fullPage: true });
+  assert.deepEqual(orderErrors, [], 'No browser runtime errors on the order page');
+  assert.deepEqual(mutations, [], 'Only the stand-in revision request may be issued');
+  assert.deepEqual(externalRequests, [], 'The order page must not reach another origin');
+  await orderContext.close();
+  groups++;
   await writeFile(output + '/report.json', JSON.stringify({ groupsPassed: groups, runtimeErrors: 0, apiMutations: 0, externalRequests: 0, environment: 'local production build; all business input fictional', hostedAcceptance: false, providerCalls: false, simulatedOpenCheckout: { serverCheckoutEnabled: false, standInOrderRequests: paidPosts.length, ordersCreated: 0, paymentsCreated: 0 } }, null, 2));
-  console.log(`PASS: ${groups} Brand Kit browser groups; no runtime errors, API mutations or external requests. The simulated open checkout reached only stand-ins. Screenshots and fictional print PDF saved.`);
+  console.log(`PASS: ${groups} Brand Kit browser groups; no runtime errors, API mutations or external requests. The simulated open checkout and the paid order page with its revision reached only stand-ins. Screenshots and fictional print PDF saved.`);
 } catch (error) {
   if (page) await page.screenshot({ path: output + '/failure.png', fullPage: true }).catch(() => {});
   console.error('FAIL: Brand Kit browser QA:', error instanceof Error ? error.message : 'unknown');
