@@ -3,8 +3,10 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { BrandDeploy } from '@/components/brand/BrandDeploy';
 import { BrandWelcome } from '@/components/brand/BrandWelcome';
-import { KIT_OUTPUTS, brandColorLines, deployPlan } from './deploy';
-import { FICTIONAL_BRAND_INPUT, buildBrandKit } from './kit';
+import { KIT_OUTPUTS, brandColorLines, deployPlan, deployPlanForPaidKit } from './deploy';
+import { FICTIONAL_BRAND_INPUT, assistantInstructions, buildBrandKit } from './kit';
+import { publicPaidBrandKit } from './synthesis';
+import { paidBrandKitFixture } from './test-fixtures';
 
 const kit = buildBrandKit(FICTIONAL_BRAND_INPUT);
 const INTERNAL_WORDS = /foundation|backbrief|chapter|working preferences|synthesis|prototype/i;
@@ -78,7 +80,45 @@ describe('the opening screen and the last screen', () => {
     expect(html.match(/type="radio"/g)).toHaveLength(7);
     expect(html.match(/type="checkbox"/g)).toHaveLength(4);
     expect(html.match(/Copy AI instructions/g)).toHaveLength(1);
-    for (const expected of ['Which AI assistant do you use?', 'Grok', 'DeepSeek', 'Kimi', 'Copy brand colors', 'Copy email draft', 'Copy three post drafts', 'Settings, then Personalization, then Custom instructions', 'Brand Kit']) expect(html).toContain(expected);
+    for (const expected of ['Which AI assistant do you use?', 'Grok', 'DeepSeek', 'Kimi', 'Copy brand colors', 'Copy email draft', 'Copy post drafts', 'Settings, then Personalization, then Custom instructions', 'Brand Kit']) expect(html).toContain(expected);
     expect(html).not.toContain('Set project instructions');
+  });
+});
+
+describe('the same steps for a paid kit', () => {
+  const paid = paidBrandKitFixture();
+  const publicKit = publicPaidBrandKit(paid);
+  const publicInstructions = assistantInstructions(paid.foundation, false);
+  const plan = deployPlanForPaidKit(publicKit, publicInstructions);
+
+  it('uses the kit the customer paid for, not the template campaign', () => {
+    const [canva, email, social] = plan.others;
+    expect(plan.assistants.map(item => item.id)).toEqual(deployPlan(kit).assistants.map(item => item.id));
+    for (const assistant of plan.assistants) expect(assistant.copyText).toBe(publicInstructions);
+    expect(canva.copyText).toBe(brandColorLines(publicKit));
+    expect(canva.steps[2]).toContain(publicKit.visuals.headingFont);
+    expect(email.copyText).toBe(`Subject: ${paid.synthesis.email.subject}\n\n${paid.synthesis.email.body}`);
+    expect(social.copyText.split('---')).toHaveLength(3);
+    for (const post of paid.synthesis.posts) expect(social.copyText).toContain(post.body);
+    expect(JSON.stringify(plan)).not.toContain(paid.foundation.firstCampaign.email.subject);
+    for (const destination of [...plan.assistants, ...plan.others]) {
+      expect(destination.steps).toHaveLength(3);
+      expect(JSON.stringify([destination.purpose, destination.steps, destination.fallback])).not.toMatch(INTERNAL_WORDS);
+    }
+  });
+
+  it('never carries the private work-style notes', () => {
+    const serialized = JSON.stringify(plan);
+    expect(serialized).not.toContain('HOW TO WORK WITH ME');
+    expect(serialized).not.toContain(paid.foundation.ownerPreferences.instruction);
+    expect(assistantInstructions(paid.foundation, true)).toContain(paid.foundation.ownerPreferences.instruction);
+  });
+
+  it('shows the result of a copy beside the button only when the page passes one', () => {
+    const quiet = renderToStaticMarkup(createElement(BrandDeploy, { plan, onCopy: () => {} }));
+    expect(quiet).not.toContain('brandDeployCopied');
+    expect(quiet).toContain('Copy AI instructions');
+    expect(quiet.match(/class="brandDeployButton"/g)).toHaveLength(4);
+    expect(quiet).not.toMatch(/class="brand(Button|Fine|Eyebrow|SectionIntro)"/);
   });
 });

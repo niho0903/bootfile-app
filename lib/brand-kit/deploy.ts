@@ -1,4 +1,5 @@
 import { DESTINATION_NAMES, assistantInstructions, type BrandKit, type Destination } from './kit';
+import type { PublicPaidBrandKit } from './synthesis';
 
 /**
  * Where each part of a kit goes, as short steps a business owner can follow.
@@ -19,7 +20,7 @@ export interface DeployDestination {
 }
 export interface DeployPlan { assistants: DeployDestination[]; others: DeployDestination[] }
 
-export function brandColorLines(kit: Pick<BrandKit, 'visuals'>): string {
+export function brandColorLines(kit: { visuals: { background: string; ink: string; accent: string } }): string {
   return [`Background ${kit.visuals.background}`, `Text ${kit.visuals.ink}`, `Accent ${kit.visuals.accent}`].join('\n');
 }
 
@@ -32,14 +33,15 @@ const SAVED_PLACE: Partial<Record<Destination, { step: string; finish: string; f
   grok: { step: 'In Grok, open Settings, then Customize, then Custom Instructions.', finish: 'Paste, save, and start a new chat.', fallback: `The space there is limited. ${PASTE_FIRST}` },
 };
 
-export function deployPlan(kit: BrandKit, includeOwner = false): DeployPlan {
-  const instructions = assistantInstructions(kit, includeOwner);
+interface DeployMaterial { instructions: string; colors: string; headingFont: string; bodyFont: string; email: { subject: string; body: string }; posts: { label: string; body: string }[] }
+
+function planFrom(material: DeployMaterial): DeployPlan {
   const assistants = (Object.keys(DESTINATION_NAMES) as Destination[]).map((id): DeployDestination => {
     const name = DESTINATION_NAMES[id];
     const saved = SAVED_PLACE[id];
     const label = id === 'other' ? 'your assistant' : name;
     return {
-      id, name, purpose: `So ${label} writes for your business in your voice.`, copyLabel: 'AI instructions', copyText: instructions,
+      id, name, purpose: `So ${label} writes for your business in your voice.`, copyLabel: 'AI instructions', copyText: material.instructions,
       steps: saved
         ? ['Copy your AI instructions.', saved.step, saved.finish]
         : ['Copy your AI instructions.', `Open a new chat in ${label} and paste them as your first message.`, 'Ask it to repeat back your audience and voice, then give it a real task.'],
@@ -50,22 +52,38 @@ export function deployPlan(kit: BrandKit, includeOwner = false): DeployPlan {
     assistants,
     others: [
       {
-        id: 'canva', name: 'Canva', purpose: 'So every design starts in your colors.', copyLabel: 'Brand colors', copyText: brandColorLines(kit),
-        steps: ['Copy your three brand colors.', 'In Canva, open Brand Kit and add each color code to your palette.', `Set your fonts when you design: ${kit.visuals.headingFont} for headings, ${kit.visuals.bodyFont} for body text.`],
+        id: 'canva', name: 'Canva', purpose: 'So every design starts in your colors.', copyLabel: 'Brand colors', copyText: material.colors,
+        steps: ['Copy your three brand colors.', 'In Canva, open Brand Kit and add each color code to your palette.', `Set your fonts when you design: ${material.headingFont} for headings, ${material.bodyFont} for body text.`],
         fallback: 'Canva Free keeps three brand colors. Saving fonts to a Brand Kit needs a paid Canva plan, and a font may be named differently there.',
       },
       {
-        id: 'email', name: 'Your email tool', purpose: 'So your first customer email is ready to check and send.', copyLabel: 'Email draft', copyText: `Subject: ${kit.firstCampaign.email.subject}\n\n${kit.firstCampaign.email.body}`,
+        id: 'email', name: 'Your email tool', purpose: 'So your first customer email is ready to check and send.', copyLabel: 'Email draft', copyText: `Subject: ${material.email.subject}\n\n${material.email.body}`,
         steps: ['Copy the email draft.', 'Paste it into a new message or campaign in the tool you already use.', 'Check every fact, price, date and link, then send it yourself.'],
         fallback: 'Bootfile does not send anything for you.',
       },
       {
-        id: 'social', name: 'Your social accounts', purpose: 'So you have three posts for the same offer.', copyLabel: 'Three post drafts', copyText: kit.firstCampaign.posts.map((post, index) => `Post ${index + 1}: ${post.role}\n${post.body}`).join('\n\n---\n\n'),
+        id: 'social', name: 'Your social accounts', purpose: 'So you have three posts for the same offer.', copyLabel: 'Post drafts', copyText: material.posts.map((post, index) => `Post ${index + 1}: ${post.label}\n${post.body}`).join('\n\n---\n\n'),
         steps: ['Copy the three post drafts.', 'Paste one into a new post on the account your customers follow.', 'Add your own photo, check the details, and post it yourself.'],
         fallback: 'Bootfile does not post anything for you.',
       },
     ],
   };
+}
+
+export function deployPlan(kit: BrandKit, includeOwner = false): DeployPlan {
+  return planFrom({
+    instructions: assistantInstructions(kit, includeOwner), colors: brandColorLines(kit), headingFont: kit.visuals.headingFont, bodyFont: kit.visuals.bodyFont,
+    email: kit.firstCampaign.email, posts: kit.firstCampaign.posts.map(post => ({ label: post.role, body: post.body })),
+  });
+}
+
+const PAID_POST_LABELS = ['Introduce the offer', 'Explain the fit', 'Invite the next step'];
+/** The same steps for a paid kit, from its public kit and public instructions only. Private work-style notes never reach this. */
+export function deployPlanForPaidKit(kit: PublicPaidBrandKit, publicInstructions: string): DeployPlan {
+  return planFrom({
+    instructions: publicInstructions, colors: brandColorLines(kit), headingFont: kit.visuals.headingFont, bodyFont: kit.visuals.bodyFont,
+    email: kit.synthesis.email, posts: kit.synthesis.posts.map((post, index) => ({ label: PAID_POST_LABELS[index] ?? `Post ${index + 1}`, body: post.body })),
+  });
 }
 
 /** The opening screen's promise: what you get, what it is for, and where it goes. */

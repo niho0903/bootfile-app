@@ -159,6 +159,20 @@ Verification on this source: `npm run typecheck` exit 0, `npm run lint` 0 errors
 
 Not verified: how owners outside this project react to the placeholders, which is the point of the pilot. A font the owner names is shown only if their device has it; otherwise a fallback is used and the page does not say so.
 
+## Tenth increment
+
+Branch `rebuild/paid-page-put-to-work-20261113`, stacked on the ninth. It brings the steps for using the kit to the customer who has paid, and puts the saved files into the words the page uses.
+
+- **Paid order page:** `components/studio/BrandKitOrderView.tsx` now shows "Put it to work" under the placements: the assistant chooser, Canva colors, the drafted email and the three drafted posts, each with three steps, a copy button and a Done box. `deployPlanForPaidKit` in `lib/brand-kit/deploy.ts` builds it from the public kit and the public assistant instructions only, so the private work-style notes cannot reach the page. A "Read the full kit" heading separates the steps from the reference sections below.
+- **One stylesheet per section:** the section's rules moved from `app/brand/brand.css` to `components/brand/deploy.css`, with its own class names and every rule scoped under `.brandDeploy`, because the order page loads none of the brand page's styles. The same scoping was added to two rules in `placements.css`; before it, the brand page's element resets removed the placements heading spacing and enlarged one button there.
+- **Copy result beside the button:** on the order page the result of a copy from a step is shown on that step's card. The page's status line still makes the announcement for assistive technology and is not drawn twice.
+- **Plain words in the saved files:** the paid Markdown file (`lib/brand-kit/paid-output.ts`) uses the order page's headings and labels, opens with the same draft and not-verified notice as the page, and gains a short "Put it to work" list. It names no menu path, because a saved file cannot be corrected later; the order page carries the step-by-step version. The preview download and the print view lost the words foundation, working preferences and deterministic. The private part is headed "Private work-style notes"; the acceptance script looks for that heading.
+- **Unchanged:** the paid output schema and its JSON keys (a test pins the key order), the stored approval snapshot, the model request, every size limit, and both notices. The button "Copy three post drafts" became "Copy post drafts" so its row fits on one line.
+
+Verification on this source: `npm run typecheck` exit 0, `npm run lint` 0 errors, `npm test` 287 passed in 28 files, `npm run test:sql` passes. The browser smoke passed all nine groups locally in Chrome, with a new check on the print wording. The order page was exercised locally in Chrome at 1280 and 390 pixels with the fictional kit: four cards, seven assistants, the copied text on the clipboard, no horizontal overflow, no console errors.
+
+Not verified: the order page with a real paid order, which waits on hosted acceptance. Two wording items were left alone because they are the owner's: the checkout line still says "A brand foundation, ...", and the order page's browser tab title still reads "Your Marketing Setup" for both products.
+
 ## Owner decisions
 
 Recorded in `docs/DECISION_LOG.md`. Decided on 2026-11-13: the handoff brief governs and Bootfile is outside any short-term revenue target; the $0.35 per-order model ceiling is approved; the repository should be private, not yet executed because of the preview trade-off above; hosting moved to Vercel Pro. Still open: build spend from the second connected project, the bounded refinement allowance behind the $49 promise, the Brand & AI Kit checkout, purchase-panel and delivery wording, and whether an independent second model stage is wanted at up to roughly double the per-order ceiling.

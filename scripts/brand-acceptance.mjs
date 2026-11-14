@@ -113,7 +113,7 @@ async function observe(target) {
   });
   for (const [name, query, wantsPrivate] of [['download_public', '', false], ['download_json', '?format=json', false], ['download_private', '?scope=private', true]]) {
     const file = await call(target, `/api/studio/orders/${state.orderId}/download${query}`, { token: state.accessToken });
-    const hasPrivate = /Private owner working preferences|ownerPreferences/.test(file.text);
+    const hasPrivate = /Private work-style notes|ownerPreferences/.test(file.text);
     step(name, { status: file.status, bytes: Buffer.byteLength(file.text), sha256: digest(file.text).slice(0, 16), disposition: file.headers.get('content-disposition'), privatePreferences: hasPrivate, asExpected: file.status === 200 && hasPrivate === wantsPrivate });
   }
   const noToken = await call(target, `/api/studio/orders/${state.orderId}`);
