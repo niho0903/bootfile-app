@@ -128,6 +128,18 @@ try {
   assert.deepEqual(brandConfigBody.price, { amount: 4900, currency: 'usd', formatted: '$49' });
   checks += 1;
 
+  // The one-revision allowance is closed unless its own flag is on: no order is looked up, with or without a link.
+  const revisionPath = '/api/studio/orders/11111111-1111-4111-8111-111111111111/revision';
+  for (const init of [{ method: 'GET' }, { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: origin }, body: '{}' }]) {
+    const closed = await request(revisionPath, init);
+    assert.equal(closed.status, 503, 'The revision route must stay closed while its flag is off');
+    assert.equal((await closed.json()).error.code, 'revision_unavailable');
+    expectPrivateHeaders(closed, revisionPath);
+  }
+  const revisionCsrf = await request(revisionPath, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+  assert.equal(revisionCsrf.status, 403, 'A revision request without Origin or Referer must be blocked');
+  checks += 1;
+
   console.log('PASS: ' + checks + ' production-mode prelaunch HTTP, privacy, auth, and disabled-commerce checks.');
 } catch (error) {
   console.error('FAIL: prelaunch smoke:', error instanceof Error ? error.message : 'unknown failure');

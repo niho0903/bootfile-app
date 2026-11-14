@@ -36,6 +36,16 @@ export const STUDIO_MODEL_BUDGETS: Readonly<Record<string, StudioModelBudget>> =
   'brand-foundation-paid-v1': { maxCalls: 3, maxRequestBytes: 16_000, maxOutputTokensPerCall: 4_000, maxCostMicroUsd: 350_000 },
 };
 
+/**
+ * The one revision a paid order may use: how many further provider calls, and the ceiling for the
+ * whole order once it is used. An order that never uses its revision keeps its original ceiling.
+ * Approved by the owner on 2026-11-13; see docs/DECISION_LOG.md.
+ */
+export interface StudioRevisionAllowance { maxCalls: number; orderMaxCostMicroUsd: number }
+export const STUDIO_REVISION_ALLOWANCES: Readonly<Record<string, StudioRevisionAllowance>> = {
+  'brand-foundation-paid-v1': { maxCalls: 2, orderMaxCostMicroUsd: 600_000 },
+};
+
 export interface StudioModelSpend { calls: number; costMicroUsd: number }
 
 export interface StudioMeteredUsage {
@@ -53,6 +63,12 @@ export function studioModelBudget(productVersion: string): StudioModelBudget {
   const budget = Object.hasOwn(STUDIO_MODEL_BUDGETS, productVersion) ? STUDIO_MODEL_BUDGETS[productVersion] : null;
   if (!budget) throw new StudioError('model_budget_undefined', refusal);
   return budget;
+}
+
+export function studioRevisionAllowance(productVersion: string): StudioRevisionAllowance {
+  const allowance = Object.hasOwn(STUDIO_REVISION_ALLOWANCES, productVersion) ? STUDIO_REVISION_ALLOWANCES[productVersion] : null;
+  if (!allowance) throw new StudioError('revision_allowance_undefined', refusal);
+  return allowance;
 }
 
 function price(model: string): { input: number; output: number } {

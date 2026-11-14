@@ -54,6 +54,7 @@ const RATE_LIMITS: Record<string, { max: number; windowMs: number }> = {
   '/api/studio/order-access':   { max: 90, windowMs: 60_000 },
   '/api/studio/checkout':       { max: 10, windowMs: 3600_000 },
   '/api/studio/refund':         { max: 5, windowMs: 3600_000 },
+  '/api/studio/revision':       { max: 20, windowMs: 3600_000 },
   '/api/operations':            { max: 30, windowMs: 60_000 },
 };
 function getClientIp(req: NextRequest): string {
@@ -75,6 +76,7 @@ export function middleware(req: NextRequest) {
     const ratePath = pathname.startsWith('/api/operations/') ? '/api/operations'
       : /^\/api\/studio\/orders\/[^/]+\/refund$/.test(pathname) ? '/api/studio/refund'
       : /^\/api\/studio\/orders\/[^/]+\/checkout$/.test(pathname) ? '/api/studio/checkout'
+      : /^\/api\/studio\/orders\/[^/]+\/revision$/.test(pathname) ? '/api/studio/revision'
       : pathname.startsWith('/api/studio/orders/') ? '/api/studio/order-access' : pathname;
     const limitConfig = RATE_LIMITS[ratePath];
     if (limitConfig) {

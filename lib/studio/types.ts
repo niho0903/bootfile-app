@@ -71,6 +71,8 @@ export interface StudioOrderView {
   /** The public assistant instructions and review checklist, exactly as the downloaded public kit carries them. */
   brandKitGuide?: { assistantInstructions: string; reviewChecklist: string[] };
   product?: { version: string; name: string };
+  /** Brand & AI Kit orders only, and only once the allowance is open or has been used. */
+  revision?: StudioRevisionView;
   error?: { code: string; message: string };
   retryAfterSeconds: number;
 }
@@ -115,6 +117,42 @@ export interface StudioOrderRow {
   model_output_tokens?: number | null;
   model_cost_microusd?: number | null;
   model_cost_estimated?: boolean | null;
+  /** Present after studio_order_revisions_v1. Set once, when the order's one revision is requested. */
+  revision_requested_at?: string | null;
+}
+
+export type StudioRevisionStatus = 'queued' | 'generating' | 'ready' | 'needs_attention';
+
+/** Server database row for the one revision an order may have; never return this object to a browser. */
+export interface StudioRevisionRow {
+  order_id: string;
+  created_at: string;
+  updated_at: string;
+  intake: unknown;
+  intake_hash: string;
+  status: StudioRevisionStatus;
+  attempts: number;
+  call_limit: number;
+  order_cost_limit_microusd: number;
+  calls_recorded: number;
+  lease_token: string | null;
+  lease_expires_at: string | null;
+  next_attempt_at: string;
+  last_error_code: string | null;
+  /** Read it only through currentBrandKit, which ties the schema to the order's product version. */
+  output: PaidBrandKit | null;
+  ready_at: string | null;
+}
+
+/** What the order page may know about the revision. No answers and no kit: those travel separately. */
+export interface StudioRevisionView {
+  /** 'none' until the customer uses the allowance. */
+  status: 'none' | StudioRevisionStatus;
+  /** True only while a request would be accepted: open, delivered, inside the window and not yet used. */
+  canRequest: boolean;
+  availableUntil: string | null;
+  requestedAt: string | null;
+  readyAt: string | null;
 }
 
 export interface StudioDeliveryRow {
