@@ -1,0 +1,48 @@
+/* The one-revision section on the paid order page. Every rule is scoped under .kitRevise. */
+.kitRevise{--revise-green:#4A5942;--revise-line:#DEDAD1;--revise-muted:#736E65;--revise-paper:#FDFCFA;--revise-wash:#ECEFE7;margin-top:38px;padding:26px 28px;border:1px solid var(--revise-line);border-radius:13px;background:var(--revise-paper);color:#2D2926}
+.kitRevise *{box-sizing:border-box}
+.kitRevise h2,.kitRevise h3,.kitRevise p,.kitRevise ul,.kitRevise fieldset{margin:0}
+.kitRevise .kitReviseEyebrow{font-size:10px;letter-spacing:.15em;font-weight:600;color:var(--revise-green)}
+.kitRevise h2{font-family:var(--font-display),Georgia,serif;font-weight:400;letter-spacing:-.02em;font-size:26px;line-height:1.25;margin:8px 0 10px}
+.kitRevise h2:focus{outline:0}
+.kitRevise h3{font-size:16px;font-weight:600;margin-bottom:12px}
+.kitRevise .kitReviseLead{font-size:14px;line-height:1.75;max-width:680px}
+.kitRevise .kitReviseNote{font-size:12px;line-height:1.7;color:var(--revise-muted);margin-top:10px}
+.kitRevise .kitReviseError{font-size:13px;line-height:1.7;color:#813E2E;margin-top:12px;padding-left:0;list-style:none}
+.kitRevise .kitReviseActions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.kitRevise details{border:1px solid var(--revise-line);border-radius:10px;background:#fff;margin-top:12px}
+.kitRevise details:first-of-type{margin-top:20px}
+.kitRevise summary{display:flex;justify-content:space-between;align-items:center;gap:14px;min-height:54px;padding:10px 18px;cursor:pointer;font-size:14px;font-weight:600}
+.kitRevise summary small{font-size:12px;font-weight:400;color:var(--revise-muted);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%}
+.kitRevise summary:focus-visible{outline:3px solid #7D8B6E;outline-offset:2px;border-radius:10px}
+.kitRevise details[open]{padding-bottom:18px}
+.kitRevise details[open]>summary{border-bottom:1px solid var(--revise-line);margin-bottom:6px}
+.kitRevise details>:not(summary){margin-left:18px;margin-right:18px}
+.kitRevise .kitReviseField{display:grid;gap:5px;margin-top:16px;font-size:13px}
+.kitRevise .kitReviseField>span{font-weight:600}
+.kitRevise .kitReviseField small{font-size:12px;color:var(--revise-muted)}
+.kitRevise .kitReviseField em{font-style:normal;font-size:11px;color:var(--revise-muted);justify-self:end}
+.kitRevise .kitReviseField input,.kitRevise .kitReviseField textarea{width:100%;padding:11px 13px;border:1px solid #CFCFC3;border-radius:8px;background:#fff;color:inherit;font:inherit;font-size:14px;line-height:1.6;resize:vertical}
+.kitRevise .kitReviseField input:focus-visible,.kitRevise .kitReviseField textarea:focus-visible{outline:3px solid #7D8B6E;outline-offset:1px}
+.kitRevise .kitReviseChoices{border:0;padding:0;min-width:0;margin-top:16px;display:grid;gap:8px}
+.kitRevise .kitReviseChoices legend{font-size:13px;font-weight:600;padding:0;margin-bottom:8px}
+.kitRevise .kitReviseChoices label{position:relative;display:flex;align-items:flex-start;gap:10px;min-height:44px;padding:11px 14px;border:1px solid #CFCFC3;border-radius:8px;background:#fff;font-size:13px;line-height:1.55;cursor:pointer}
+.kitRevise .kitReviseChoices label.selected{border-color:var(--revise-green);background:var(--revise-wash)}
+.kitRevise .kitReviseChoices label:focus-within{outline:3px solid #7D8B6E;outline-offset:1px}
+.kitRevise .kitReviseChoices input{margin:3px 0 0;accent-color:var(--revise-green);flex:none}
+.kitRevise .kitReviseChoices b{font-weight:600}
+.kitRevise .kitReviseInline{grid-template-columns:repeat(2,minmax(0,1fr))}
+.kitRevise .kitReviseSwatches{display:inline-flex;gap:3px;margin-right:8px;vertical-align:-2px}
+.kitRevise .kitReviseSwatches i{display:block;width:14px;height:14px;border-radius:50%;border:1px solid #0000001f}
+.kitRevise .kitReviseColors{display:flex;flex-wrap:wrap;gap:14px;margin-top:16px}
+.kitRevise .kitReviseColors label{display:grid;gap:5px;font-size:12px}
+.kitRevise .kitReviseColors input{width:64px;height:44px;padding:0;border:1px solid #CFCFC3;border-radius:8px;background:#fff}
+.kitRevise .kitReviseColors code{font-size:11px;color:var(--revise-muted)}
+.kitRevise .kitReviseReview{margin-top:24px;padding-top:22px;border-top:1px solid var(--revise-line)}
+.kitRevise .kitReviseChanges{list-style:none;padding:0;display:grid;gap:10px}
+.kitRevise .kitReviseChanges li{display:grid;gap:2px;padding:12px 14px;border-radius:8px;background:var(--revise-wash);font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+.kitRevise .kitReviseChanges small{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--revise-muted)}
+.kitRevise .kitReviseChanges span{white-space:pre-wrap}
+.kitRevise .kitReviseConfirm{display:flex;align-items:flex-start;gap:10px;margin-top:18px;font-size:13px;line-height:1.6;min-height:44px}
+.kitRevise .kitReviseConfirm input{margin:3px 0 0;width:18px;height:18px;accent-color:var(--revise-green);flex:none}
+@media(max-width:640px){.kitRevise{padding:20px 16px}.kitRevise h2{font-size:23px}.kitRevise .kitReviseInline{grid-template-columns:1fr}.kitRevise summary small{max-width:48%}}

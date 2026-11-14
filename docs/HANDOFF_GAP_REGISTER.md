@@ -188,6 +188,21 @@ Verification on this source: `npm run typecheck` exit 0, `npm run lint` 0 errors
 
 Not verified: any of this against a hosted database or a provider. Not built: the editor on the order page, the page's own status lines for a revision in progress, an email when the revised kit is ready, and the sentence that tells a customer about the allowance before they pay.
 
+## Twelfth increment
+
+Branch `rebuild/revision-editor-20261113`, stacked on the eleventh. It is the customer-facing half of the one revision. Everything in it appears only when the server reports that a revision may be requested or exists, which needs `BRAND_KIT_REVISIONS_ENABLED`; that flag stays off.
+
+- **The offer:** `components/studio/BrandRevision.tsx`, placed after "Before you publish" on the paid order page. One sentence on what the revision is, the last day it can be used, and one button. The customer's answers are not on the page until they press it.
+- **The editor:** their answers in five parts under the same step names and the same question wording as the first run, each closed until opened. A "Check your changes" list names every changed answer in the words of its question. Sending needs at least one real change, complete answers, and a fresh tick of the approval box; any edit after the tick withdraws it. A change in spacing alone is not a change, so the one revision cannot be spent on it. A refusal from the server says the revision was not used and keeps the customer's work.
+- **Status on the page:** being built (the page keeps checking on its own, with a "Check again" button), ready (the page says this is the revised kit and offers the first version to download), and could not be finished (the first kit is unchanged, with the support address).
+- **One copy of the question wording:** `lib/brand-kit/fields.ts` now holds the labels, hints and step names. The preview flow at `/brand` reads from it, so the editor and the first run cannot drift.
+- **Order page sentence:** the line under the heading said "Start with your brand foundation"; it now matches the page: "See it in use, put it to work, then read the full kit underneath."
+- **Browser coverage of the paid order page, for the first time:** the smoke opens `/studio/order/[id]` on a production build against stand-ins built from the typed fixtures (`scripts/fixtures/brand-order-view.json`, pinned by a unit test) and walks the offer, the editor, a refused send, a successful send, the page finding the revised kit on its own, and the first-version download.
+
+Verification on this source: `npm run typecheck` exit 0, `npm run lint` 0 errors, `npm test` 317 passed in 31 files, `npm run test:sql` passes. The browser smoke passed all ten groups locally in Chrome, with no horizontal overflow at 390 pixels in the editor or on the revised order page, no runtime errors, no request beyond the stand-ins and no other origin reached.
+
+Not verified: the editor against the real server routes with a real order, which waits on hosted acceptance and on the revision migration being applied to that database. Not built: an email when the revised kit is ready. The feedback panel under the kit still says "pack", from the earlier product.
+
 ## Owner decisions
 
 Recorded in `docs/DECISION_LOG.md`. Decided on 2026-11-13: the handoff brief governs and Bootfile is outside any short-term revenue target; the $0.35 per-order model ceiling is approved; the repository should be private, not yet executed because of the preview trade-off above; hosting moved to Vercel Pro. Still open: build spend from the second connected project, the bounded refinement allowance behind the $49 promise, the Brand & AI Kit checkout, purchase-panel and delivery wording, and whether an independent second model stage is wanted at up to roughly double the per-order ceiling.

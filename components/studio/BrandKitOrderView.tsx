@@ -2,10 +2,13 @@
 
 import { useState, type CSSProperties, type ReactNode } from 'react';
 import type { PublicPaidBrandKit } from '@/lib/brand-kit/synthesis';
+import { revisionDay } from '@/lib/brand-kit/revision-changes';
+import type { StudioRevisionView } from '@/lib/studio/types';
 import { BrandDeploy } from '@/components/brand/BrandDeploy';
 import { BrandPlacements } from '@/components/brand/BrandPlacements';
 import { deployPlanForPaidKit } from '@/lib/brand-kit/deploy';
 import { sourceFromPaidKit } from '@/lib/brand-kit/placements';
+import { BrandRevision } from './BrandRevision';
 import { CopyButton } from './StudioBundleView';
 import { DocumentIcon, StudioNotice, studioColors as c } from './StudioChrome';
 
@@ -40,7 +43,7 @@ function CopyRow({ label, text }: { label: string; text: string }) {
  * The paid Brand & AI Kit as its owner sees it. It receives only the public allowlist, so the
  * owner's private work-style notes are never in the page. They are fetched on an explicit click.
  */
-export function BrandKitOrderView({ kit, guide, orderId, token }: { kit: PublicPaidBrandKit; guide?: { assistantInstructions: string; reviewChecklist: string[] }; orderId: string; token: string }) {
+export function BrandKitOrderView({ kit, guide, orderId, token, revision, onRefresh }: { kit: PublicPaidBrandKit; guide?: { assistantInstructions: string; reviewChecklist: string[] }; orderId: string; token: string; revision?: StudioRevisionView; onRefresh?: () => void }) {
   const [downloading, setDownloading] = useState('');
   const [downloadError, setDownloadError] = useState('');
   const [copied, setCopied] = useState('');
@@ -54,17 +57,17 @@ export function BrandKitOrderView({ kit, guide, orderId, token }: { kit: PublicP
   }
   const { business, voice, visuals, campaign, synthesis } = kit;
 
-  async function download(scope: 'public' | 'private', format: 'md' | 'json') {
-    const key = `${scope}-${format}`;
+  async function download(scope: 'public' | 'private', format: 'md' | 'json', first = false) {
+    const key = `${first ? 'first' : scope}-${format}`;
     setDownloadError('');
     setDownloading(key);
     try {
-      const response = await fetch(`/api/studio/orders/${encodeURIComponent(orderId)}/download?scope=${scope}&format=${format}`, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store', signal: AbortSignal.timeout(20_000) });
+      const response = await fetch(`/api/studio/orders/${encodeURIComponent(orderId)}/download?scope=${scope}&format=${format}${first ? '&version=first' : ''}`, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store', signal: AbortSignal.timeout(20_000) });
       if (!response.ok) throw new Error('download_failed');
       const url = URL.createObjectURL(await response.blob());
       const link = document.createElement('a');
       link.href = url;
-      link.download = `bootfile-brand-ai-kit${scope === 'private' ? '-private' : ''}.${format}`;
+      link.download = `bootfile-brand-ai-kit${first ? '-first-version' : ''}${scope === 'private' ? '-private' : ''}.${format}`;
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -84,6 +87,17 @@ export function BrandKitOrderView({ kit, guide, orderId, token }: { kit: PublicP
       </div>
       {downloadError ? <div style={{ marginBottom: 20 }}><StudioNotice tone="error">{downloadError}</StudioNotice></div> : null}
       <StudioNotice>This is a model-assisted draft built from the facts you supplied. It has not been independently verified. Check every claim before you publish anything. Nothing has been sent or published for you.</StudioNotice>
+      {revision && (revision.status === 'queued' || revision.status === 'generating') ? <div style={{ marginTop: 14 }}><StudioNotice tone="success">
+        <strong>Your revised kit is being built.</strong> This page updates on its own, and the link in your delivery email always brings you back here. Until it is ready, this is your first kit.
+        {onRefresh ? <span style={{ display: 'block', marginTop: 10 }}><button type="button" className="studio-button studio-button-small studio-button-secondary" onClick={onRefresh}>Check again</button></span> : null}
+      </StudioNotice></div> : null}
+      {revision?.status === 'ready' ? <div style={{ marginTop: 14 }}><StudioNotice tone="success">
+        <strong>This is your revised kit.</strong> It was built from the answers you changed{revisionDay(revision.requestedAt) ? ` on ${revisionDay(revision.requestedAt)}` : ''}. It is a new draft, so check its claims as you did before. Your first kit is still yours.
+        <span style={{ display: 'block', marginTop: 10 }}><button type="button" className="studio-button studio-button-small studio-button-secondary" disabled={!!downloading} onClick={() => download('public', 'md', true)}>{downloading === 'first-md' ? 'Preparing…' : 'Download the first version'}</button></span>
+      </StudioNotice></div> : null}
+      {revision?.status === 'needs_attention' ? <div style={{ marginTop: 14 }}><StudioNotice>
+        <strong>We could not finish your revised kit.</strong> Your first kit below is unchanged. Email support@bootfile.ai with your order number and we will put it right.
+      </StudioNotice></div> : null}
 
       <div style={{ marginTop: 30 }}><BrandPlacements source={sourceFromPaidKit(kit)} onCopy={copyWords} /><p role="status" aria-live="polite" style={deployNote ? HIDDEN_STATUS : { fontSize: 12, minHeight: 18 }}>{copied}</p>{guide ? <BrandDeploy plan={deployPlanForPaidKit(kit, guide.assistantInstructions)} onCopy={(text, label) => copyWords(text, label, true)} status={deployNote} /> : null}
         <h2 className="font-heading" style={{ fontSize: 30, fontWeight: 400, lineHeight: 1.2, marginTop: 6 }}>Read the full kit</h2></div>
@@ -135,6 +149,8 @@ export function BrandKitOrderView({ kit, guide, orderId, token }: { kit: PublicP
       {guide?.reviewChecklist.length ? <Section title="Before you publish" description="Work through this list yourself. Bootfile has not checked these for you.">
         <ul style={{ paddingLeft: 18, fontSize: 14, lineHeight: 1.85 }}>{guide.reviewChecklist.map(item => <li key={item}>{item}</li>)}</ul>
       </Section> : null}
+
+      {revision?.canRequest ? <BrandRevision orderId={orderId} token={token} revision={revision} onSent={() => onRefresh?.()} /> : null}
 
       <Section title="Your private work-style notes" description="How you like to work with an AI assistant stays out of your brand guide. Download the private copy only for yourself, and do not share it as your brand kit.">
         <div className="studio-result-actions" style={{ marginTop: 6 }}>
