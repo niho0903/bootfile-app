@@ -1,13 +1,17 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useState, type CSSProperties, type ReactNode } from 'react';
 import type { PublicPaidBrandKit } from '@/lib/brand-kit/synthesis';
+import { BrandDeploy } from '@/components/brand/BrandDeploy';
 import { BrandPlacements } from '@/components/brand/BrandPlacements';
+import { deployPlanForPaidKit } from '@/lib/brand-kit/deploy';
 import { sourceFromPaidKit } from '@/lib/brand-kit/placements';
 import { CopyButton } from './StudioBundleView';
 import { DocumentIcon, StudioNotice, studioColors as c } from './StudioChrome';
 
 const POST_LABELS = ['Introduce the offer', 'Explain the fit', 'Invite the next step'];
+/** When a step's own card shows the result of a copy, the page's status line still announces it but is not drawn a second time. */
+const HIDDEN_STATUS: CSSProperties = { position: 'absolute', width: 1, height: 1, overflow: 'hidden', clipPath: 'inset(50%)', whiteSpace: 'nowrap' };
 
 function Section({ title, description, children }: { title: string; description?: string; children: ReactNode }) {
   return (
@@ -34,15 +38,19 @@ function CopyRow({ label, text }: { label: string; text: string }) {
 
 /**
  * The paid Brand & AI Kit as its owner sees it. It receives only the public allowlist, so the
- * owner's private working preferences are never in the page. They are fetched on an explicit click.
+ * owner's private work-style notes are never in the page. They are fetched on an explicit click.
  */
 export function BrandKitOrderView({ kit, guide, orderId, token }: { kit: PublicPaidBrandKit; guide?: { assistantInstructions: string; reviewChecklist: string[] }; orderId: string; token: string }) {
   const [downloading, setDownloading] = useState('');
   const [downloadError, setDownloadError] = useState('');
   const [copied, setCopied] = useState('');
-  async function copyWords(text: string, label: string) {
-    try { await navigator.clipboard.writeText(text); setCopied(`${label} copied.`); }
-    catch { setCopied('Copying is unavailable in this browser. Use Download my kit instead.'); }
+  const [deployNote, setDeployNote] = useState('');
+  async function copyWords(text: string, label: string, fromSteps = false) {
+    let outcome = `${label} copied.`;
+    try { await navigator.clipboard.writeText(text); }
+    catch { outcome = 'Copying is unavailable in this browser. Use Download my kit instead.'; }
+    setCopied(outcome);
+    setDeployNote(fromSteps ? outcome : '');
   }
   const { business, voice, visuals, campaign, synthesis } = kit;
 
@@ -77,9 +85,10 @@ export function BrandKitOrderView({ kit, guide, orderId, token }: { kit: PublicP
       {downloadError ? <div style={{ marginBottom: 20 }}><StudioNotice tone="error">{downloadError}</StudioNotice></div> : null}
       <StudioNotice>This is a model-assisted draft built from the facts you supplied. It has not been independently verified. Check every claim before you publish anything. Nothing has been sent or published for you.</StudioNotice>
 
-      <div style={{ marginTop: 30 }}><BrandPlacements source={sourceFromPaidKit(kit)} onCopy={copyWords} /><p role="status" aria-live="polite" style={{ fontSize: 12, minHeight: 18 }}>{copied}</p></div>
+      <div style={{ marginTop: 30 }}><BrandPlacements source={sourceFromPaidKit(kit)} onCopy={copyWords} /><p role="status" aria-live="polite" style={deployNote ? HIDDEN_STATUS : { fontSize: 12, minHeight: 18 }}>{copied}</p>{guide ? <BrandDeploy plan={deployPlanForPaidKit(kit, guide.assistantInstructions)} onCopy={(text, label) => copyWords(text, label, true)} status={deployNote} /> : null}
+        <h2 className="font-heading" style={{ fontSize: 30, fontWeight: 400, lineHeight: 1.2, marginTop: 6 }}>Read the full kit</h2></div>
 
-      <Section title="Brand foundation" description="Who you serve, what you offer, and what sets you apart, in your own supplied facts.">
+      <Section title="Your brand" description="Who you serve, what you offer, and what sets you apart, in your own supplied facts.">
         <CopyRow label="Positioning" text={synthesis.positioning} />
         <Field label="What you do">{business.description}</Field>
         <Field label="Who it is for">{business.audience}</Field>
@@ -127,7 +136,7 @@ export function BrandKitOrderView({ kit, guide, orderId, token }: { kit: PublicP
         <ul style={{ paddingLeft: 18, fontSize: 14, lineHeight: 1.85 }}>{guide.reviewChecklist.map(item => <li key={item}>{item}</li>)}</ul>
       </Section> : null}
 
-      <Section title="Your private working preferences" description="How you like to work with an AI assistant stays out of your brand guide. Download the private copy only for yourself, and do not share it as your brand kit.">
+      <Section title="Your private work-style notes" description="How you like to work with an AI assistant stays out of your brand guide. Download the private copy only for yourself, and do not share it as your brand kit.">
         <div className="studio-result-actions" style={{ marginTop: 6 }}>
           <button type="button" className="studio-button studio-button-small studio-button-secondary" disabled={!!downloading} onClick={() => download('private', 'md')}>{downloading === 'private-md' ? 'Preparing…' : 'Download my private copy'}</button>
         </div>

@@ -64,6 +64,7 @@ The repository decision log named in `docs/OPERATING_CHARTER.md`. Each record st
 
 ## Open
 
+- Two customer-facing wordings still use older terms and are the owner's to change: the checkout line in `lib/studio/products.ts` says "A brand foundation, ..." where the page and the saved kit now say "Your brand", and the order page's browser tab title reads "Your Marketing Setup" for both products. Recommended: "Your brand guide, voice guide, visual starter kit, AI working instructions, and a first campaign." and "Your order | Bootfile". Neither changes the price or what is delivered.
 - Hosted acceptance still needs four branch-scoped secrets from the owner on `rebuild/acceptance`: a Stripe test-mode secret key, its webhook signing secret, the acceptance database's service role key, and a new `STUDIO_ACCESS_TOKEN_SECRET`. Then the test payment.
 - Hosted acceptance, per `docs/PROVIDER_ACCEPTANCE_RUNBOOK.md`. Needs from the owner: the database choice (recommended: a separate free Supabase project for acceptance, so no synthetic order enters the production ledger), the Preview variables for the `rebuild/acceptance` branch, and the test payment. Bounded cost: one generation under the $0.35 ceiling, one email, one build.
 - The production database plan. It is on Supabase's Free plan, which pauses projects after a week of low activity and reserves automated backups for paid plans. Recommended before the first real charge: a paid plan. It is a new subscription, so it waits for the owner.

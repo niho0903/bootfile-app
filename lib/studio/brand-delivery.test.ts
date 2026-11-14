@@ -6,6 +6,7 @@ import { getSupabaseAdmin } from '@/lib/supabase';
 import { GET as download } from '@/app/api/studio/orders/[id]/download/route';
 import { BrandKitOrderView } from '@/components/studio/BrandKitOrderView';
 import { assistantInstructions } from '../brand-kit/kit';
+import { PAID_KIT_NOTICE } from '../brand-kit/paid-output';
 import { PAID_BRAND_KIT_VERSION, publicPaidBrandKit } from '../brand-kit/synthesis';
 import { paidBrandKitFixture } from '../brand-kit/test-fixtures';
 import { createStudioAccessToken, hashStudioAccessToken } from './access';
@@ -138,7 +139,14 @@ describe('Brand Kit download and order view', () => {
   it('renders the kit page from the public allowlist without the private preferences', () => {
     const guide = { assistantInstructions: assistantInstructions(kit.foundation, false), reviewChecklist: kit.foundation.reviewChecklist };
     const html = renderToStaticMarkup(createElement(BrandKitOrderView, { kit: publicPaidBrandKit(kit), guide, orderId: STUDIO_TEST_ORDER_ID, token }));
-    for (const expected of [kit.foundation.business.name, kit.synthesis.email.subject, 'Download my kit', 'Download my private copy', 'not been independently verified', 'AI working instructions', 'REFERENCE BRAND DATA', 'Before you publish']) expect(html).toContain(expected);
+    for (const expected of [kit.foundation.business.name, kit.synthesis.email.subject, 'Download my kit', 'Download my private copy', 'not been independently verified', 'AI working instructions', 'REFERENCE BRAND DATA', 'Before you publish', 'Put it to work.', '0 of 4 done', 'Which AI assistant do you use?', 'Copy AI instructions', 'Copy brand colors', 'Copy email draft', 'Copy post drafts', 'Read the full kit', 'Your brand', 'Your private work-style notes', PAID_KIT_NOTICE]) expect(html).toContain(expected);
+    expect(html.match(/type="radio"/g)).toHaveLength(7);
+    expect(html.replace(/class="[^"]*"/g, '')).not.toMatch(/Brand foundation|working preferences|backbrief|synthesis/i);
+    expect(html).not.toContain('HOW TO WORK WITH ME');
+    expect(html).not.toContain(kit.foundation.firstCampaign.email.subject);
+    const withoutGuide = renderToStaticMarkup(createElement(BrandKitOrderView, { kit: publicPaidBrandKit(kit), orderId: STUDIO_TEST_ORDER_ID, token }));
+    expect(withoutGuide).not.toContain('Put it to work.');
+    expect(withoutGuide).toContain('Read the full kit');
     expect(html).toContain('Juniper Home Organizing helps busy households');
     expect(html).not.toContain(privateInstruction.slice(0, 40));
     expect(html).not.toContain(token);

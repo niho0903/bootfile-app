@@ -1,6 +1,7 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { buildBrandKit, FICTIONAL_BRAND_INPUT } from './kit';
-import { paidBrandJson, paidBrandMarkdown } from './paid-output';
+import { PAID_KIT_NOTICE, PRIVATE_NOTES_HEADING, paidBrandJson, paidBrandMarkdown } from './paid-output';
 import { PAID_BRAND_KIT_VERSION, type PaidBrandKit } from './synthesis';
 
 const fixture = (): PaidBrandKit => ({
@@ -24,12 +25,14 @@ const fixture = (): PaidBrandKit => ({
 });
 
 describe('paid Brand Kit exports', () => {
-  it('exports saved synthesis without leaking private working preferences or template copy', () => {
+  it('exports the saved kit without leaking private work-style notes or template copy', () => {
     const kit = fixture();
     const markdown = paidBrandMarkdown(kit);
     const json = paidBrandJson(kit);
     expect(markdown).toContain(kit.synthesis.email.subject);
-    expect(markdown).toContain('customer-supplied');
+    expect(markdown).toContain(PAID_KIT_NOTICE);
+    expect(markdown).toContain('not been independently verified');
+    expect(markdown).not.toContain(PRIVATE_NOTES_HEADING);
     expect(markdown).not.toContain(kit.foundation.ownerPreferences.instruction);
     expect(markdown).not.toContain('PRELAUNCH TEMPLATE PREVIEW');
     expect(json).not.toContain('ownerPreferences');
@@ -40,7 +43,29 @@ describe('paid Brand Kit exports', () => {
   it('includes private owner preferences only when explicitly requested', () => {
     const kit = fixture();
     expect(paidBrandMarkdown(kit, 'private')).toContain(kit.foundation.ownerPreferences.instruction);
+    expect(paidBrandMarkdown(kit, 'private')).toContain(`## ${PRIVATE_NOTES_HEADING}`);
     expect(paidBrandJson(kit, 'private')).toContain('ownerPreferences');
+  });
+
+  it('uses the words on the order page for every heading and label, and names no menu path', () => {
+    const kit = fixture();
+    for (const scope of ['public', 'private'] as const) {
+      const markdown = paidBrandMarkdown(kit, scope);
+      const written = markdown.split('\n').filter(line => /^#{1,4} /.test(line) || /^[A-Z][A-Za-z ,]+: /.test(line)).map(line => line.replace(/: .*$/, ''));
+      expect(written.join('\n')).not.toMatch(/foundation|backbrief|chapter|working preferences|synthesis|prototype|customer-supplied|source quotations/i);
+      for (const heading of ['## Your brand', '## Voice guide', '## Visual starter kit', '## Where each claim came from', '## Put it to work', '### Instructions for your AI assistant', '## Before you publish'])
+        expect(markdown).toContain(`${heading}\n`);
+      expect(markdown.slice(0, markdown.indexOf('### Instructions for your AI assistant'))).not.toMatch(/Settings|→|Personalization|Gems/);
+    }
+  });
+
+  it('keeps the acceptance script looking for the heading the private copy really uses', () => {
+    expect(readFileSync('scripts/brand-acceptance.mjs', 'utf8')).toContain(`/${PRIVATE_NOTES_HEADING}|ownerPreferences/`);
+  });
+
+  it('keeps the export shape of the kit unchanged', () => {
+    const kit = fixture();
+    expect(Object.keys(JSON.parse(paidBrandJson(kit)))).toEqual(['schemaVersion', 'price', 'business', 'voice', 'visuals', 'campaign', 'synthesis', 'provenance', 'requiresCustomerReview']);
   });
 });
 

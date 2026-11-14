@@ -182,6 +182,9 @@ try {
   assert.equal(data.firstCampaign.posts.length, 3);
   assert.equal(data.mode, 'local-template-preview');
   assert.equal((await page.locator('.brandPrint').textContent()).includes('HOW TO WORK WITH ME'), false);
+  const printed = await page.locator('.brandPrint').textContent();
+  assert.ok(printed.includes('Your private work-style notes are left out on purpose.'));
+  assert.equal(/deterministic|working preferences|owner preferences/i.test(printed), false, 'The printed kit must use the words on the page');
   await page.emulateMedia({ media: 'print' });
   await page.pdf({ path: output + '/fictional-brand-guide-print.pdf', format: 'A4', printBackground: true, preferCSSPageSize: true });
   await page.emulateMedia({ media: 'screen' });
