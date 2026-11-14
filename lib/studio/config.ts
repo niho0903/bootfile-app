@@ -67,6 +67,14 @@ export function assertBrandKitCheckoutConfigured(): void {
   assertStudioCheckoutConfigured();
 }
 
+/**
+ * The one-revision allowance has its own gate. Unset means closed: no request is accepted and the
+ * worker claims none. A revised kit that was already saved stays readable when this is turned off.
+ */
+export function studioRevisionsEnabled(): boolean {
+  return process.env.BRAND_KIT_REVISIONS_ENABLED === 'true';
+}
+
 export function assertStudioWorkerConfigured(): void {
   if (process.env.STUDIO_FULFILLMENT_ENABLED !== 'true') throw new StudioError('fulfillment_paused', 'Fulfillment is paused.');
   if (!process.env.ANTHROPIC_API_KEY || !process.env.RESEND_API_KEY || (process.env.STUDIO_ACCESS_TOKEN_SECRET || '').length < 32) {

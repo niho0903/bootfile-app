@@ -173,6 +173,21 @@ Verification on this source: `npm run typecheck` exit 0, `npm run lint` 0 errors
 
 Not verified: the order page with a real paid order, which waits on hosted acceptance. Two wording items were left alone because they are the owner's: the checkout line still says "A brand foundation, ...", and the order page's browser tab title still reads "Your Marketing Setup" for both products.
 
+## Eleventh increment
+
+Branch `rebuild/one-revision-20261113`, stacked on the tenth. It is the server half of the one revision the owner approved: the ledger, the rules and the worker. No customer can reach it yet, because the editor and the customer wording are not built and its flag is off.
+
+- **Migration `20261114021500_studio_order_revisions_v1`, applied to no database.** A `studio_order_revisions` table with one row per order, a nullable `revision_requested_at` marker on the order, and functions to request, claim, meter, finish and fail a revision. The order's answers, their approval digest and the first kit are never rewritten; the revised kit is saved beside them. `studio_capacity_status` now also reserves the calls a waiting revision may make. The rollback file restores the prior schema exactly and refuses to run once a revision exists.
+- **Rules enforced in the database, under the same lock as worker claims:** only a delivered, paid, unrefunded Brand & AI Kit order; inside seven days of the delivery email, or of the kit being ready when no email was sent; answers that changed and were approved; the order's own delivery address; a bound call limit of at most two; room under the daily cap. The same request replays; a different second request is refused.
+- **Application:** `lib/studio/revisions.ts` (request, the customer's answers for editing, generation), `lib/studio/revision-state.ts` (the window, the offer and which kit is current), a third loop in the worker limited to one revision per run, `GET` and `POST /api/studio/orders/[id]/revision`, and the download route serving the revised kit with the first still available at `version=first`.
+- **Gate:** `BRAND_KIT_REVISIONS_ENABLED`, off by default. Off: the route answers 503 without looking up an order, and the worker claims nothing. A revised kit that was already saved stays readable, because reading is keyed on the order's marker, not on the flag. An order without the marker costs no extra query, so pages behave exactly as before on a database that lacks the migration.
+- **Cost:** the revision's calls go into the order's own ledger. Before each call the next one is checked against the revision's call limit and $0.60 for the whole order, with any attempt that left no record charged at the worst case. Three first-run calls and two revision calls on the costliest allowed model come to $0.555.
+- **Measurement:** `studio_revision_measure()` returns counts and the review flag for the stop condition in the decision log.
+
+Verification on this source: `npm run typecheck` exit 0, `npm run lint` 0 errors, `npm test` 308 passed in 29 files, `npm run test:sql` passes with the new migration, its rollback and a seventh smoke suite. Four deliberate faults put into the migration (a longer window, a late save accepted, a second revision accepted, revision attempts not counted against the cap) were each caught by that suite. The closed route was called on a local server: 503 for `GET` and for a same-origin `POST`, 403 without an origin or from a foreign one, private headers on each.
+
+Not verified: any of this against a hosted database or a provider. Not built: the editor on the order page, the page's own status lines for a revision in progress, an email when the revised kit is ready, and the sentence that tells a customer about the allowance before they pay.
+
 ## Owner decisions
 
 Recorded in `docs/DECISION_LOG.md`. Decided on 2026-11-13: the handoff brief governs and Bootfile is outside any short-term revenue target; the $0.35 per-order model ceiling is approved; the repository should be private, not yet executed because of the preview trade-off above; hosting moved to Vercel Pro. Still open: build spend from the second connected project, the bounded refinement allowance behind the $49 promise, the Brand & AI Kit checkout, purchase-panel and delivery wording, and whether an independent second model stage is wanted at up to roughly double the per-order ceiling.

@@ -3,7 +3,9 @@ import { StudioGenerationError } from './dispatch';
 import { runStudioWorker, type StudioWorkerDependencies } from './worker';
 import { STUDIO_DEMO_BUNDLE } from './demo';
 import { StudioError } from './errors';
-import { readyStudioOrderFixture, studioDeliveryFixture, studioOrderFixture } from './test-fixtures';
+import { paidBrandKitFixture } from '../brand-kit/test-fixtures';
+import { readyStudioOrderFixture, studioDeliveryFixture, studioOrderFixture, STUDIO_TEST_ORDER_ID } from './test-fixtures';
+import type { StudioRevisionRow } from './types';
 
 function harness({ generationFails = false, receiptFailsOnce = false, concurrent = false } = {}) {
   const history: string[] = [];
@@ -103,5 +105,80 @@ describe('studio durable worker orchestration', () => {
     expect(result).toMatchObject({ claimed: 1, completed: 0, retried: 1 });
     expect(calls.find(call => call.name === 'studio_fail_metered_generation')?.args).toMatchObject({ p_error_code: 'provider_timeout', p_usage: usage });
     expect(calls.some(call => call.name === 'studio_fail_generation')).toBe(false);
+  });
+});
+
+describe('the one revision, in the same durable worker', () => {
+  const revision = { order_id: STUDIO_TEST_ORDER_ID, status: 'generating', attempts: 1, call_limit: 2, calls_recorded: 0, order_cost_limit_microusd: 600_000 } as StudioRevisionRow;
+  const usage = { model: 'claude-haiku-4-5-20251001', input_tokens: 2400, output_tokens: 1300, cost_microusd: 8_900, cost_basis: 'reported' as const };
+
+  function revisionHarness({ enabled = true, fails = 'no' as 'no' | 'after_provider' | 'before_provider', orderGone = false, commitLost = false, failStatus = 'queued' } = {}) {
+    const history: string[] = [];
+    const calls: Record<string, unknown>[] = [];
+    let claimed = false;
+    const generateRevision = vi.fn(async () => {
+      history.push('generate_revision');
+      if (fails === 'after_provider') throw new StudioGenerationError('brand_output_incomplete', 'Unusable draft', usage);
+      if (fails === 'before_provider') throw new StudioError('model_budget_exhausted', 'Refused before spend');
+      return { output: paidBrandKitFixture(), usage };
+    });
+    const dependencies: StudioWorkerDependencies = {
+      assertConfigured: () => {}, generate: vi.fn(), deliver: vi.fn(), generateRevision, revisionsEnabled: () => enabled,
+      getOrder: async () => orderGone ? null : readyStudioOrderFixture(),
+      rpc: async <T>(name: string, args: Record<string, unknown> = {}): Promise<T> => {
+        if (name === 'studio_claim_order' || name === 'studio_claim_delivery') return [] as T;
+        calls.push({ name, ...args });
+        if (name === 'studio_claim_revision') { if (claimed) return [] as T; claimed = true; history.push('claim_revision'); return [revision] as T; }
+        if (name === 'studio_finish_revision') { history.push('persist_revision'); return !commitLost as T; }
+        if (name === 'studio_fail_revision') { history.push('fail_revision'); return failStatus as T; }
+        throw new Error(`Unexpected RPC: ${name}`);
+      },
+    };
+    return { history, calls, dependencies, generateRevision };
+  }
+
+  it('claims no revision while the allowance is closed, and reports nothing about revisions', async () => {
+    const h = revisionHarness({ enabled: false });
+    const result = await runStudioWorker({ limit: 2 }, h.dependencies);
+    expect(h.calls).toEqual([]);
+    expect(result).not.toHaveProperty('revisions');
+    expect(h.generateRevision).not.toHaveBeenCalled();
+  });
+
+  it('claims one, generates it, and saves it under the same lease with its usage', async () => {
+    const h = revisionHarness();
+    const result = await runStudioWorker({ limit: 3 }, h.dependencies);
+    expect(h.history).toEqual(['claim_revision', 'generate_revision', 'persist_revision']);
+    expect(result.revisions).toEqual({ claimed: 1, completed: 1, retried: 0, needsAttention: 0 });
+    expect(result.errors).toEqual([]);
+    const [claim, finish] = h.calls;
+    expect(finish).toMatchObject({ name: 'studio_finish_revision', p_order_id: STUDIO_TEST_ORDER_ID, p_lease_token: claim.p_lease_token, p_usage: usage });
+    expect(result.completed).toBe(0);
+    expect(result.deliveriesSent).toBe(0);
+  });
+
+  it('records a failure with its usage only when the provider was reached', async () => {
+    const reached = revisionHarness({ fails: 'after_provider' });
+    const first = await runStudioWorker({ limit: 1 }, reached.dependencies);
+    expect(reached.history).toEqual(['claim_revision', 'generate_revision', 'fail_revision']);
+    expect(reached.calls[1]).toMatchObject({ name: 'studio_fail_revision', p_error_code: 'brand_output_incomplete', p_usage: usage });
+    expect(first.revisions).toEqual({ claimed: 1, completed: 0, retried: 1, needsAttention: 0 });
+    expect(first.errors).toEqual([`${STUDIO_TEST_ORDER_ID}:revision:brand_output_incomplete`]);
+    const refused = revisionHarness({ fails: 'before_provider', failStatus: 'needs_attention' });
+    const second = await runStudioWorker({ limit: 1 }, refused.dependencies);
+    expect(refused.calls[1]).toMatchObject({ name: 'studio_fail_revision', p_error_code: 'model_budget_exhausted', p_usage: null });
+    expect(second.revisions).toEqual({ claimed: 1, completed: 0, retried: 0, needsAttention: 1 });
+  });
+
+  it('never reports a save it did not make, and never generates for an order that is gone or refunded', async () => {
+    const lost = revisionHarness({ commitLost: true });
+    const first = await runStudioWorker({ limit: 1 }, lost.dependencies);
+    expect(lost.history).toEqual(['claim_revision', 'generate_revision', 'persist_revision', 'fail_revision']);
+    expect(first.revisions?.completed).toBe(0);
+    expect(first.errors).toEqual([`${STUDIO_TEST_ORDER_ID}:revision:revision_lease_lost`]);
+    const gone = revisionHarness({ orderGone: true });
+    const second = await runStudioWorker({ limit: 1 }, gone.dependencies);
+    expect(gone.generateRevision).not.toHaveBeenCalled();
+    expect(second.errors).toEqual([`${STUDIO_TEST_ORDER_ID}:revision:revision_order_not_ready`]);
   });
 });

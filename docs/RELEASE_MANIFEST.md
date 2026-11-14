@@ -23,6 +23,12 @@ Full head commits: #2 `73ed664526112511c4d15ca44b8bd9e3cd47d7c2`, #3 `b612d88133
 
 Two cautions about the table. The runs for #2, #3 and #4 date from October. On 2026-11-13 the dependency audit failed on their lockfile, on the advisory that #5 fixes, so a re-run would stop there and their passes are not current evidence. The run shown for #5 is a push run: its base is a `build/` branch, which the workflow does not trigger on for pull requests.
 
+### Added after this recording
+
+Stacked on #11 in the same way, each an open draft with its Verify run green on its head: #12 `rebuild/brand-first-run-20261113` (`bc0b333`), the flow that explains itself; #13 `rebuild/brand-placements-20261113` (`5fc62de`), the kit shown in placeholder placements; #14 `rebuild/paid-page-put-to-work-20261113` (`dcf1fe8`), the steps on the paid order page and plain words in the saved kit; #15 `rebuild/one-revision-20261113` (see the pull request), the server half of the one revision. #15 adds the migration `20261114021500_studio_order_revisions_v1`, applied to no database, and the flag `BRAND_KIT_REVISIONS_ENABLED`, off by default.
+
+Hosted state changed since the recording: the acceptance database no longer has the temporary `http` extension, and the branch `rebuild/acceptance` has four non-secret Preview variables. A preview read `paymentMode: "live"` on 2026-11-13, so no checkout flag has been set anywhere.
+
 ## bootfile-growth-agent
 
 | PR | Branch | Head | State |

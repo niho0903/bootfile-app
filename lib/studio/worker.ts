@@ -1,10 +1,11 @@
 import { randomUUID } from 'node:crypto';
-import { assertStudioWorkerConfigured, studioDailyGenerationLimit } from './config';
+import { assertStudioWorkerConfigured, studioDailyGenerationLimit, studioRevisionsEnabled } from './config';
 import { getStudioOrder, studioRpc } from './db';
 import { sendStudioDelivery } from './delivery';
 import { studioErrorCode, StudioError } from './errors';
 import { generateForOrder, StudioGenerationError, type StudioDispatchResult } from './dispatch';
-import type { StudioDeliveryRow, StudioOrderRow } from './types';
+import { generateRevisionForOrder } from './revisions';
+import type { StudioDeliveryRow, StudioOrderRow, StudioRevisionRow } from './types';
 
 export interface StudioWorkerResult {
   claimed: number;
@@ -14,6 +15,8 @@ export interface StudioWorkerResult {
   deliveriesSent: number;
   deliveryFailures: number;
   errors: string[];
+  /** Present only while the revision allowance is open. */
+  revisions?: { claimed: number; completed: number; retried: number; needsAttention: number };
 }
 
 export interface StudioWorkerDependencies {
@@ -22,9 +25,15 @@ export interface StudioWorkerDependencies {
   generate: (order: StudioOrderRow) => Promise<StudioDispatchResult>;
   deliver: (order: StudioOrderRow) => Promise<string>;
   assertConfigured: () => void;
+  /** Both optional: a caller that leaves them out runs no revision work. */
+  revisionsEnabled?: () => boolean;
+  generateRevision?: (order: StudioOrderRow, revision: StudioRevisionRow) => Promise<Pick<StudioDispatchResult, 'usage'> & { output: StudioDispatchResult['output'] }>;
 }
 
-const defaults: StudioWorkerDependencies = { rpc: studioRpc, getOrder: getStudioOrder, generate: generateForOrder, deliver: sendStudioDelivery, assertConfigured: assertStudioWorkerConfigured };
+const defaults: StudioWorkerDependencies = {
+  rpc: studioRpc, getOrder: getStudioOrder, generate: generateForOrder, deliver: sendStudioDelivery, assertConfigured: assertStudioWorkerConfigured,
+  revisionsEnabled: studioRevisionsEnabled, generateRevision: (order, revision) => generateRevisionForOrder(order, revision),
+};
 
 /** Durable claims, fenced commits and a receipt ledger; safe to invoke concurrently or after a crash. */
 export async function runStudioWorker(
@@ -60,6 +69,45 @@ export async function runStudioWorker(
       } catch (persistenceError) {
         // Do not fake success. The expired lease makes this job recoverable next run.
         result.errors.push(`${order.id}:${studioErrorCode(persistenceError)}`);
+      }
+    }
+  }
+
+  // The one revision a Brand & AI Kit order may use. Closed unless its own flag is on. The same durable
+  // pattern as an order: claim under a lease, generate, commit under the lease, or record the failure.
+  const generateRevision = dependencies.generateRevision;
+  if (generateRevision && dependencies.revisionsEnabled?.()) {
+    const revisions = { claimed: 0, completed: 0, retried: 0, needsAttention: 0 };
+    result.revisions = revisions;
+    // One per run: a revision is a full provider call, and an order may already have used this run's time.
+    for (let i = 0; i < 1; i += 1) {
+      const leaseToken = randomUUID();
+      let revision: StudioRevisionRow | undefined;
+      try {
+        revision = (await dependencies.rpc<StudioRevisionRow[]>('studio_claim_revision', { p_lease_token: leaseToken, p_daily_limit: studioDailyGenerationLimit() }))?.[0];
+        if (!revision) break;
+        revisions.claimed += 1;
+        const order = await dependencies.getOrder(revision.order_id);
+        if (!order || !order.output || order.payment_status !== 'paid' || order.refund_status !== 'none') throw new StudioError('revision_order_not_ready', 'The order cannot be revised.');
+        const generated = await generateRevision(order, revision);
+        const committed = await dependencies.rpc<boolean>('studio_finish_revision', { p_order_id: revision.order_id, p_lease_token: leaseToken, p_output: generated.output, p_usage: generated.usage });
+        if (!committed) throw new StudioError('revision_lease_lost', 'This worker no longer owns the revision.');
+        revisions.completed += 1;
+      } catch (error) {
+        const code = studioErrorCode(error);
+        result.errors.push(revision ? `${revision.order_id}:revision:${code}` : `revision:${code}`);
+        if (!revision) break;
+        try {
+          const status = await dependencies.rpc<string>('studio_fail_revision', {
+            p_order_id: revision.order_id, p_lease_token: leaseToken, p_error_code: code,
+            p_usage: error instanceof StudioGenerationError ? error.usage : null,
+          });
+          if (status === 'needs_attention') revisions.needsAttention += 1;
+          if (status === 'queued') revisions.retried += 1;
+        } catch (persistenceError) {
+          // Do not fake success. The expired lease makes this revision recoverable next run.
+          result.errors.push(`${revision.order_id}:revision:${studioErrorCode(persistenceError)}`);
+        }
       }
     }
   }
